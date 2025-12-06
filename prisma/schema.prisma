@@ -1,0 +1,429 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////////////
+// privilegeS DE USUARIO Y USUARIOS
+//////////////////////////////
+
+model tbprivileges {
+  PK_privilege      Int       @id @default(autoincrement())
+  privilegeName     String    @unique //Ingeniero de sistema
+  privilegeCode String    @unique //  SYS_IS
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? 
+  actionHistory Json?
+  tbusers      tbusers[]
+}
+// EJEMPLO DE CODIGO DE PRIVILEGIOS
+  //     "SYS_IS", Ingeniero de sistemas
+  //     "SYS_AD", Administrador
+
+// USUARIOS DE SISTEMA
+model tbusers {
+  PK_user           Int       @id @default(autoincrement())
+  FK_privilege      Int
+  firstName         String
+  lastName          String
+  email             String    @unique
+  phoneNumber       String?
+  password          String
+  isActive          Boolean   @default(true)
+  lastLogin         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime? 
+  actionHistory     Json?
+
+  tbprivileges           tbprivileges   @relation(fields: [FK_privilege], references: [PK_privilege])
+  tbdevices         tbdevices?
+  tbpushsubscriptions tbpushsubscriptions[]
+  tbaddresses       tbaddresses[]
+  tborders          tborders[]
+  tbpayments        tbpayments[]
+  tbreviews         tbreviews[]
+  tbattendances         tbattendances[]
+
+}
+// DISPOSITIVOS
+
+model tbdevices {
+  PK_device  Int       @id @default(autoincrement())
+  FK_user    Int       @unique
+  devices    Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? 
+  tbusers    tbusers   @relation(fields: [FK_user], references: [PK_user])
+}
+
+
+// NOTIFICACIONES
+
+model tbpushsubscriptions {
+  PK_pushsubscription Int       @id @default(autoincrement())
+  FK_user             Int
+  endpoint            String    @unique
+  auth                String
+  p256dh              String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime?
+
+  tbusers             tbusers   @relation(fields: [FK_user], references: [PK_user])
+}
+
+//////////////////////////////
+// SUCURSALES
+//////////////////////////////
+
+model tbbranches {
+  PK_branch     Int       @id @default(autoincrement())
+  name          String // Rousboutique-America
+  phone         String?
+  address       String //Ubicacion
+  city          String //Ciudad = Cercado
+  department    String //Departamento = Cochabamba
+  latitude      Float
+  longitude     Float
+  openingHours  Json?     // Horarios semanales en JSON
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? 
+  actionHistory Json?
+  // FALTA ENCARGADO DE SUCURSAL
+  tbinventories tbinventories[]
+}
+// HORARIOS DE DIAS ESPECIALES DE LA SUCURSAL
+
+model tbbranchspecialdays {
+  PK_specialday Int       @id @default(autoincrement())
+  FK_branch     Int
+  date          DateTime  // Fecha exacta (solo fecha, sin hora)
+  isClosed      Boolean   @default(false)  // Si la sucursal está cerrada todo el día
+  openingTime   String?   // "09:00" - solo si no está cerrado todo el día
+  closingTime   String?   // "18:00" - solo si no está cerrado todo el día
+  notes         String?   // Comentarios o motivo (p.ej. "Feriado nacional")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? 
+  actionHistory Json?
+  
+  tbbranches    tbbranches @relation(fields: [FK_branch], references: [PK_branch])
+}
+
+
+// Asistencia
+
+model tbattendances {
+  PK_attendance   Int       @id @default(autoincrement())
+  FK_user    Int
+  date           String //Fecha 
+  checkIn    DateTime
+  checkOut   DateTime?
+  device    String // Dispositivo del cual se toma la asistencia
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  actionHistory  Json?
+  tbusers    tbusers @relation(fields: [FK_user], references: [PK_user])
+}
+
+model tbpayrolls {
+  PK_payroll    Int       @id @default(autoincrement())
+  FK_user  Int
+  periodStart   DateTime
+  periodEnd     DateTime
+  baseSalary    Float
+  bonuses       Float?
+  deductions    Float?
+  netSalary     Float
+  status        String    // Pagado, Pendiente
+  paymentDate   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+  actionHistory Json?
+
+}
+// GENERO
+model tbgenders {
+  PK_gender   Int      @id @default(autoincrement())
+  gender        String   @unique  // Ej: Hombre, Mujer, Niño, Unisex
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime?
+  actionHistory Json?
+  tbcategories tbcategories[]  // Relación 1:N (un género muchas categorías)
+}
+
+//////////////////////////////
+// CATEGORÍAS Y ATRIBUTOS (para productos tipo ropa, zapatos, etc)
+//////////////////////////////
+
+model tbcategories {
+  PK_category  Int       @id @default(autoincrement())
+  FK_gender    Int       // FK a tbgenders
+  category         String
+  slug         String    @unique // URL unico en minuscula y con "-" como separador
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? 
+  actionHistory Json?
+
+  tbgenders    tbgenders  @relation(fields: [FK_gender], references: [PK_gender])
+}
+
+
+model tbattributes {
+  PK_attribute Int       @id @default(autoincrement())
+  attribute         String    // Ej: Color, Talla, Material
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  tbattributevalues tbattributevalues[]
+}
+
+model tbattributevalues {
+  PK_value       Int       @id @default(autoincrement())
+  FK_attribute   Int
+  value          String    // Ej: Rojo, M, Algodón
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  tbattributes   tbattributes @relation(fields: [FK_attribute], references: [PK_attribute])
+}
+
+//////////////////////////////
+// PRODUCTOS Y VARIANTES
+//////////////////////////////
+
+model tbproducts {
+  PK_product      Int       @id @default(autoincrement())
+  sku             String    @unique
+  name            String
+  slug            String    @unique
+  description     String?
+  price           Float
+  weight          Float?
+  length          Float?
+  width           Float?
+  height          Float?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+  actionHistory   Json?
+
+  tbinventories         tbinventories[]
+  tbproductcategories   tbproductcategories[]
+  tbproductvariants     tbproductvariants[]
+  tborderitems          tborderitems[]
+  tbreviews             tbreviews[]
+}
+
+model tbproductcategories {
+  PK_productcategory Int    @id @default(autoincrement())
+  FK_product         Int
+  FK_category        Int
+
+  tbproducts         tbproducts   @relation(fields: [FK_product], references: [PK_product])
+  tbcategories       tbcategories @relation(fields: [FK_category], references: [PK_category])
+}
+
+model tbproductvariants {
+  PK_variant      Int       @id @default(autoincrement())
+  FK_product      Int
+  sku             String    @unique
+  price           Float?
+  stockQuantity   Int       @default(0)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  tbproducts      tbproducts @relation(fields: [FK_product], references: [PK_product])
+  tbvariantattributes tbvariantattributes[]
+}
+
+model tbvariantattributes {
+  PK_variantattribute Int    @id @default(autoincrement())
+  FK_variant          Int
+  FK_attributevalue   Int
+
+  tbproductvariants   tbproductvariants @relation(fields: [FK_variant], references: [PK_variant])
+  tbattributevalues   tbattributevalues @relation(fields: [FK_attributevalue], references: [PK_value])
+}
+
+//////////////////////////////
+// INVENTARIO POR SUCURSAL Y VARIANTE DE PRODUCTO
+//////////////////////////////
+
+model tbinventories {
+  PK_inventory  Int       @id @default(autoincrement())
+  FK_productvariant Int
+  FK_branch     Int
+  quantity      Int       @default(0)
+  reserved      Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  tbproductvariants tbproductvariants @relation(fields: [FK_productvariant], references: [PK_variant])
+  tbbranches       tbbranches         @relation(fields: [FK_branch], references: [PK_branch])
+}
+
+//////////////////////////////
+// PEDIDOS Y ITEMS
+//////////////////////////////
+
+model tborders {
+  PK_order        Int       @id @default(autoincrement())
+  FK_user         Int
+  orderNumber     String    @unique
+  status          String    @default("Pending")
+  totalAmount     Float
+  paymentMethod   String?
+  shippingMethod  String?
+  shippingCost    Float?
+  FK_billingAddress  Int?
+  FK_shippingAddress Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+  actionHistory   Json?
+
+  tbusers         tbusers    @relation(fields: [FK_user], references: [PK_user])
+  tbaddressesBilling  tbaddresses? @relation("billingAddress", fields: [FK_billingAddress], references: [PK_address])
+  tbaddressesShipping tbaddresses? @relation("shippingAddress", fields: [FK_shippingAddress], references: [PK_address])
+  tborderitems    tborderitems[]
+  tbpayments      tbpayments[]
+  tbshipments    tbshipments[]
+}
+
+model tborderitems {
+  PK_orderitem   Int       @id @default(autoincrement())
+  FK_order       Int
+  FK_productvariant Int
+  quantity       Int
+  unitPrice      Float
+  totalPrice     Float
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  tborders         tborders       @relation(fields: [FK_order], references: [PK_order])
+  tbproductvariants tbproductvariants @relation(fields: [FK_productvariant], references: [PK_variant])
+}
+
+//////////////////////////////
+// DIRECCIONES DE USUARIO
+//////////////////////////////
+
+model tbaddresses {
+  PK_address     Int       @id @default(autoincrement())
+  FK_user        Int
+  label          String?   // Casa, Oficina, etc.
+  address1       String
+  address2       String?
+  city           String
+  state          String?
+  country        String
+  postalCode     String
+  latitude       Float?
+  longitude      Float?
+  isDefault      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  tbusers        tbusers   @relation(fields: [FK_user], references: [PK_user])
+}
+
+//////////////////////////////
+// PAGOS
+//////////////////////////////
+
+model tbpayments {
+  PK_payment     Int       @id @default(autoincrement())
+  FK_order       Int
+  amount         Float
+  paymentDate    DateTime  @default(now())
+  paymentMethod  String
+  transactionId  String?   @unique
+  status         String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+  actionHistory  Json?
+
+  tborders       tborders  @relation(fields: [FK_order], references: [PK_order])
+}
+
+//////////////////////////////
+// ENVIOS Y SEGUIMIENTO
+//////////////////////////////
+
+model tbshipments {
+  PK_shipment     Int       @id @default(autoincrement())
+  FK_order        Int
+  trackingNumber  String?   @unique
+  carrier         String?
+  status          String
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+  actionHistory   Json?
+
+  tborders        tborders  @relation(fields: [FK_order], references: [PK_order])
+}
+
+//////////////////////////////
+// RESEÑAS DE PRODUCTOS
+//////////////////////////////
+
+model tbreviews {
+  PK_review     Int       @id @default(autoincrement())
+  FK_product    Int
+  FK_user       Int
+  rating        Int       // 1 a 5
+  title         String?
+  content       String?
+  isApproved    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  tbproducts    tbproducts @relation(fields: [FK_product], references: [PK_product])
+  tbusers       tbusers    @relation(fields: [FK_user], references: [PK_user])
+}
+
+//////////////////////////////
+// RESERVAS (para productos o servicios)
+//////////////////////////////
+
+model tbreservations {
+  PK_reservation Int       @id @default(autoincrement())
+  FK_user        Int
+  FK_productvariant Int?
+  reservationDate DateTime
+  quantity       Int
+  status         String    // Pendiente, Confirmada, Cancelada
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+  notes         String?
+
+  tbusers       tbusers      @relation(fields: [FK_user], references: [PK_user])
+  tbproductvariants tbproductvariants? @relation(fields: [FK_productvariant], references: [PK_variant])
+}
+
+//////////////////////////////
+// MOVIMIENTOS DE INVENTARIO (Entradas, Salidas, Ajustes)
+//////////////////////////////
+
+model tbstockmovements {
+  PK_movement     Int       @id @default(autoincrement())
+  FK_productvariant Int
+  FK_branch       Int
+  movementType    String    // Entrada, Salida, Ajuste
+  quantity        Int
+  reason          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+  actionHistory   Json?
+
+  tbproductvariants tbproductvariants @relation(fields: [FK_productvariant], references: [PK_variant])
+  tbbranches       tbbranches         @relation(fields: [FK_branch], references: [PK_branch])
+}
