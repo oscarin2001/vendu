@@ -9,9 +9,9 @@ import Footer from "@/components/marketing/landing/Footer";
 
 export default function MarketingLandingPage() {
   return (
-    <div>
+    <div className="min-h-screen w-full">
       <MarketingNavbar />
-      <main className="pt-16">
+      <main className="pt-16 w-full">
         <Hero />
         <FeaturesSection />
         <CasesSection />

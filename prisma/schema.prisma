@@ -353,6 +353,7 @@ model tbbranches {
   address      String
   city         String
   department   String?
+  country      String? // País de la sucursal
   latitude     Float?
   longitude    Float?
   openingHours Json? // Horarios semanales en JSON
@@ -583,7 +584,9 @@ model tbproductvariants {
 model tbcompanies {
   PK_company Int      @id @default(autoincrement())
   name       String // Nombre comercial de la empresa
+  slug       String @unique
   taxId      String? // NIT/CUIT/CI del contribuyente
+  country    String? // País de operación
   createdAt  DateTime @default(now())
 
   // Relaciones: sucursales, usuarios, empleados, productos

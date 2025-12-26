@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/Button";
 export default function MarketingHero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6 py-24">
+      <div className="w-full px-6 md:px-12 py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
+          <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">
               Toma el control total de tu inventario y ventas en un solo lugar
             </h1>
@@ -38,7 +38,7 @@ export default function MarketingHero() {
           </div>
 
           <div className="order-first md:order-last">
-            <div className="rounded-xl bg-gradient-to-tr from-indigo-50 to-slate-50 p-6 shadow-lg">
+            <div className="rounded-xl bg-gradient-to-tr from-indigo-50 to-slate-50 p-6 shadow-lg w-full">
               <div className="aspect-video w-full overflow-hidden rounded-md bg-white">
                 {/* Mock screenshot area; replace with real image */}
                 <div className="flex h-full items-center justify-center text-slate-400">

@@ -43,14 +43,16 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="mx-auto max-w-7xl px-6 py-16">
-      <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-        Lo que hace Vendu por tu negocio
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {features.map((f) => (
-          <FeatureCard key={f.title} title={f.title} desc={f.desc} />
-        ))}
+    <section id="features" className="w-full px-6 py-16">
+      <div className="w-full">
+        <h2 className="text-2xl font-semibold text-slate-900 mb-6">
+          Lo que hace Vendu por tu negocio
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((f) => (
+            <FeatureCard key={f.title} title={f.title} desc={f.desc} />
+          ))}
+        </div>
       </div>
     </section>
   );

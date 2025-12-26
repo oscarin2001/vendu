@@ -1,0 +1,140 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Field, FieldLabel } from "@/components/ui/field";
+
+interface FiscalFormProps {
+  initialData: { taxId: string; businessName: string; fiscalAddress: string };
+  onComplete: (data: {
+    taxId: string;
+    businessName: string;
+    fiscalAddress: string;
+  }) => void;
+  onBack: () => void;
+  onDataChange?: (data: {
+    taxId: string;
+    businessName: string;
+    fiscalAddress: string;
+  }) => void;
+}
+
+export function FiscalForm({
+  initialData,
+  onComplete,
+  onBack,
+  onDataChange,
+}: FiscalFormProps) {
+  const [taxId, setTaxId] = useState(initialData.taxId || "");
+  const [businessName, setBusinessName] = useState(
+    initialData.businessName || ""
+  );
+  const [fiscalAddress, setFiscalAddress] = useState(
+    initialData.fiscalAddress || ""
+  );
+  const [errors, setErrors] = useState<{
+    taxId?: string;
+    businessName?: string;
+    fiscalAddress?: string;
+  }>({});
+
+  // Save data whenever it changes
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange({ taxId, businessName, fiscalAddress });
+    }
+  }, [taxId, businessName, fiscalAddress]); // Removed onDataChange from dependencies
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    // Fiscal data is optional, so no validation required
+    // But if any field is filled, we could validate format, but for now, keep simple
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onComplete({
+        taxId,
+        businessName,
+        fiscalAddress,
+      });
+    }
+  };
+
+  const handleSkip = () => {
+    onComplete({
+      taxId: "",
+      businessName: "",
+      fiscalAddress: "",
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <Field>
+        <FieldLabel htmlFor="taxId">NIT / RUC</FieldLabel>
+        <Input
+          id="taxId"
+          value={taxId}
+          onChange={(e) => setTaxId(e.target.value)}
+          placeholder="123456789"
+        />
+        {errors.taxId && (
+          <p className="text-sm text-red-600 mt-1">{errors.taxId}</p>
+        )}
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="businessName">Razón social</FieldLabel>
+        <Input
+          id="businessName"
+          value={businessName}
+          onChange={(e) => setBusinessName(e.target.value)}
+          placeholder="Mi Empresa S.A."
+        />
+        {errors.businessName && (
+          <p className="text-sm text-red-600 mt-1">{errors.businessName}</p>
+        )}
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="fiscalAddress">Dirección fiscal</FieldLabel>
+        <Input
+          id="fiscalAddress"
+          value={fiscalAddress}
+          onChange={(e) => setFiscalAddress(e.target.value)}
+          placeholder="Calle Fiscal 789"
+        />
+        {errors.fiscalAddress && (
+          <p className="text-sm text-red-600 mt-1">{errors.fiscalAddress}</p>
+        )}
+      </Field>
+
+      <div className="flex space-x-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          className="flex-1"
+        >
+          Atrás
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSkip}
+          className="flex-1"
+        >
+          Saltar
+        </Button>
+        <Button type="submit" className="flex-1">
+          Siguiente
+        </Button>
+      </div>
+    </form>
+  );
+}

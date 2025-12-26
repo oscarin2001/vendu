@@ -14,15 +14,19 @@ export default function MobileMenu({
   return (
     <Modal open={open} onClose={onClose}>
       <nav className="flex flex-col gap-4">
-          <Link href="/features" onClick={onClose} className="text-lg font-medium">
-            Características
-          </Link>
-          <Link href="/pricing" onClick={onClose} className="text-lg font-medium">
-            Precios
-          </Link>
-          <Link href="/cases" onClick={onClose} className="text-lg font-medium">
-            Casos
-          </Link>
+        <Link
+          href="/features"
+          onClick={onClose}
+          className="text-lg font-medium"
+        >
+          Características
+        </Link>
+        <Link href="/pricing" onClick={onClose} className="text-lg font-medium">
+          Precios
+        </Link>
+        <Link href="/cases" onClick={onClose} className="text-lg font-medium">
+          Casos
+        </Link>
         <div className="mt-4 flex flex-col gap-2">
           <Link href="/staff-access" onClick={onClose} className="text-center">
             Iniciar sesión

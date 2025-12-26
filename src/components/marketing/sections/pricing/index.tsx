@@ -1,8 +1,22 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 
-function PriceCard({ title, price, bullets }: { title: string; price: string; bullets: string[] }) {
+function PriceCard({
+  title,
+  price,
+  bullets,
+}: {
+  title: string;
+  price: string;
+  bullets: string[];
+}) {
   return (
     <Card>
       <CardHeader>
@@ -45,14 +59,21 @@ export default function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="mx-auto max-w-7xl px-6 py-16">
-      <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-        Precios claros, sin sorpresas
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {plans.map((p) => (
-          <PriceCard key={p.title} title={p.title} price={p.price} bullets={p.bullets} />
-        ))}
+    <section id="pricing" className="w-full px-6 py-16">
+      <div className="w-full">
+        <h2 className="text-2xl font-semibold text-slate-900 mb-6">
+          Precios claros, sin sorpresas
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {plans.map((p) => (
+            <PriceCard
+              key={p.title}
+              title={p.title}
+              price={p.price}
+              bullets={p.bullets}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

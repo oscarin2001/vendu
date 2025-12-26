@@ -19,11 +19,11 @@ export default function MarketingNavbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 w-full ${
         scrolled ? "bg-white/95 shadow-md" : "bg-transparent"
       } backdrop-blur`}
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="px-6 w-full">
         <nav className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-xl font-bold text-indigo-600">
