@@ -24,6 +24,21 @@
 .DS_Store
 *.pem
 
+# local databases and editors
+dev.db
+dev.db-journal
+.vscode/
+.idea/
+
+# build outputs
+.next/
+out/
+
+# logs
+logs/
+*.log
+
+
 # debug
 npm-debug.log*
 yarn-debug.log*
