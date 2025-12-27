@@ -3,6 +3,12 @@
 import { AdminSidebarHeader } from "./AdminSidebarHeader";
 import { AdminSidebarNav } from "./AdminSidebarNav";
 import { AdminSidebarFooter } from "./AdminSidebarFooter";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 interface AdminSidebarProps {
   organizationName?: string;
@@ -18,14 +24,19 @@ export function AdminSidebar({
   onLogout
 }: AdminSidebarProps) {
   return (
-    <div className="flex flex-col h-full w-64 bg-background border-r">
-      <AdminSidebarHeader
-        organizationName={organizationName}
-        userFirstName={userFirstName}
-        userLastName={userLastName}
-      />
-      <AdminSidebarNav />
-      <AdminSidebarFooter onLogout={onLogout} />
-    </div>
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent>
+          <AdminSidebarHeader
+            organizationName={organizationName}
+            userFirstName={userFirstName}
+            userLastName={userLastName}
+          />
+          <AdminSidebarNav />
+          <AdminSidebarFooter onLogout={onLogout} />
+        </SidebarContent>
+      </Sidebar>
+      <SidebarTrigger />
+    </SidebarProvider>
   );
 }
