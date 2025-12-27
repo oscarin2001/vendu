@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,12 +15,17 @@ import {
 } from "lucide-react";
 
 interface ConfirmationProps {
-  data: any;
-  onComplete: () => void;
-  onBack: () => void;
+  data?: any;
+  onComplete?: () => void;
+  onBack?: () => void;
 }
 
-export function Confirmation({ data, onComplete, onBack }: ConfirmationProps) {
+export function Confirmation({
+  data = {},
+  onComplete = () => {},
+  onBack = () => {},
+}: ConfirmationProps) {
+  const router = useRouter();
   const summaryItems = [
     {
       icon: Building2,
@@ -61,11 +67,11 @@ export function Confirmation({ data, onComplete, onBack }: ConfirmationProps) {
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       {/* Header */}
       <div className="text-center space-y-4">
-        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-          <CheckCircle className="w-8 h-8 text-green-600" />
+        <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
+          <CheckCircle className="w-8 h-8 text-emerald-700" />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-green-600">¡Todo listo!</h3>
+          <h3 className="text-2xl font-bold text-emerald-700">¡Todo listo!</h3>
           <p className="text-muted-foreground mt-2">
             Tu empresa está configurada y lista para comenzar
           </p>
@@ -82,39 +88,25 @@ export function Confirmation({ data, onComplete, onBack }: ConfirmationProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {summaryItems.map((item, index) => {
-            const Icon = item.icon;
             return (
               <div
                 key={item.label}
                 className="flex items-center justify-between p-3 rounded-lg bg-muted/50 animate-in slide-in-from-left duration-300"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-full ${
-                      item.status === "success"
-                        ? "bg-green-100 text-green-600"
-                        : item.status === "warning"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : "bg-blue-100 text-blue-600"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.value}
-                    </p>
-                  </div>
+                <div>
+                  <p className="font-medium text-sm">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.value}
+                  </p>
                 </div>
                 <CheckCircle
                   className={`w-5 h-5 ${
                     item.status === "success"
-                      ? "text-green-500"
+                      ? "text-emerald-700"
                       : item.status === "warning"
                       ? "text-yellow-500"
-                      : "text-blue-500"
+                      : "text-emerald-600"
                   }`}
                 />
               </div>
@@ -129,8 +121,13 @@ export function Confirmation({ data, onComplete, onBack }: ConfirmationProps) {
           Revisar
         </Button>
         <Button
-          onClick={onComplete}
-          className="flex-1 bg-green-600 hover:bg-green-700"
+          onClick={() => {
+            onComplete();
+            // TODO: Obtener tenantId real del contexto o localStorage
+            const tenantId = "vendu-srl"; // Mock por ahora
+            router.push(`/dashboard/${tenantId}/admin`);
+          }}
+          className="flex-1 bg-emerald-500 hover:bg-emerald-800"
         >
           Comenzar
           <ArrowRight className="w-4 h-4 ml-2" />
