@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
+import { AdminBreadcrumbs } from "@/components/admin/shared/AdminBreadcrumbs";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function AdminLayout({
@@ -29,6 +30,7 @@ export default function AdminLayout({
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
+          <AdminBreadcrumbs />
         </header>
         <div className="p-6">{children}</div>
       </SidebarInset>
