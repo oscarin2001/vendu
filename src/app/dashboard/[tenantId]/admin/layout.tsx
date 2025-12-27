@@ -1,7 +1,7 @@
 "use client";
 
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function AdminLayout({
   children,
@@ -12,11 +12,11 @@ export default function AdminLayout({
   // Por ahora, datos mock
   const mockUser = {
     firstName: "Oscar",
-    lastName: "Flores"
+    lastName: "Flores",
   };
 
   const mockOrganization = {
-    name: "Vendu S.R.L."
+    name: "Vendu S.R.L.",
   };
 
   return (
@@ -27,9 +27,10 @@ export default function AdminLayout({
         userLastName={mockUser.lastName}
       />
       <SidebarInset>
-        <div className="p-6">
-          {children}
-        </div>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+        </header>
+        <div className="p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
