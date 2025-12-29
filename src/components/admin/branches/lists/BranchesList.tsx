@@ -62,7 +62,7 @@ export function BranchesList({ branches, onEdit, onDelete }: BranchesListProps) 
                 {branch.name}
               </CardTitle>
               <Badge variant={branch.isWarehouse ? "secondary" : "default"}>
-                {branch.isWarehouse ? "Warehouse" : "Store"}
+                {branch.isWarehouse ? "Bodega" : "Tienda"}
               </Badge>
             </div>
           </CardHeader>

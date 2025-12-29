@@ -1,5 +1,6 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
 import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBreadcrumbs";
 import {
@@ -13,6 +14,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const params = useParams();
+  const tenantId = params.tenantId as string;
+
   // TODO: Obtener datos reales del usuario y organización
   // Por ahora, datos mock
   const mockUser = {
@@ -30,6 +34,7 @@ export default function AdminLayout({
         organizationName={mockOrganization.name}
         userFirstName={mockUser.firstName}
         userLastName={mockUser.lastName}
+        tenantId={tenantId}
       />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">

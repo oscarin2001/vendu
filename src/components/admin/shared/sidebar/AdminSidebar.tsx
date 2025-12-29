@@ -14,6 +14,7 @@ interface AdminSidebarProps {
   organizationName?: string;
   userFirstName?: string;
   userLastName?: string;
+  tenantId?: string;
   onLogout?: () => void;
 }
 
@@ -21,13 +22,14 @@ export function AdminSidebar({
   organizationName,
   userFirstName,
   userLastName,
+  tenantId,
   onLogout,
 }: AdminSidebarProps) {
   return (
     <Sidebar side="left" variant="inset" collapsible="icon">
       <SidebarContent>
         <AdminSidebarHeader organizationName={organizationName} />
-        <AdminSidebarNav />
+        <AdminSidebarNav tenantId={tenantId} />
         <AdminSidebarFooter
           userFirstName={userFirstName}
           userLastName={userLastName}

@@ -27,71 +27,71 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebarToolbar } from "./SidebarToolbarContext";
 
-const navigationGroups = [
-  {
-    title: "Principal",
-    items: [
-      {
-        title: "Dashboard",
-        url: "/admin",
-        icon: LayoutDashboard,
-      },
-    ],
-  },
-  {
-    title: "Gestión",
-    items: [
-      {
-        title: "Empresa",
-        url: "/admin/company",
-        icon: Building2,
-      },
-      {
-        title: "Sucursales",
-        url: "/admin/branches",
-        icon: MapPin,
-      },
-    ],
-  },
-  {
-    title: "Equipo",
-    collapsible: true,
-    items: [
-      {
-        title: "Encargados",
-        url: "/admin/managers",
-        icon: Users,
-      },
-      {
-        title: "Empleados",
-        url: "/admin/employees",
-        icon: UserCheck,
-      },
-    ],
-  },
-  {
-    title: "Sistema",
-    items: [
-      {
-        title: "Configuración",
-        url: "/admin/settings",
-        icon: Settings,
-      },
-      {
-        title: "Reportes",
-        url: "/admin/reports",
-        icon: BarChart3,
-      },
-    ],
-  },
-];
-
-export function AdminSidebarNav() {
+export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   const pathname = usePathname();
   const { setTitle, setBreadcrumbs } = useSidebarToolbar();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Personal: true, // Default open
   });
+
+  const navigationGroups = [
+    {
+      title: "Principal",
+      items: [
+        {
+          title: "Dashboard",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin` : "/admin",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Gestión",
+      items: [
+        {
+          title: "Empresa",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/company` : "/admin/company",
+          icon: Building2,
+        },
+        {
+          title: "Sucursales",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/branches` : "/admin/branches",
+          icon: MapPin,
+        },
+      ],
+    },
+    {
+      title: "Equipo",
+      collapsible: true,
+      items: [
+        {
+          title: "Encargados",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/managers` : "/admin/managers",
+          icon: Users,
+        },
+        {
+          title: "Empleados",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/employees` : "/admin/employees",
+          icon: UserCheck,
+        },
+      ],
+    },
+    {
+      title: "Sistema",
+      items: [
+        {
+          title: "Configuración",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/settings` : "/admin/settings",
+          icon: Settings,
+        },
+        {
+          title: "Reportes",
+          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/reports` : "/admin/reports",
+          icon: BarChart3,
+        },
+      ],
+    },
+  ];
 
   const toggleGroup = (title: string) => {
     setOpenGroups((prev) => ({

@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface CompanyFormProps {
   initialData?: {
     name: string;
-    nit?: string;
+    taxId?: string;
     country: string;
-    address: string;
+    address?: string;
   };
   onSubmit?: (data: any) => void;
   isLoading?: boolean;
@@ -20,7 +20,7 @@ interface CompanyFormProps {
 export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormProps) {
   const [formData, setFormData] = useState(initialData || {
     name: "",
-    nit: "",
+    taxId: "",
     country: "",
     address: "",
   });
@@ -53,11 +53,11 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
               />
             </div>
             <div>
-              <Label htmlFor="nit">NIT</Label>
+              <Label htmlFor="taxId">NIT</Label>
               <Input
-                id="nit"
-                value={formData.nit}
-                onChange={(e) => handleChange("nit", e.target.value)}
+                id="taxId"
+                value={formData.taxId}
+                onChange={(e) => handleChange("taxId", e.target.value)}
                 placeholder="Número de identificación tributaria"
               />
             </div>
@@ -78,7 +78,6 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                 value={formData.address}
                 onChange={(e) => handleChange("address", e.target.value)}
                 placeholder="Dirección de la empresa"
-                required
               />
             </div>
           </div>
