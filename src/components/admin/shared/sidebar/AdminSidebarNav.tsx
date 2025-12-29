@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -92,6 +92,33 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       ],
     },
   ];
+
+  // Function to get breadcrumbs based on current pathname
+  const getBreadcrumbsForPath = (path: string) => {
+    // Find the matching navigation item
+    for (const group of navigationGroups) {
+      for (const item of group.items) {
+        if (path === item.url || (item.url !== "/admin" && path.startsWith(item.url))) {
+          return {
+            title: item.title,
+            breadcrumbs: group.title === "Principal" ? [item.title] : [group.title, item.title]
+          };
+        }
+      }
+    }
+    // Default fallback
+    return {
+      title: "Dashboard",
+      breadcrumbs: ["Dashboard"]
+    };
+  };
+
+  // Update breadcrumbs when pathname changes
+  useEffect(() => {
+    const { title, breadcrumbs } = getBreadcrumbsForPath(pathname);
+    setTitle(title);
+    setBreadcrumbs(breadcrumbs);
+  }, [pathname, setTitle, setBreadcrumbs]);
 
   const toggleGroup = (title: string) => {
     setOpenGroups((prev) => ({
