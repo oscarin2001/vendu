@@ -118,7 +118,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                           : pathname.startsWith(item.url)
                       }
                       onClick={() => {
-                        const crumbs = [item.title];
+                        const crumbs = group.title === "Principal" ? [item.title] : [group.title, item.title];
                         setBreadcrumbs(crumbs);
                         setTitle(item.title);
                       }}
@@ -157,7 +157,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                             asChild
                             isActive={pathname.startsWith(subItem.url)}
                             onClick={() => {
-                              const crumbs = [subItem.title];
+                              const crumbs = [group.title, subItem.title];
                               setBreadcrumbs(crumbs);
                               setTitle(subItem.title);
                             }}
