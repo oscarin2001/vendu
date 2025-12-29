@@ -73,6 +73,7 @@ export async function getBranchesByCompany(tenantId: string) {
         }
       : null,
     createdAt: branch.createdAt,
+    updatedAt: branch.updatedAt,
   }));
 }
 

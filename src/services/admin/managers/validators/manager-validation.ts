@@ -6,8 +6,8 @@ export const createManagerSchema = z.object({
   ci: z.string().min(1, "CI is required"),
   phone: z.string().optional(),
   email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  salary: z.number().min(0, "Salary must be positive"),
+  password: z.string().min(8, "Password must be at least 8 characters").regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
+  salary: z.number().min(0, "Salary must be positive").optional(),
   branchId: z.number().optional(),
 });
 

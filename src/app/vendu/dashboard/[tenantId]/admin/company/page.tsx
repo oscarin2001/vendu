@@ -1,162 +1,115 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
-import { CompanyForm } from "@/components/admin/company/forms/CompanyForm";
-import { CompanyOverview } from "@/components/admin/company/cards/CompanyOverview";
-import { SubscriptionCard } from "@/components/admin/company/cards/SubscriptionCard";
-import { Button } from "@/components/ui/Button";
-import { ArrowLeft } from "lucide-react";
-import {
-  getCompanyByTenant,
-  updateCompany,
-  getCompanySubscription,
-} from "@/services/admin/company/services/company-service";
+import { CompanyMetrics } from "@/components/admin/company/components/CompanyMetrics";
+import { CompanyOverview } from "@/components/admin/company/components/CompanyOverview";
+import { CompanyDetailsModal } from "@/components/admin/company/components/modals/CompanyDetailsModal";
+import { CompanyEditModal } from "@/components/admin/company/components/modals/CompanyEditModal";
+import { useCompany } from "@/services/admin/company/hooks/useCompany";
 
 export default function CompanyPage() {
   const params = useParams();
   const tenantId = params.tenantId as string;
 
-  const [companyData, setCompanyData] = useState<any>(null);
-  const [subscriptionData, setSubscriptionData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  // Custom hook for company logic
+  const {
+    company,
+    subscription,
+    metrics,
+    isLoading,
+    error,
+    updateCompanyData,
+  } = useCompany(tenantId);
 
-  useEffect(() => {
-    loadCompanyData();
-  }, [tenantId]);
+  // Modal states
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const loadCompanyData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const [company, subscription] = await Promise.all([
-        getCompanyByTenant(tenantId),
-        getCompanySubscription(tenantId),
-      ]);
-
-      setCompanyData({
-        name: company.name,
-        taxId: company.taxId,
-        country: company.country,
-      });
-
-      setSubscriptionData(
-        subscription
-          ? {
-              plan: subscription.planType,
-              status: subscription.status,
-              nextPaymentDate: subscription.nextBillingDate
-                .toISOString()
-                .split("T")[0],
-              amount: getPlanAmount(subscription.planType),
-            }
-          : null
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load company data"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getPlanAmount = (planType: string) => {
-    const amounts = {
-      BASIC: 29,
-      PRO: 99,
-      ENTERPRISE: 299,
-    };
-    return amounts[planType as keyof typeof amounts] || 0;
-  };
-
-  const handleUpdateCompany = async (data: any) => {
-    try {
-      await updateCompany(tenantId, data);
-      await loadCompanyData(); // Recargar datos
-      setIsEditing(false); // Volver a modo vista
-      alert("Empresa actualizada exitosamente");
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al actualizar la empresa");
-    }
+  // Modal handlers
+  const handleViewDetails = () => {
+    setIsDetailsModalOpen(true);
   };
 
   const handleEditCompany = () => {
-    setIsEditing(true);
+    setIsEditModalOpen(true);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
-
-  const handleUpgradePlan = () => {
-    alert("Plan upgrade functionality coming soon");
-  };
-
-  const handleCancelSubscription = () => {
-    if (confirm("Are you sure you want to cancel your subscription?")) {
-      alert("Subscription cancellation functionality coming soon");
+  const handleEditSubmit = async (data: any) => {
+    try {
+      await updateCompanyData(data);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      // Error is handled by the hook
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Gestión de Empresa</h1>
+          <p className="text-muted-foreground">
+            Administra la información básica de tu empresa
+          </p>
+        </div>
+        <div className="text-center py-8">
+          <div className="text-red-500 mb-4">
+            Error al cargar los datos de la empresa
+          </div>
+          <div className="text-sm text-muted-foreground">{error}</div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {isEditing ? "Editar Empresa" : "Gestión de Empresa"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing
-              ? "Actualiza la información de tu empresa"
-              : "Administra la información básica de tu empresa y suscripción"
-            }
-          </p>
-        </div>
-        {isEditing && (
-          <Button variant="outline" onClick={handleCancelEdit} className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Cancelar
-          </Button>
-        )}
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Gestión de Empresa</h1>
+        <p className="text-muted-foreground">
+          Administra la información básica de tu empresa y suscripción
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {isEditing ? (
-          <CompanyForm
-            initialData={companyData}
-            onSubmit={handleUpdateCompany}
-            isLoading={isLoading}
-          />
-        ) : (
+      {/* Metrics */}
+      <CompanyMetrics metrics={metrics} isLoading={isLoading} />
+
+      {/* Main Content */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <CompanyOverview
-            companyData={companyData}
+            company={company}
+            subscription={subscription}
+            isLoading={isLoading}
+            onViewDetails={handleViewDetails}
             onEdit={handleEditCompany}
           />
-        )}
+        </div>
 
-        {subscriptionData && (
-          <SubscriptionCard
-            plan={subscriptionData.plan}
-            status={subscriptionData.status}
-            nextPaymentDate={subscriptionData.nextPaymentDate}
-            amount={subscriptionData.amount}
-            onUpgrade={handleUpgradePlan}
-            onCancel={handleCancelSubscription}
-          />
-        )}
+        {/* Additional content can go here */}
+        <div className="space-y-6">
+          {/* Future: Quick actions, recent activity, etc. */}
+        </div>
       </div>
+
+      {/* Details Modal */}
+      <CompanyDetailsModal
+        company={company}
+        subscription={subscription}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
+
+      {/* Edit Modal */}
+      <CompanyEditModal
+        company={company}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditSubmit}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

@@ -1,196 +1,200 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/Button";
-import { Plus } from "lucide-react";
-import { BranchesList } from "@/components/admin/branches/lists/BranchesList";
+import { BranchesMetrics } from "@/components/admin/branches/components/BranchesMetrics";
+import { BranchesFilters } from "@/components/admin/branches/components/BranchesFilters";
+import { BranchesTable } from "@/components/admin/branches/components/BranchesTable";
+import { BranchDetailsModal } from "@/components/admin/branches/components/modals/BranchDetailsModal";
+import { DeleteBranchDialog } from "@/components/admin/branches/components/modals/DeleteBranchDialog";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
-import {
-  getBranchesByCompany,
-  createBranch,
-  updateBranch,
-  deleteBranch,
-} from "@/services/admin/branches/services/branch-service";
-import { getManagersByCompany } from "@/services/admin/managers/services/manager-service";
-
-interface Branch {
-  id: number;
-  name: string;
-  isWarehouse: boolean;
-  phone: string | null;
-  address: string;
-  city: string;
-  department: string | null;
-  country: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  openingHours: any;
-  manager: {
-    id: number;
-    name: string;
-    email: string;
-  } | null;
-  createdAt: Date;
-}
+import { useBranches } from "@/services/admin/branches/hooks/useBranches";
+import { Branch } from "@/services/admin/branches/types/branch.types";
 
 export default function BranchesPage() {
   const params = useParams();
   const tenantId = params.tenantId as string;
 
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Custom hook for branches logic
+  const {
+    branches,
+    managers,
+    metrics,
+    isLoading,
+    filters,
+    setFilters,
+    createBranch,
+    updateBranch,
+    deleteBranch,
+  } = useBranches(tenantId);
+
+  // Modal states
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [tenantId]);
+  // Modal handlers
+  const handleCreateBranch = () => {
+    setIsCreateModalOpen(true);
+  };
 
-  const loadData = async () => {
+  const handleViewBranch = (branch: Branch) => {
+    setSelectedBranch(branch);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleEditBranch = (branch: Branch) => {
+    setSelectedBranch(branch);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteBranch = (branch: Branch) => {
+    setSelectedBranch(branch);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedBranch) return;
+
+    setIsDeleting(true);
     try {
-      setIsLoading(true);
-      setError(null);
-      const [branchesData, managersData] = await Promise.all([
-        getBranchesByCompany(tenantId),
-        getManagersByCompany(tenantId),
-      ]);
-      setBranches(branchesData);
-      setManagers(
-        managersData.map((m: any) => ({ id: m.id, name: m.fullName }))
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load data");
+      await deleteBranch(selectedBranch.id);
+      setIsDeleteDialogOpen(false);
+      setSelectedBranch(null);
+    } catch (error) {
+      // Error is handled by the hook
     } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   };
 
-  const handleCreateBranch = async (data: any) => {
+  const handleCreateSubmit = async (data: any) => {
     try {
-      await createBranch(tenantId, data);
-      await loadData();
+      await createBranch(data);
       setIsCreateModalOpen(false);
-      toast.success("Sucursal creada exitosamente");
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al crear sucursal"
-      );
+    } catch (error) {
+      // Error is handled by the hook
     }
   };
 
-  const handleEditBranch = async (data: any) => {
-    if (!editingBranch) return;
+  const handleEditSubmit = async (data: any) => {
+    if (!selectedBranch) return;
+
     try {
-      await updateBranch(editingBranch.id, data);
-      await loadData();
-      setEditingBranch(null);
-      toast.success("Sucursal actualizada exitosamente");
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al actualizar sucursal"
-      );
+      await updateBranch(selectedBranch.id, data);
+      setIsEditModalOpen(false);
+      setSelectedBranch(null);
+    } catch (error) {
+      // Error is handled by the hook
     }
   };
-
-  const handleDeleteBranch = async (branchId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar esta sucursal?")) {
-      return;
-    }
-    try {
-      await deleteBranch(parseInt(branchId));
-      await loadData();
-      toast.success("Sucursal eliminada exitosamente");
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al eliminar sucursal"
-      );
-    }
-  };
-
-  if (isLoading) {
-    return <div>Cargando...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Sucursales</h1>
-          <p className="text-muted-foreground">
-            Gestiona tus sucursales y bodegas.
-          </p>
-        </div>
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Sucursal
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Crear Nueva Sucursal</DialogTitle>
-            </DialogHeader>
-            <BranchForm
-              managers={managers}
-              onSubmit={handleCreateBranch}
-              mode="create"
-            />
-          </DialogContent>
-        </Dialog>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Gestión de Sucursales</h1>
+        <p className="text-muted-foreground">
+          Administra todas tus tiendas y bodegas desde un solo lugar.
+        </p>
       </div>
 
-      <BranchesList
-        branches={branches}
-        onEdit={(branchId) => {
-          const branch = branches.find((b) => b.id.toString() === branchId);
-          if (branch) setEditingBranch(branch);
-        }}
-        onDelete={handleDeleteBranch}
+      {/* Metrics */}
+      <BranchesMetrics metrics={metrics} isLoading={isLoading} />
+
+      {/* Filters and Actions */}
+      <BranchesFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        onCreateBranch={handleCreateBranch}
       />
 
-      <Dialog
-        open={!!editingBranch}
-        onOpenChange={(open) => !open && setEditingBranch(null)}
-      >
+      {/* Table */}
+      <BranchesTable
+        branches={branches}
+        isLoading={isLoading}
+        onViewBranch={handleViewBranch}
+        onEditBranch={handleEditBranch}
+        onDeleteBranch={handleDeleteBranch}
+      />
+
+      {/* Create Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Sucursal</DialogTitle>
+          </DialogHeader>
+          <BranchForm
+            managers={managers}
+            onSubmit={handleCreateSubmit}
+            isLoading={isLoading}
+            mode="create"
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Sucursal</DialogTitle>
           </DialogHeader>
-          {editingBranch && (
+          {selectedBranch && (
             <BranchForm
               initialData={{
-                name: editingBranch.name,
-                isWarehouse: editingBranch.isWarehouse,
-                phone: editingBranch.phone || "",
-                address: editingBranch.address,
-                city: editingBranch.city,
-                department: editingBranch.department || "",
-                country: editingBranch.country || "",
-                managerId: editingBranch.manager?.id,
+                name: selectedBranch.name,
+                isWarehouse: selectedBranch.isWarehouse,
+                phone: selectedBranch.phone || "",
+                address: selectedBranch.address,
+                city: selectedBranch.city,
+                department: selectedBranch.department || "",
+                country: selectedBranch.country || "",
+                managerId: selectedBranch.manager?.id,
               }}
               managers={managers}
-              onSubmit={handleEditBranch}
+              onSubmit={handleEditSubmit}
+              isLoading={isLoading}
               mode="edit"
+              branchInfo={{
+                id: selectedBranch.id,
+                createdAt: selectedBranch.createdAt,
+                updatedAt: selectedBranch.updatedAt,
+              }}
             />
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Details Modal */}
+      <BranchDetailsModal
+        branch={selectedBranch}
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedBranch(null);
+        }}
+      />
+
+      {/* Delete Confirmation */}
+      <DeleteBranchDialog
+        branch={selectedBranch}
+        isOpen={isDeleteDialogOpen}
+        isDeleting={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedBranch(null);
+        }}
+      />
     </div>
   );
 }

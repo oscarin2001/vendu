@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
 import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBreadcrumbs";
 import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/SidebarToolbarContext";
+import { getCompanyData } from "@/services/admin/company/services/company-api";
 import {
   SidebarProvider,
   SidebarInset,
@@ -30,14 +31,8 @@ export default function AdminLayout({
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
-        const response = await fetch(`/api/company/${tenantId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setCompanyData(data);
-        } else {
-          // Fallback to default name if API fails
-          setCompanyData({ name: "Empresa" });
-        }
+        const data = await getCompanyData(tenantId);
+        setCompanyData(data);
       } catch (error) {
         console.error("Error fetching company data:", error);
         setCompanyData({ name: "Empresa" });

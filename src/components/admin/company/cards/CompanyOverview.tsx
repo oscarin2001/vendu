@@ -1,4 +1,4 @@
-"use client";
+    "use client";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,7 +76,8 @@ export function CompanyOverview({ companyData, onEdit }: CompanyOverviewProps) {
 
         <div className="pt-4 border-t">
           <p className="text-sm text-muted-foreground">
-            Mantén actualizada la información de tu empresa para una mejor experiencia en la plataforma.
+            Mantén actualizada la información de tu empresa para una mejor
+            experiencia en la plataforma.
           </p>
         </div>
       </CardContent>
