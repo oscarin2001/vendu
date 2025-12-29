@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { LoadingOverlay } from "@/components/ui/loading";
 import { Stepper } from "./onboarding/Stepper";
 import { AuthStep } from "./AuthStep";
 import { OnboardingFlow } from "./OnboardingFlow";
+import { completeCompanyRegistrationAction } from "@/services/auth/company-registration/actions";
+import { Receipt } from "lucide-react";
 
 export default function AuthForm() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<
     | "auth"
     | "company-name"
@@ -20,6 +25,11 @@ export default function AuthForm() {
   >("auth");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [tenantId, setTenantId] = useState<string>("");
+  const [credentials, setCredentials] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
   const [onboardingData, setOnboardingData] = useState({
     companyName: { name: "", country: "", phone: "" },
     owner: { firstName: "", lastName: "", phone: "", ci: "", gender: "" },
@@ -54,10 +64,27 @@ export default function AuthForm() {
 
       // Show resume notification
       setTimeout(() => {
-        toast.info("¡Bienvenido de vuelta! Continuemos con el registro de tu empresa.", {
-          description: `Continuando desde el paso: ${getStepLabel(savedStep)}`,
-        });
+        toast.info(
+          "¡Bienvenido de vuelta! Continuemos con el registro de tu empresa.",
+          {
+            description: `Continuando desde el paso: ${getStepLabel(
+              savedStep
+            )}`,
+          }
+        );
       }, 1000);
+    }
+
+    // Restore saved credentials
+    const savedCredentials = localStorage.getItem("onboarding-credentials");
+    if (savedCredentials) {
+      try {
+        const parsedCredentials = JSON.parse(savedCredentials);
+        setCredentials(parsedCredentials);
+      } catch (error) {
+        console.error("Error parsing saved credentials:", error);
+        localStorage.removeItem("onboarding-credentials");
+      }
     }
 
     if (savedData) {
@@ -66,23 +93,34 @@ export default function AuthForm() {
         setOnboardingData(parsedData);
       } catch (error) {
         console.error("Error parsing saved onboarding data:", error);
-        toast.error("Error al cargar datos guardados. Comenzaremos desde el inicio.");
+        toast.error(
+          "Error al cargar datos guardados. Comenzaremos desde el inicio."
+        );
         // Clear corrupted data
         localStorage.removeItem("onboarding-step");
         localStorage.removeItem("onboarding-data");
+        localStorage.removeItem("onboarding-credentials");
       }
     }
   }, []);
+
+  // Get tenantId from URL params
+  useEffect(() => {
+    const tenantIdParam = searchParams.get("tenantId");
+    if (tenantIdParam) {
+      setTenantId(tenantIdParam);
+    }
+  }, [searchParams]);
 
   // Helper function to get step labels
   const getStepLabel = (step: string) => {
     const labels: Record<string, string> = {
       "company-name": "Nombre de la empresa",
-      "owner": "Información del propietario",
-      "branch": "Sucursal principal",
-      "warehouse": "Bodega",
-      "fiscal": "Información fiscal",
-      "confirmation": "Confirmación",
+      owner: "Información del propietario",
+      branch: "Sucursal principal",
+      warehouse: "Bodega",
+      fiscal: "Información fiscal",
+      confirmation: "Confirmación",
     };
     return labels[step] || step;
   };
@@ -99,6 +137,9 @@ export default function AuthForm() {
     username: string;
     password: string;
   }) => {
+    setCredentials(credentials);
+    // Save credentials to localStorage for persistence
+    localStorage.setItem("onboarding-credentials", JSON.stringify(credentials));
     setCurrentStep("company-name");
     localStorage.setItem("onboarding-step", "company-name");
   };
@@ -129,16 +170,48 @@ export default function AuthForm() {
     } else {
       // Final step - complete registration
       try {
-        // TODO: Call completeCompanyRegistrationAction
-        console.log("Registration complete");
+        if (!credentials) {
+          console.error("No credentials found in state - redirecting to auth");
+          toast.error(
+            "Sesión expirada. Por favor, comienza el registro nuevamente."
+          );
+          // Reset to auth step
+          setCurrentStep("auth");
+          localStorage.removeItem("onboarding-step");
+          localStorage.removeItem("onboarding-data");
+          localStorage.removeItem("onboarding-credentials");
+          return;
+        }
+
+        const result = await completeCompanyRegistrationAction({
+          username: credentials.username,
+          password: credentials.password,
+          companyName: onboardingData.companyName,
+          owner: onboardingData.owner,
+          branch: onboardingData.branch,
+          warehouse: onboardingData.warehouse,
+          fiscal: onboardingData.fiscal,
+        });
+
+        if (result.success) {
+          toast.success("¡Empresa registrada exitosamente!");
+          router.push(`/vendu/dashboard/${result.tenantId}/admin`);
+        } else {
+          console.log("Registration failed, result:", result);
+        }
 
         // Clear localStorage
         localStorage.removeItem("onboarding-step");
         localStorage.removeItem("onboarding-data");
-
-        // TODO: Redirect to dashboard
+        localStorage.removeItem("onboarding-credentials");
       } catch (error) {
         console.error("Error completing registration:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Error al completar el registro. Inténtalo de nuevo.";
+        toast.error(errorMessage);
+        // Don't redirect on error, let user retry
       }
     }
 
@@ -170,7 +243,11 @@ export default function AuthForm() {
       <LoadingOverlay isVisible={isLoading} text="Guardando información..." />
 
       {/* ================= LEFT: FORM ================= */}
-      <div className="flex items-center justify-center px-6">
+      <div className="flex items-center justify-center px-6 relative">
+        <div className="absolute top-6 left-6 flex items-center gap-2">
+          <Receipt className="h-8 w-8 text-primary" />
+          <span className="font-semibold text-lg">Vendu</span>
+        </div>
         <div
           className={cn(
             "w-full max-w-md rounded-xl border bg-background p-8 shadow-sm flex flex-col gap-6"
@@ -180,7 +257,13 @@ export default function AuthForm() {
           {currentStep !== "auth" && <Stepper currentStep={currentStep} />}
 
           {currentStep === "auth" ? (
-            <AuthStep onRegistrationSuccess={handleRegistrationSuccess} />
+            <Suspense
+              fallback={
+                <div className="flex justify-center p-4">Cargando...</div>
+              }
+            >
+              <AuthStep onRegistrationSuccess={handleRegistrationSuccess} />
+            </Suspense>
           ) : (
             <OnboardingFlow
               currentStep={currentStep}
@@ -188,6 +271,7 @@ export default function AuthForm() {
               onStepComplete={handleStepComplete}
               onStepBack={handleStepBack}
               onDataChange={saveOnboardingData}
+              tenantId={tenantId}
             />
           )}
         </div>

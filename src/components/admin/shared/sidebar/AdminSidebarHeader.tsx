@@ -1,33 +1,29 @@
 "use client";
 
-import { AdminSidebarAvatar } from "./AdminSidebarAvatar";
+import Link from "next/link";
 
 interface AdminSidebarHeaderProps {
   organizationName?: string;
-  userFirstName?: string;
-  userLastName?: string;
 }
 
 export function AdminSidebarHeader({
   organizationName = "Mi Organización",
-  userFirstName,
-  userLastName
 }: AdminSidebarHeaderProps) {
   return (
-    <div className="flex items-center gap-3 px-4 py-6 border-b">
-      <AdminSidebarAvatar
-        firstName={userFirstName}
-        lastName={userLastName}
-        className="h-10 w-10"
-      />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground truncate">
-          {userFirstName} {userLastName}
-        </p>
-        <p className="text-xs text-muted-foreground truncate">
+    <div className="flex items-center gap-3 px-4 py-2 border-b">
+      <Link
+        href="/admin"
+        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+      >
+        {/* If you have a Logo component, it will render here; otherwise show initials via CSS */}
+        <div className="h-8 w-8 rounded-md bg-emerald-600 flex items-center justify-center text-white font-semibold">
+          {organizationName.charAt(0) || "V"}
+        </div>
+        <span className="hidden md:inline text-sm font-bold truncate group-data-[collapsible=icon]:hidden">
           {organizationName}
-        </p>
-      </div>
+        </span>
+      </Link>
+      <div className="ml-auto" />
     </div>
   );
 }

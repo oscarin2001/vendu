@@ -8,21 +8,21 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PhoneInput } from "@/components/ui/phone-input";
 
 interface OwnerFormProps {
-  initialData: {
+  initialData?: {
     firstName: string;
     lastName: string;
     phone: string;
     ci: string;
     gender: string;
   };
-  onComplete: (data: {
+  onComplete?: (data: {
     firstName: string;
     lastName: string;
     phone: string;
     ci: string;
     gender: string;
   }) => void;
-  onBack: () => void;
+  onBack?: () => void;
   onDataChange?: (data: {
     firstName: string;
     lastName: string;
@@ -33,9 +33,9 @@ interface OwnerFormProps {
 }
 
 export function OwnerForm({
-  initialData,
-  onComplete,
-  onBack,
+  initialData = { firstName: "", lastName: "", phone: "", ci: "", gender: "" },
+  onComplete = () => {},
+  onBack = () => {},
   onDataChange,
 }: OwnerFormProps) {
   const [firstName, setFirstName] = useState(initialData.firstName || "");

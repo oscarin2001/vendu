@@ -18,6 +18,9 @@ export default function MarketingHero() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
+              <Button variant="outline">
+                <Link href="/register-company?mode=login">Iniciar sesión</Link>
+              </Button>
               <Button>
                 <Link href="/register-company">Registrar mi empresa</Link>
               </Button>

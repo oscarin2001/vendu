@@ -11,7 +11,7 @@ interface AdminSidebarAvatarProps {
 export function AdminSidebarAvatar({
   firstName = "U",
   lastName = "U",
-  className
+  className,
 }: AdminSidebarAvatarProps) {
   // Función para obtener iniciales
   const getInitials = (first: string, last: string) => {

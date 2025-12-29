@@ -50,6 +50,7 @@ interface OnboardingFlowProps {
   onStepComplete: (step: string, data: any) => void;
   onStepBack: () => void;
   onDataChange: (data: Partial<OnboardingFlowProps["onboardingData"]>) => void;
+  tenantId: string;
 }
 
 export function OnboardingFlow({
@@ -58,6 +59,7 @@ export function OnboardingFlow({
   onStepComplete,
   onStepBack,
   onDataChange,
+  tenantId,
 }: OnboardingFlowProps) {
   return (
     <>
@@ -69,7 +71,6 @@ export function OnboardingFlow({
           <CompanyNameForm
             initialData={onboardingData.companyName}
             onComplete={(data: any) => onStepComplete("companyName", data)}
-            onBack={onStepBack}
             onDataChange={(data) => onDataChange({ companyName: data })}
           />
         </AnimatedTransition>
@@ -131,6 +132,7 @@ export function OnboardingFlow({
             data={onboardingData}
             onComplete={() => onStepComplete("confirmation", {})}
             onBack={onStepBack}
+            tenantId={tenantId}
           />
         </AnimatedTransition>
       )}

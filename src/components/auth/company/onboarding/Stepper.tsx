@@ -19,7 +19,7 @@ const steps = [
   { name: "Confirmación", path: "confirmation", icon: CheckCircle },
 ];
 
-export function Stepper({ currentStep }: { currentStep: string }) {
+export function Stepper({ currentStep }: { currentStep?: string }) {
   const getCurrentStepIndex = () => {
     return steps.findIndex((step) => step.path === currentStep);
   };
@@ -41,9 +41,9 @@ export function Stepper({ currentStep }: { currentStep: string }) {
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                     isCompleted
-                      ? "bg-green-500 text-white shadow-lg"
+                      ? "bg-emerald-700 text-white shadow-lg"
                       : isCurrent
-                      ? "bg-primary text-primary-foreground shadow-lg animate-pulse"
+                      ? "bg-emerald-500 text-white shadow-lg animate-pulse"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
@@ -62,7 +62,7 @@ export function Stepper({ currentStep }: { currentStep: string }) {
               {index < steps.length - 1 && (
                 <div
                   className={`w-8 h-0.5 mx-2 transition-colors duration-300 ${
-                    isCompleted ? "bg-green-500" : "bg-muted"
+                    isCompleted ? "bg-emerald-700" : "bg-muted"
                   }`}
                 />
               )}

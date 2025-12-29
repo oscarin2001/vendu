@@ -5,11 +5,11 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 
 export default function MobileMenu({
-  open,
-  onClose,
+  open = false,
+  onClose = () => {},
 }: {
-  open: boolean;
-  onClose: () => void;
+  open?: boolean;
+  onClose?: () => void;
 }) {
   return (
     <Modal open={open} onClose={onClose}>
@@ -28,7 +28,11 @@ export default function MobileMenu({
           Casos
         </Link>
         <div className="mt-4 flex flex-col gap-2">
-          <Link href="/staff-access" onClick={onClose} className="text-center">
+          <Link
+            href="/register-company?mode=login"
+            onClick={onClose}
+            className="text-center"
+          >
             Iniciar sesión
           </Link>
           <div className="text-center">

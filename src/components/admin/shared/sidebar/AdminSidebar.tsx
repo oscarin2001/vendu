@@ -1,12 +1,12 @@
 "use client";
 
+import * as React from "react";
 import { AdminSidebarHeader } from "./AdminSidebarHeader";
 import { AdminSidebarNav } from "./AdminSidebarNav";
 import { AdminSidebarFooter } from "./AdminSidebarFooter";
 import {
   Sidebar,
   SidebarContent,
-  SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
@@ -21,22 +21,20 @@ export function AdminSidebar({
   organizationName,
   userFirstName,
   userLastName,
-  onLogout
+  onLogout,
 }: AdminSidebarProps) {
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarContent>
-          <AdminSidebarHeader
-            organizationName={organizationName}
-            userFirstName={userFirstName}
-            userLastName={userLastName}
-          />
-          <AdminSidebarNav />
-          <AdminSidebarFooter onLogout={onLogout} />
-        </SidebarContent>
-      </Sidebar>
-      <SidebarTrigger />
-    </SidebarProvider>
+    <Sidebar side="left" variant="inset" collapsible="icon">
+      <SidebarContent>
+        <AdminSidebarHeader organizationName={organizationName} />
+        <AdminSidebarNav />
+        <AdminSidebarFooter
+          userFirstName={userFirstName}
+          userLastName={userLastName}
+          onLogout={onLogout}
+        />
+      </SidebarContent>
+      {/* trigger moved to footer to keep a single visible control below the avatar */}
+    </Sidebar>
   );
 }

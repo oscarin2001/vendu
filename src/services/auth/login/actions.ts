@@ -2,27 +2,48 @@
 
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-// TODO: import login service or database check
+import { prisma } from "../../../lib/prisma";
 
-export async function loginAction(formData: FormData) {
-  const username = String(formData.get("username") || "");
+export async function loginAction(prevState: any, formData: FormData) {
+  const username = String(formData.get("username") || "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") || "");
 
   if (!username || !password) {
-    throw new Error("Usuario y contraseña son obligatorios");
+    return { error: new Error("Usuario y contraseña son obligatorios") };
   }
 
-  // TODO: Implement login logic, check user in database, verify password
-  // For now, assume success and redirect
-  // This is placeholder
+  // Find user in database
+  const user = await prisma.tbauth.findUnique({
+    where: { username },
+    include: {
+      company: true,
+      privilege: true,
+    },
+  });
 
-  // Example: const user = await prisma.user.findUnique({ where: { username } });
-  // if (!user || !await bcrypt.compare(password, user.passwordHash)) {
-  //   throw new Error("Credenciales inválidas");
-  // }
+  if (!user) {
+    return { error: new Error("Usuario o contraseña inválidos") };
+  }
 
-  // redirect(`/(dashboard)/${user.tenantId}/admin`);
+  // Verify password
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    return { error: new Error("Usuario o contraseña inválidos") };
+  }
 
-  // Placeholder redirect
-  redirect(`/(dashboard)/1/admin`); // TODO: get actual tenantId
+  // Check if user is active
+  if (!user.isActive) {
+    return { error: new Error("Cuenta inactiva") };
+  }
+
+  // Get tenantId from company slug
+  const tenantId = user.company?.slug;
+  if (!tenantId) {
+    return { error: new Error("No se pudo determinar el tenant") };
+  }
+
+  // Redirect to dashboard
+  redirect(`/vendu/dashboard/${tenantId}/admin`);
 }

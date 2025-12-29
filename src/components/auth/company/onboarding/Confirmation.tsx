@@ -18,12 +18,14 @@ interface ConfirmationProps {
   data?: any;
   onComplete?: () => void;
   onBack?: () => void;
+  tenantId?: string;
 }
 
 export function Confirmation({
   data = {},
   onComplete = () => {},
   onBack = () => {},
+  tenantId = "",
 }: ConfirmationProps) {
   const router = useRouter();
   const summaryItems = [
@@ -96,9 +98,7 @@ export function Confirmation({
               >
                 <div>
                   <p className="font-medium text-sm">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.value}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{item.value}</p>
                 </div>
                 <CheckCircle
                   className={`w-5 h-5 ${
@@ -116,18 +116,13 @@ export function Confirmation({
       </Card>
 
       {/* Actions */}
-      <div className="flex gap-4">
-        <Button variant="outline" onClick={onBack} className="flex-1">
-          Revisar
-        </Button>
+      <div className="flex justify-center">
         <Button
           onClick={() => {
             onComplete();
-            // TODO: Obtener tenantId real del contexto o localStorage
-            const tenantId = "vendu-srl"; // Mock por ahora
-            router.push(`/dashboard/${tenantId}/admin`);
+            // Redirection will be handled by the parent component after registration completes
           }}
-          className="flex-1 bg-emerald-500 hover:bg-emerald-800"
+          className="bg-emerald-500 hover:bg-emerald-800 px-8"
         >
           Comenzar
           <ArrowRight className="w-4 h-4 ml-2" />

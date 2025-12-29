@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/Input";
 import { Field, FieldLabel } from "@/components/ui/field";
 
 interface FiscalFormProps {
-  initialData: { taxId: string; businessName: string; fiscalAddress: string };
-  onComplete: (data: {
+  initialData?: { taxId: string; businessName: string; fiscalAddress: string };
+  onComplete?: (data: {
     taxId: string;
     businessName: string;
     fiscalAddress: string;
   }) => void;
-  onBack: () => void;
+  onBack?: () => void;
   onDataChange?: (data: {
     taxId: string;
     businessName: string;
@@ -21,9 +21,9 @@ interface FiscalFormProps {
 }
 
 export function FiscalForm({
-  initialData,
-  onComplete,
-  onBack,
+  initialData = { taxId: "", businessName: "", fiscalAddress: "" },
+  onComplete = () => {},
+  onBack = () => {},
   onDataChange,
 }: FiscalFormProps) {
   const [taxId, setTaxId] = useState(initialData.taxId || "");
@@ -122,14 +122,6 @@ export function FiscalForm({
           className="flex-1"
         >
           Atrás
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleSkip}
-          className="flex-1"
-        >
-          Saltar
         </Button>
         <Button type="submit" className="flex-1">
           Siguiente

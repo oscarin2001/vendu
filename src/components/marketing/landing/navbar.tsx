@@ -44,7 +44,7 @@ export default function MarketingNavbar() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/staff-access"
+              href="/register-company?mode=login"
               className="text-sm text-slate-700 hover:underline"
             >
               Iniciar sesión

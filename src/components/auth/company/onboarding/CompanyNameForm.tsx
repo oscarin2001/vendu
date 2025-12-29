@@ -25,9 +25,8 @@ const countries = [
 ];
 
 interface CompanyNameFormProps {
-  initialData: { name: string; country: string; phone: string };
-  onComplete: (data: { name: string; country: string; phone: string }) => void;
-  onBack: () => void;
+  initialData?: { name: string; country: string; phone: string };
+  onComplete?: (data: { name: string; country: string; phone: string }) => void;
   onDataChange?: (data: {
     name: string;
     country: string;
@@ -36,9 +35,8 @@ interface CompanyNameFormProps {
 }
 
 export function CompanyNameForm({
-  initialData,
-  onComplete,
-  onBack,
+  initialData = { name: "", country: "", phone: "" },
+  onComplete = () => {},
   onDataChange,
 }: CompanyNameFormProps) {
   const [name, setName] = useState(initialData.name || "");
@@ -127,18 +125,8 @@ export function CompanyNameForm({
           <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
         )}
       </Field>
-      <div className="flex space-x-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}
-          className="flex-1"
-        >
-          Atrás
-        </Button>
-        <Button type="submit" className="flex-1">
-          Siguiente
-        </Button>
+      <div className="flex justify-end">
+        <Button type="submit">Siguiente</Button>
       </div>
     </form>
   );

@@ -3,7 +3,17 @@
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { registerCompany } from "../../tenant/company-service";
-import { normalizeBranchInput } from "../../organization/branch-service";
+import { checkUsernameExists } from "../../tenant/repos/tenant-repo";
+import { normalizeBranchInput } from "../../admin/branches/utils/branch-utils";
+
+/**
+ * Server action to check if username already exists
+ */
+export async function checkUsernameAction(username: string): Promise<boolean> {
+  "use server";
+  if (!username) return false;
+  return await checkUsernameExists(username.trim().toLowerCase());
+}
 
 /**
  * Server action for company registration
@@ -12,7 +22,9 @@ import { normalizeBranchInput } from "../../organization/branch-service";
 export async function registerCompanyAction(formData: FormData) {
   const name = String(formData.get("name") || "");
   const taxId = formData.get("taxId")?.toString() || undefined;
-  const username = String(formData.get("username") || "");
+  const username = String(formData.get("username") || "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") || "");
   const fullName = formData.get("fullName")?.toString() || undefined;
 
@@ -39,7 +51,7 @@ export async function registerCompanyAction(formData: FormData) {
     branch,
   });
 
-  const tenantId = result.company.PK_company;
+  const tenantId = result.company.slug;
   redirect(
     `/register-company/onboarding-auth-company/company-name?tenantId=${tenantId}`
   );
@@ -94,6 +106,12 @@ export async function completeCompanyRegistrationAction(formData: {
     throw new Error("Faltan campos obligatorios");
   }
 
+  // Check if username already exists before attempting registration
+  const usernameExists = await checkUsernameExists(username);
+  if (usernameExists) {
+    throw new Error("Este usuario ya está registrado. Intenta iniciar sesión.");
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   // Prepare branch data
@@ -114,6 +132,6 @@ export async function completeCompanyRegistrationAction(formData: {
     branch: branchData,
   });
 
-  const tenantId = result.company.PK_company;
+  const tenantId = result.company.slug;
   return { success: true, tenantId };
 }

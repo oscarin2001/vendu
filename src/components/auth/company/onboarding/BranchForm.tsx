@@ -26,7 +26,7 @@ const countries = [
 ];
 
 interface BranchFormProps {
-  initialData: {
+  initialData?: {
     name: string;
     address: string;
     city: string;
@@ -35,7 +35,7 @@ interface BranchFormProps {
     phone: string;
     isWarehouse: boolean;
   };
-  onComplete: (data: {
+  onComplete?: (data: {
     name: string;
     address: string;
     city: string;
@@ -44,7 +44,7 @@ interface BranchFormProps {
     phone: string;
     isWarehouse: boolean;
   }) => void;
-  onBack: () => void;
+  onBack?: () => void;
   onDataChange?: (data: {
     name: string;
     address: string;
@@ -57,9 +57,17 @@ interface BranchFormProps {
 }
 
 export function BranchForm({
-  initialData,
-  onComplete,
-  onBack,
+  initialData = {
+    name: "",
+    address: "",
+    city: "",
+    department: "",
+    country: "",
+    phone: "",
+    isWarehouse: false,
+  },
+  onComplete = () => {},
+  onBack = () => {},
   onDataChange,
 }: BranchFormProps) {
   const [name, setName] = useState(initialData.name || "");
@@ -93,15 +101,7 @@ export function BranchForm({
         isWarehouse,
       });
     }
-  }, [
-    name,
-    address,
-    city,
-    department,
-    country,
-    phone,
-    isWarehouse,
-  ]); // Removed onDataChange from dependencies
+  }, [name, address, city, department, country, phone, isWarehouse]); // Removed onDataChange from dependencies
 
   const validateForm = () => {
     const newErrors: {

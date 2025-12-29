@@ -25,7 +25,7 @@ const countries = [
 ];
 
 interface WarehouseFormProps {
-  initialData: {
+  initialData?: {
     hasWarehouse: boolean;
     name: string;
     address: string;
@@ -34,7 +34,7 @@ interface WarehouseFormProps {
     country: string;
     phone: string;
   };
-  onComplete: (data: {
+  onComplete?: (data: {
     hasWarehouse: boolean;
     name: string;
     address: string;
@@ -43,7 +43,7 @@ interface WarehouseFormProps {
     country: string;
     phone: string;
   }) => void;
-  onBack: () => void;
+  onBack?: () => void;
   onDataChange?: (data: {
     hasWarehouse: boolean;
     name: string;
@@ -56,9 +56,17 @@ interface WarehouseFormProps {
 }
 
 export function WarehouseForm({
-  initialData,
-  onComplete,
-  onBack,
+  initialData = {
+    hasWarehouse: false,
+    name: "",
+    address: "",
+    city: "",
+    department: "",
+    country: "",
+    phone: "",
+  },
+  onComplete = () => {},
+  onBack = () => {},
   onDataChange,
 }: WarehouseFormProps) {
   const [hasWarehouse, setHasWarehouse] = useState(
@@ -92,15 +100,7 @@ export function WarehouseForm({
         phone,
       });
     }
-  }, [
-    hasWarehouse,
-    name,
-    address,
-    city,
-    department,
-    country,
-    phone,
-  ]); // Removed onDataChange from dependencies
+  }, [hasWarehouse, name, address, city, department, country, phone]); // Removed onDataChange from dependencies
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -248,14 +248,6 @@ export function WarehouseForm({
           className="flex-1"
         >
           Atrás
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleSkip}
-          className="flex-1"
-        >
-          Saltar
         </Button>
         <Button type="submit" className="flex-1">
           Siguiente
