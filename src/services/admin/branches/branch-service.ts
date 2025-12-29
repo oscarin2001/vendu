@@ -33,9 +33,7 @@ export async function getBranchesByCompany(tenantId: string) {
         where: {
           auth: {
             privilege: {
-              privilegeCode: {
-                in: ["MANAGER", "BRANCH_MANAGER"], // Asumiendo estos códigos para encargados
-              },
+              privilegeCode: "BRANCH_MANAGER",
             },
           },
         },
@@ -181,9 +179,7 @@ export async function assignManagerToBranch(
   }
 
   // Verificar que es un manager (puedes ajustar los códigos según tu esquema)
-  const isManager = ["MANAGER", "BRANCH_MANAGER"].includes(
-    employee.auth.privilege.privilegeCode
-  );
+  const isManager = employee.auth.privilege.privilegeCode === "BRANCH_MANAGER";
   if (!isManager) {
     throw new Error("Employee is not a manager");
   }

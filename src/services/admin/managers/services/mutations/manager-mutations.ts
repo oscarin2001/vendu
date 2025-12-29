@@ -29,16 +29,18 @@ export async function createManager(tenantId: string, data: CreateManagerData) {
     throw new Error("Email already exists");
   }
 
-  // Obtener el privilegio de manager
-  const managerPrivilege = await prisma.tbprivileges.findFirst({
+  // Obtener o crear el privilegio de manager
+  const managerPrivilege = await prisma.tbprivileges.upsert({
     where: {
-      privilegeCode: "BRANCH_MANAGER", // Ajustar según el código real
+      privilegeCode: "BRANCH_MANAGER",
+    },
+    update: {},
+    create: {
+      privilegeName: "Branch Manager",
+      privilegeCode: "BRANCH_MANAGER",
+      description: "Encargado de sucursal con permisos administrativos",
     },
   });
-
-  if (!managerPrivilege) {
-    throw new Error("Manager privilege not found");
-  }
 
   // Crear usuario y empleado en una transacción
   const result = await prisma.$transaction(

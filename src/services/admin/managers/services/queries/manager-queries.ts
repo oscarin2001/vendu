@@ -10,9 +10,7 @@ export async function getManagersByCompany(tenantId: string) {
       },
       auth: {
         privilege: {
-          privilegeCode: {
-            in: ["MANAGER", "BRANCH_MANAGER"], // Ajustar según los códigos reales
-          },
+          privilegeCode: "BRANCH_MANAGER",
         },
         isActive: true,
       },

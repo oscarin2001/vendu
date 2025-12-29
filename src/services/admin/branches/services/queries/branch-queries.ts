@@ -14,9 +14,7 @@ export async function getBranchesByCompany(tenantId: string) {
         where: {
           auth: {
             privilege: {
-              privilegeCode: {
-                in: ["MANAGER", "BRANCH_MANAGER"], // Asumiendo estos códigos para encargados
-              },
+              privilegeCode: "BRANCH_MANAGER",
             },
           },
         },
