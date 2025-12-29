@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
 import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBreadcrumbs";
+import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/SidebarToolbarContext";
 import {
   SidebarProvider,
   SidebarInset,
@@ -59,9 +60,31 @@ export default function AdminLayout({
 
   if (isLoading) {
     return (
+      <SidebarToolbarProvider>
+        <SidebarProvider>
+          <AdminSidebar
+            organizationName="Cargando..."
+            userFirstName={mockUser.firstName}
+            userLastName={mockUser.lastName}
+            tenantId={tenantId}
+          />
+          <SidebarInset>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+              <SidebarTrigger className="-ml-1" />
+              <AdminBreadcrumbs />
+            </header>
+            <div className="p-6">{children}</div>
+          </SidebarInset>
+        </SidebarProvider>
+      </SidebarToolbarProvider>
+    );
+  }
+
+  return (
+    <SidebarToolbarProvider>
       <SidebarProvider>
         <AdminSidebar
-          organizationName="Cargando..."
+          organizationName={companyData?.name || "Empresa"}
           userFirstName={mockUser.firstName}
           userLastName={mockUser.lastName}
           tenantId={tenantId}
@@ -74,24 +97,6 @@ export default function AdminLayout({
           <div className="p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
-    );
-  }
-
-  return (
-    <SidebarProvider>
-      <AdminSidebar
-        organizationName={companyData?.name || "Empresa"}
-        userFirstName={mockUser.firstName}
-        userLastName={mockUser.lastName}
-        tenantId={tenantId}
-      />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <AdminBreadcrumbs />
-        </header>
-        <div className="p-6">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    </SidebarToolbarProvider>
   );
 }
