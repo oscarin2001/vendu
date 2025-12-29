@@ -17,7 +17,11 @@ interface CompanyFormProps {
   isLoading?: boolean;
 }
 
-export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormProps) {
+export function CompanyForm({
+  initialData,
+  onSubmit,
+  isLoading,
+}: CompanyFormProps) {
   const [formData, setFormData] = useState(() => ({
     name: initialData?.name || "",
     taxId: initialData?.taxId || "",
@@ -31,7 +35,7 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (

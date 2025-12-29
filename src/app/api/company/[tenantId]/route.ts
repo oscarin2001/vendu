@@ -15,9 +15,6 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching company:", error);
-    return NextResponse.json(
-      { error: "Company not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 }

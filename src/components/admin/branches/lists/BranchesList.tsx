@@ -31,7 +31,11 @@ interface BranchesListProps {
   onDelete: (branchId: string) => void;
 }
 
-export function BranchesList({ branches, onEdit, onDelete }: BranchesListProps) {
+export function BranchesList({
+  branches,
+  onEdit,
+  onDelete,
+}: BranchesListProps) {
   if (branches.length === 0) {
     return (
       <Card>

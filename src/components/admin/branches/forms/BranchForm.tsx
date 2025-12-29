@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface BranchFormData {
@@ -27,7 +33,13 @@ interface BranchFormProps {
   mode: "create" | "edit";
 }
 
-export function BranchForm({ initialData, managers = [], onSubmit, isLoading, mode }: BranchFormProps) {
+export function BranchForm({
+  initialData,
+  managers = [],
+  onSubmit,
+  isLoading,
+  mode,
+}: BranchFormProps) {
   const [formData, setFormData] = useState<BranchFormData>({
     name: initialData?.name || "",
     isWarehouse: initialData?.isWarehouse || false,
@@ -45,13 +57,15 @@ export function BranchForm({ initialData, managers = [], onSubmit, isLoading, mo
   };
 
   const handleChange = (field: keyof BranchFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{mode === "create" ? "Crear Sucursal" : "Editar Sucursal"}</CardTitle>
+        <CardTitle>
+          {mode === "create" ? "Crear Sucursal" : "Editar Sucursal"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,7 +85,9 @@ export function BranchForm({ initialData, managers = [], onSubmit, isLoading, mo
               <Checkbox
                 id="isWarehouse"
                 checked={formData.isWarehouse}
-                onCheckedChange={(checked) => handleChange("isWarehouse", !!checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("isWarehouse", !!checked)
+                }
               />
               <Label htmlFor="isWarehouse">Esta sucursal es una bodega</Label>
             </div>
@@ -133,7 +149,9 @@ export function BranchForm({ initialData, managers = [], onSubmit, isLoading, mo
               <Label htmlFor="manager">Encargado (opcional)</Label>
               <Select
                 value={formData.managerId?.toString() || ""}
-                onValueChange={(value) => handleChange("managerId", value ? parseInt(value) : undefined)}
+                onValueChange={(value) =>
+                  handleChange("managerId", value ? parseInt(value) : undefined)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar encargado" />
@@ -151,7 +169,11 @@ export function BranchForm({ initialData, managers = [], onSubmit, isLoading, mo
           </div>
 
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Guardando..." : mode === "create" ? "Crear Sucursal" : "Guardar Cambios"}
+            {isLoading
+              ? "Guardando..."
+              : mode === "create"
+              ? "Crear Sucursal"
+              : "Guardar Cambios"}
           </Button>
         </form>
       </CardContent>

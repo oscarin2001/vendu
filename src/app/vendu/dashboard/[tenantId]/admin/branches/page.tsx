@@ -66,7 +66,9 @@ export default function BranchesPage() {
         getManagersByCompany(tenantId),
       ]);
       setBranches(branchesData);
-      setManagers(managersData.map((m: any) => ({ id: m.id, name: m.fullName })));
+      setManagers(
+        managersData.map((m: any) => ({ id: m.id, name: m.fullName }))
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
@@ -81,7 +83,9 @@ export default function BranchesPage() {
       setIsCreateModalOpen(false);
       toast.success("Sucursal creada exitosamente");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al crear sucursal");
+      toast.error(
+        err instanceof Error ? err.message : "Error al crear sucursal"
+      );
     }
   };
 
@@ -93,7 +97,9 @@ export default function BranchesPage() {
       setEditingBranch(null);
       toast.success("Sucursal actualizada exitosamente");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al actualizar sucursal");
+      toast.error(
+        err instanceof Error ? err.message : "Error al actualizar sucursal"
+      );
     }
   };
 
@@ -106,7 +112,9 @@ export default function BranchesPage() {
       await loadData();
       toast.success("Sucursal eliminada exitosamente");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al eliminar sucursal");
+      toast.error(
+        err instanceof Error ? err.message : "Error al eliminar sucursal"
+      );
     }
   };
 
@@ -150,13 +158,16 @@ export default function BranchesPage() {
       <BranchesList
         branches={branches}
         onEdit={(branchId) => {
-          const branch = branches.find(b => b.id.toString() === branchId);
+          const branch = branches.find((b) => b.id.toString() === branchId);
           if (branch) setEditingBranch(branch);
         }}
         onDelete={handleDeleteBranch}
       />
 
-      <Dialog open={!!editingBranch} onOpenChange={(open) => !open && setEditingBranch(null)}>
+      <Dialog
+        open={!!editingBranch}
+        onOpenChange={(open) => !open && setEditingBranch(null)}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Sucursal</DialogTitle>

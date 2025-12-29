@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { CompanyForm } from "@/components/admin/company/forms/CompanyForm";
+import { CompanyOverview } from "@/components/admin/company/cards/CompanyOverview";
 import { SubscriptionCard } from "@/components/admin/company/cards/SubscriptionCard";
+import { Button } from "@/components/ui/Button";
+import { ArrowLeft } from "lucide-react";
 import {
   getCompanyByTenant,
   updateCompany,
@@ -18,6 +21,7 @@ export default function CompanyPage() {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     loadCompanyData();
@@ -73,10 +77,19 @@ export default function CompanyPage() {
     try {
       await updateCompany(tenantId, data);
       await loadCompanyData(); // Recargar datos
-      alert("Company updated successfully");
+      setIsEditing(false); // Volver a modo vista
+      alert("Empresa actualizada exitosamente");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update company");
+      alert(err instanceof Error ? err.message : "Error al actualizar la empresa");
     }
+  };
+
+  const handleEditCompany = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
   };
 
   const handleUpgradePlan = () => {
@@ -99,15 +112,39 @@ export default function CompanyPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Company Management</h1>
-        <p className="text-muted-foreground">
-          Manage your company basic information and subscription.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">
+            {isEditing ? "Editar Empresa" : "Gestión de Empresa"}
+          </h1>
+          <p className="text-muted-foreground">
+            {isEditing
+              ? "Actualiza la información de tu empresa"
+              : "Administra la información básica de tu empresa y suscripción"
+            }
+          </p>
+        </div>
+        {isEditing && (
+          <Button variant="outline" onClick={handleCancelEdit} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Cancelar
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <CompanyForm initialData={companyData} onSubmit={handleUpdateCompany} />
+        {isEditing ? (
+          <CompanyForm
+            initialData={companyData}
+            onSubmit={handleUpdateCompany}
+            isLoading={isLoading}
+          />
+        ) : (
+          <CompanyOverview
+            companyData={companyData}
+            onEdit={handleEditCompany}
+          />
+        )}
 
         {subscriptionData && (
           <SubscriptionCard

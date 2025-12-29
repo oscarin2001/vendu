@@ -50,12 +50,16 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       items: [
         {
           title: "Empresa",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/company` : "/admin/company",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/company`
+            : "/admin/company",
           icon: Building2,
         },
         {
           title: "Sucursales",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/branches` : "/admin/branches",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/branches`
+            : "/admin/branches",
           icon: MapPin,
         },
       ],
@@ -66,12 +70,16 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       items: [
         {
           title: "Encargados",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/managers` : "/admin/managers",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/managers`
+            : "/admin/managers",
           icon: Users,
         },
         {
           title: "Empleados",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/employees` : "/admin/employees",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/employees`
+            : "/admin/employees",
           icon: UserCheck,
         },
       ],
@@ -81,12 +89,16 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       items: [
         {
           title: "Configuración",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/settings` : "/admin/settings",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/settings`
+            : "/admin/settings",
           icon: Settings,
         },
         {
           title: "Reportes",
-          url: tenantId ? `/vendu/dashboard/${tenantId}/admin/reports` : "/admin/reports",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/reports`
+            : "/admin/reports",
           icon: BarChart3,
         },
       ],
@@ -96,20 +108,23 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   // Function to get breadcrumbs based on current pathname
   const getBreadcrumbsForPath = (path: string) => {
     // Extract the last segment of the path (e.g., "company" from "/vendu/dashboard/tenant/admin/company")
-    const pathSegments = path.split('/').filter(Boolean);
+    const pathSegments = path.split("/").filter(Boolean);
     const lastSegment = pathSegments[pathSegments.length - 1];
 
     // Find the matching navigation item by URL segment
     for (const group of navigationGroups) {
       for (const item of group.items) {
         // Check if the item URL ends with the last segment
-        const itemSegments = item.url.split('/').filter(Boolean);
+        const itemSegments = item.url.split("/").filter(Boolean);
         const itemLastSegment = itemSegments[itemSegments.length - 1];
 
         if (lastSegment === itemLastSegment) {
           return {
             title: item.title,
-            breadcrumbs: group.title === "Principal" ? [item.title] : [group.title, item.title]
+            breadcrumbs:
+              group.title === "Principal"
+                ? [item.title]
+                : [group.title, item.title],
           };
         }
       }
@@ -117,7 +132,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
     // Default fallback
     return {
       title: "Dashboard",
-      breadcrumbs: ["Dashboard"]
+      breadcrumbs: ["Dashboard"],
     };
   };
 
@@ -153,7 +168,10 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                           : pathname.startsWith(item.url)
                       }
                       onClick={() => {
-                        const crumbs = group.title === "Principal" ? [item.title] : [group.title, item.title];
+                        const crumbs =
+                          group.title === "Principal"
+                            ? [item.title]
+                            : [group.title, item.title];
                         setBreadcrumbs(crumbs);
                         setTitle(item.title);
                       }}
