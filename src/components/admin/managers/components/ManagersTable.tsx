@@ -80,6 +80,9 @@ export function ManagersTable({
   };
 
   const formatSalary = (salary: number) => {
+    if (!salary || salary === 0) {
+      return "No recibe sueldo";
+    }
     return new Intl.NumberFormat("es-BO", {
       style: "currency",
       currency: "BOB",
