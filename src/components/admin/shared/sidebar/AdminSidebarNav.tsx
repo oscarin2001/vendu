@@ -95,10 +95,18 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
 
   // Function to get breadcrumbs based on current pathname
   const getBreadcrumbsForPath = (path: string) => {
-    // Find the matching navigation item
+    // Extract the last segment of the path (e.g., "company" from "/vendu/dashboard/tenant/admin/company")
+    const pathSegments = path.split('/').filter(Boolean);
+    const lastSegment = pathSegments[pathSegments.length - 1];
+
+    // Find the matching navigation item by URL segment
     for (const group of navigationGroups) {
       for (const item of group.items) {
-        if (path === item.url || (item.url !== "/admin" && path.startsWith(item.url))) {
+        // Check if the item URL ends with the last segment
+        const itemSegments = item.url.split('/').filter(Boolean);
+        const itemLastSegment = itemSegments[itemSegments.length - 1];
+
+        if (lastSegment === itemLastSegment) {
           return {
             title: item.title,
             breadcrumbs: group.title === "Principal" ? [item.title] : [group.title, item.title]
