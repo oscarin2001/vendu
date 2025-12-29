@@ -18,12 +18,12 @@ interface CompanyFormProps {
 }
 
 export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormProps) {
-  const [formData, setFormData] = useState(initialData || {
-    name: "",
-    taxId: "",
-    country: "",
-    address: "",
-  });
+  const [formData, setFormData] = useState(() => ({
+    name: initialData?.name || "",
+    taxId: initialData?.taxId || "",
+    country: initialData?.country || "",
+    address: initialData?.address || "",
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
