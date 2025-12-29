@@ -34,7 +34,7 @@ export async function getEmployeesByCompany(tenantId: string) {
     ci: employee.ci,
     phone: employee.phone,
     email: employee.auth.username,
-    salary: employee.salary,
+    salary: employee.salary ? employee.salary.toNumber() : 0,
     hireDate: employee.hireDate,
     contractType: employee.contractType,
     branch: employee.branch
@@ -78,7 +78,7 @@ export async function getEmployeeById(employeeId: number) {
     ci: employee.ci,
     phone: employee.phone,
     email: employee.auth.username,
-    salary: employee.salary,
+    salary: employee.salary ? employee.salary.toNumber() : 0,
     hireDate: employee.hireDate,
     contractType: employee.contractType,
     branch: employee.branch
