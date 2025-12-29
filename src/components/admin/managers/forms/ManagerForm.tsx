@@ -30,6 +30,19 @@ interface ManagerFormData extends SubmitData {
   confirmPassword: string;
 }
 
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  ci?: string;
+  phone?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  salary?: string;
+  branchId?: string;
+  general?: string;
+}
+
 interface ManagerFormProps {
   tenantId: string;
   initialData?: {
@@ -58,6 +71,7 @@ export function ManagerForm({
   const { company } = useCompany(tenantId);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<ManagerFormData>({
     firstName: initialData?.firstName || "",
     lastName: initialData?.lastName || "",
@@ -70,26 +84,73 @@ export function ManagerForm({
     branchId: initialData?.branchId || null,
   });
 
+  const validateField = (field: keyof ManagerFormData, value: any): string | undefined => {
+    switch (field) {
+      case "firstName":
+        if (!value?.trim()) return "El nombre es requerido";
+        if (value.length < 2) return "El nombre debe tener al menos 2 caracteres";
+        break;
+      case "lastName":
+        if (!value?.trim()) return "El apellido es requerido";
+        if (value.length < 2) return "El apellido debe tener al menos 2 caracteres";
+        break;
+      case "ci":
+        if (!value?.trim()) return "La cédula es requerida";
+        if (!/^\d{6,10}$/.test(value)) return "La cédula debe contener solo números (6-10 dígitos)";
+        break;
+      case "email":
+        if (!value?.trim()) return "El correo electrónico es requerido";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Formato de correo inválido";
+        if (company?.slug && !value.endsWith(`@${company.slug}.com`)) {
+          return `El correo debe terminar en @${company.slug}.com`;
+        }
+        break;
+      case "password":
+        if (mode === "create") {
+          if (!value?.trim()) return "La contraseña es requerida";
+          if (value.length < 8) return "La contraseña debe tener al menos 8 caracteres";
+          if (!/[A-Z]/.test(value)) return "La contraseña debe contener al menos una mayúscula";
+        }
+        break;
+      case "confirmPassword":
+        if (mode === "create") {
+          if (!value?.trim()) return "La confirmación de contraseña es requerida";
+          if (value !== formData.password) return "Las contraseñas no coinciden";
+        }
+        break;
+      case "salary":
+        if (value !== undefined && value !== null && value !== "") {
+          const numValue = parseFloat(value);
+          if (isNaN(numValue) || numValue < 0) return "El salario debe ser un número positivo";
+        }
+        break;
+    }
+    return undefined;
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    let isValid = true;
+
+    // Validate all fields
+    Object.keys(formData).forEach((key) => {
+      const field = key as keyof ManagerFormData;
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (mode === "create") {
-      if (formData.password !== formData.confirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
-      if (formData.password.length < 8) {
-        alert("La contraseña debe tener al menos 8 caracteres");
-        return;
-      }
-      if (!/[A-Z]/.test(formData.password)) {
-        alert("La contraseña debe contener al menos una mayúscula");
-        return;
-      }
-      if (!company?.slug || !formData.email.endsWith(`@${company.slug}.com`)) {
-        alert(`El correo debe terminar en @${company?.slug || "empresa"}.com`);
-        return;
-      }
+    if (!validateForm()) {
+      return;
     }
 
     const { confirmPassword, ...submitData } = formData; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -98,6 +159,17 @@ export function ManagerForm({
 
   const handleChange = (field: keyof ManagerFormData, value: string | number | null | undefined) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+
+    // Special validation for confirmPassword when password changes
+    if (field === "password" && formData.confirmPassword) {
+      const confirmError = validateField("confirmPassword", formData.confirmPassword);
+      setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
+    }
   };
 
   return (
@@ -123,6 +195,9 @@ export function ManagerForm({
                   required
                 />
               </div>
+              {errors.firstName && (
+                <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+              )}
             </div>
 
             <div>
@@ -138,6 +213,9 @@ export function ManagerForm({
                   required
                 />
               </div>
+              {errors.lastName && (
+                <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
+              )}
             </div>
 
             <div>
@@ -149,6 +227,9 @@ export function ManagerForm({
                 placeholder="Ej: 12345678"
                 required
               />
+              {errors.ci && (
+                <p className="text-sm text-red-600 mt-1">{errors.ci}</p>
+              )}
             </div>
 
             <div>
@@ -159,6 +240,9 @@ export function ManagerForm({
                 onChange={(e) => handleChange("phone", e.target.value)}
                 placeholder="Ej: +591 76543210"
               />
+              {errors.phone && (
+                <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+              )}
             </div>
 
             <div className="md:col-span-2">
@@ -179,6 +263,9 @@ export function ManagerForm({
                 <p className="text-sm text-gray-500 mt-1">
                   El correo debe terminar en @{company.slug}.com
                 </p>
+              )}
+              {errors.email && (
+                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
               )}
             </div>
 
@@ -205,6 +292,9 @@ export function ManagerForm({
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                  )}
                 </div>
 
                 <div>
@@ -228,6 +318,9 @@ export function ManagerForm({
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
+                  )}
                 </div>
               </>
             )}
@@ -245,6 +338,9 @@ export function ManagerForm({
                 min="0"
                 step="0.01"
               />
+              {errors.salary && (
+                <p className="text-sm text-red-600 mt-1">{errors.salary}</p>
+              )}
             </div>
 
             <div>
@@ -273,6 +369,9 @@ export function ManagerForm({
                   </SelectContent>
                 </Select>
               </div>
+              {errors.branchId && (
+                <p className="text-sm text-red-600 mt-1">{errors.branchId}</p>
+              )}
             </div>
           </div>
 
