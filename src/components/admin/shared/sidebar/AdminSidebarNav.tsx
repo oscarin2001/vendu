@@ -118,7 +118,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
     const { title, breadcrumbs } = getBreadcrumbsForPath(pathname);
     setTitle(title);
     setBreadcrumbs(breadcrumbs);
-  }, [pathname, setTitle, setBreadcrumbs]);
+  }, [pathname, tenantId, setTitle, setBreadcrumbs]);
 
   const toggleGroup = (title: string) => {
     setOpenGroups((prev) => ({
