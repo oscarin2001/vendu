@@ -309,13 +309,12 @@ model tbcash_sessions {
 
   notes String? // Ej: "Dejo 50 bs en monedas para la tarde"
 
-  actionHistory Json?
-
   // Relaciones
   branch     tbbranches          @relation(fields: [FK_branch], references: [PK_branch])
   employee   tbemployee_profiles @relation(fields: [FK_employee], references: [PK_employee])
   cashFlows  tbcash_flows[] // Todos los movimientos de este turno
   tbexpenses tbexpenses[]
+  sessionActions tbcash_session_actions[] // Historial de acciones normalizado
 
   @@unique([FK_branch, status]) // Asegura al menos una sola sesión por sucursal+estado (evita dos cajas OPEN)
 }
@@ -325,10 +324,10 @@ model tbcash_sessions {
 model tbdevices {
   PK_device Int       @id @default(autoincrement())
   FK_auth   Int       @unique
-  devices   Json
   createdAt DateTime  @default(now())
   updatedAt DateTime?
   tbauth    tbauth    @relation(fields: [FK_auth], references: [PK_auth])
+  deviceDetails tbdevice_details[] // Detalles de dispositivos normalizados
 }
 
 // NOTIFICACIONES
@@ -362,7 +361,6 @@ model tbbranches {
   country      String? // País de la sucursal
   latitude     Float?
   longitude    Float?
-  openingHours Json? // Horarios semanales en JSON
   createdAt    DateTime  @default(now())
   updatedAt    DateTime?
 
@@ -374,6 +372,7 @@ model tbbranches {
   tbemployee_profiles tbemployee_profiles[]
   tbcash_sessions     tbcash_sessions[]
   tbbranchspecialdays tbbranchspecialdays[]
+  tbbranch_hours      tbbranch_hours[]
   tbstock_adjustments tbstock_adjustments[]
   tbwarehouse_entry   tbwarehouse_entry[]
   tbcash_flows        tbcash_flows[]
@@ -400,6 +399,58 @@ model tbbranchspecialdays {
   updatedAt     DateTime?
 
   tbbranches tbbranches @relation(fields: [FK_branch], references: [PK_branch])
+}
+
+//////////////////////////////
+// HORARIOS DE SUCURSALES (NORMALIZACIÓN - reemplaza openingHours Json)
+//////////////////////////////
+
+model tbbranch_hours {
+  PK_branch_hour Int       @id @default(autoincrement())
+  FK_branch      Int
+  day_of_week    Int       // 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
+  opening_time   String?   // "09:00"
+  closing_time   String?   // "18:00"
+  is_closed      Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?
+
+  branch tbbranches @relation(fields: [FK_branch], references: [PK_branch])
+
+  @@unique([FK_branch, day_of_week]) // Una sucursal tiene un horario por día
+}
+
+//////////////////////////////
+// HISTORIAL DE ACCIONES DE SESIONES DE CAJA (NORMALIZACIÓN - reemplaza actionHistory Json)
+//////////////////////////////
+
+model tbcash_session_actions {
+  PK_action  Int            @id @default(autoincrement())
+  FK_session Int
+  action     String         // "OPEN", "CLOSE", "EXPENSE", "SALE"
+  amount     Decimal?
+  details    String?
+  createdAt  DateTime       @default(now())
+
+  session tbcash_sessions @relation(fields: [FK_session], references: [PK_session])
+}
+
+//////////////////////////////
+// DETALLES DE DISPOSITIVOS (NORMALIZACIÓN - reemplaza devices Json)
+//////////////////////////////
+
+model tbdevice_details {
+  PK_device_detail Int       @id @default(autoincrement())
+  FK_device        Int
+  device_type      String    // "mobile", "desktop", "tablet"
+  browser          String?
+  os               String?
+  user_agent       String?
+  ip_address       String?
+  last_seen        DateTime  @default(now())
+
+  device tbdevices @relation(fields: [FK_device], references: [PK_device])
 }
 
 // Asistencia
@@ -546,6 +597,10 @@ model tbproducts {
   tbproductvariants   tbproductvariants[]
   company             tbcompanies?          @relation(fields: [FK_company], references: [PK_company])
   tbreviews           tbreviews[]
+
+  // Índices de performance para consultas comunes
+  @@index([FK_brand, FK_season, isActive])
+  @@index([slug])
 }
 
 model tbproductcategories {
@@ -584,6 +639,9 @@ model tbproductvariants {
   tbstockmovements    tbstockmovements[]
   tbcart_items        tbcart_items[]
 
+  // Índices de performance adicionales
+  @@index([FK_product, isPublished, isActive])
+  @@index([sku])
   @@index([isPublished, featured, isActive])
 }
 
