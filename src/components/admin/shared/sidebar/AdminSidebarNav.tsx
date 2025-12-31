@@ -77,13 +77,6 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           icon: Users,
         },
         {
-          title: "Empleados",
-          url: tenantId
-            ? `/vendu/dashboard/${tenantId}/admin/employees`
-            : "/admin/employees",
-          icon: UserCheck,
-        },
-        {
           title: "Proveedores",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/suppliers`
