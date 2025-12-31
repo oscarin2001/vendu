@@ -89,7 +89,7 @@ export function SuppliersFilters({
         {/* Status Filter */}
         <Select value={filters.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-32">
-            <SelectValue />
+            <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
