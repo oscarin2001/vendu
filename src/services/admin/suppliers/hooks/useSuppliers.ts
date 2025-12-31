@@ -79,7 +79,10 @@ export function useSuppliers(tenantId: string) {
       if (filters.status === "inactive" && supplier.isActive) return false;
 
       // Manager filter
-      if (filters.managerId && supplier.manager?.id !== filters.managerId)
+      if (
+        filters.managerId &&
+        !supplier.managers.some((m) => m.id === filters.managerId)
+      )
         return false;
 
       return true;
@@ -90,10 +93,10 @@ export function useSuppliers(tenantId: string) {
   const metrics: SupplierMetrics = useMemo(() => {
     const total = suppliers.length;
     const active = suppliers.filter((s) => s.isActive).length;
-    const withManager = suppliers.filter((s) => s.manager).length;
-    const withoutManager = total - withManager;
+    const withManagers = suppliers.filter((s) => s.managers.length > 0).length;
+    const withoutManagers = total - withManagers;
 
-    return { total, active, withManager, withoutManager };
+    return { total, active, withManagers, withoutManagers };
   }, [suppliers]);
 
   // CRUD operations

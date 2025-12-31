@@ -52,12 +52,13 @@ export async function createBranch(tenantId: string, data: CreateBranchData) {
 export async function updateBranch(branchId: number, data: UpdateBranchData) {
   const validatedData = updateBranchSchema.parse(data);
 
-  // Extraer managerIds del validatedData para manejarlo por separado
-  const { managerIds = [], ...branchData } = validatedData;
+  // Extraer managerIds y supplierIds del validatedData para manejarlo por separado
+  const { managerIds = [], supplierIds = [], ...branchData } = validatedData;
 
   console.log("updateBranch called with:", {
     branchId,
     managerIds,
+    supplierIds,
     branchData,
   });
 
@@ -76,22 +77,28 @@ export async function updateBranch(branchId: number, data: UpdateBranchData) {
   );
 
   // Obtener managers actualmente asignados a esta sucursal
-  const currentManagers = await prisma.tbemployee_profiles.findMany({
+  const currentManagers = await prisma.tbmanager_branches.findMany({
     where: {
       FK_branch: branchId,
-      auth: {
-        privilege: {
-          privilegeCode: "BRANCH_MANAGER",
+    },
+    include: {
+      manager: {
+        include: {
+          auth: {
+            include: {
+              privilege: true,
+            },
+          },
         },
       },
-      deletedAt: null,
-    },
-    select: {
-      PK_employee: true,
     },
   });
 
-  const currentManagerIds = currentManagers.map((m) => m.PK_employee);
+  const currentManagerIds = currentManagers
+    .filter(
+      (mb) => mb.manager.auth.privilege.privilegeCode === "BRANCH_MANAGER"
+    )
+    .map((mb) => mb.manager.PK_employee);
   console.log("Managers actuales:", currentManagerIds);
 
   // Managers a desasignar (están en current pero no en managerIds)
@@ -108,14 +115,69 @@ export async function updateBranch(branchId: number, data: UpdateBranchData) {
 
   // Desasignar managers que ya no están en la lista
   for (const managerId of managersToUnassign) {
-    console.log("Desasignando manager:", managerId);
-    await unassignManagerFromBranch(managerId);
+    console.log("Desasignando manager:", managerId, "de sucursal:", branchId);
+    await unassignManagerFromBranch(managerId, branchId);
   }
 
   // Asignar managers nuevos
   for (const managerId of managersToAssign) {
     console.log("Asignando manager:", managerId);
     await assignManagerToBranch(branchId, managerId);
+  }
+
+  // Manejar la asignación/desasignación de proveedores
+  console.log(
+    "Actualizando proveedores para sucursal:",
+    branchId,
+    "nuevos proveedores:",
+    supplierIds
+  );
+
+  // Obtener proveedores actualmente asignados a esta sucursal
+  const currentSupplierAssignments = await prisma.tbsupplier_branches.findMany({
+    where: { FK_branch: branchId },
+    select: { FK_supplier: true },
+  });
+
+  const currentSupplierIds = currentSupplierAssignments.map(
+    (sa) => sa.FK_supplier
+  );
+  console.log("Proveedores actuales:", currentSupplierIds);
+
+  // Proveedores a desasignar (están en current pero no en supplierIds)
+  const suppliersToUnassign = currentSupplierIds.filter(
+    (id) => !supplierIds.includes(id)
+  );
+  console.log("Proveedores a desasignar:", suppliersToUnassign);
+
+  // Proveedores a asignar (están en supplierIds pero no en current)
+  const suppliersToAssign = supplierIds.filter(
+    (id) => !currentSupplierIds.includes(id)
+  );
+  console.log("Proveedores a asignar:", suppliersToAssign);
+
+  // Desasignar proveedores que ya no están en la lista
+  if (suppliersToUnassign.length > 0) {
+    await prisma.tbsupplier_branches.deleteMany({
+      where: {
+        FK_branch: branchId,
+        FK_supplier: {
+          in: suppliersToUnassign,
+        },
+      },
+    });
+  }
+
+  // Asignar proveedores nuevos
+  if (suppliersToAssign.length > 0) {
+    const supplierAssignments = suppliersToAssign.map((supplierId) => ({
+      FK_supplier: supplierId,
+      FK_branch: branchId,
+    }));
+
+    await prisma.tbsupplier_branches.createMany({
+      data: supplierAssignments,
+    });
   }
 
   return {
@@ -129,6 +191,7 @@ export async function updateBranch(branchId: number, data: UpdateBranchData) {
     country: branch.country,
     latitude: branch.latitude,
     longitude: branch.longitude,
+    updatedAt: branch.updatedAt,
   };
 }
 
@@ -178,16 +241,35 @@ export async function assignManagerToBranch(
     throw new Error("Employee is not a manager");
   }
 
-  // Asignar el empleado a la sucursal
-  await prisma.tbemployee_profiles.update({
-    where: { PK_employee: employeeId },
-    data: { FK_branch: branchId },
+  // Verificar que no esté ya asignado
+  const existingAssignment = await prisma.tbmanager_branches.findUnique({
+    where: {
+      FK_manager_FK_branch: {
+        FK_manager: employeeId,
+        FK_branch: branchId,
+      },
+    },
+  });
+
+  if (existingAssignment) {
+    throw new Error("Manager is already assigned to this branch");
+  }
+
+  // Asignar el manager a la sucursal usando la tabla intermedia
+  await prisma.tbmanager_branches.create({
+    data: {
+      FK_manager: employeeId,
+      FK_branch: branchId,
+    },
   });
 
   return { success: true };
 }
 
-export async function unassignManagerFromBranch(employeeId: number) {
+export async function unassignManagerFromBranch(
+  employeeId: number,
+  branchId: number
+) {
   // Verificar que el empleado existe y es un manager
   const employee = await prisma.tbemployee_profiles.findUnique({
     where: { PK_employee: employeeId },
@@ -210,10 +292,12 @@ export async function unassignManagerFromBranch(employeeId: number) {
     throw new Error("Employee is not a manager");
   }
 
-  // Desasignar el empleado de la sucursal
-  await prisma.tbemployee_profiles.update({
-    where: { PK_employee: employeeId },
-    data: { FK_branch: null },
+  // Eliminar la asignación de la tabla intermedia
+  await prisma.tbmanager_branches.deleteMany({
+    where: {
+      FK_manager: employeeId,
+      FK_branch: branchId,
+    },
   });
 
   return { success: true };

@@ -13,12 +13,16 @@ import {
   deleteBranch,
 } from "@/services/admin/branches/services/branch-service";
 import { getManagersByCompany } from "@/services/admin/managers/services/manager-service";
+import { getSuppliersByCompany } from "@/services/admin/suppliers/services/queries/supplier-queries";
 import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { toast } from "sonner";
 
 export function useBranches(tenantId: string) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
+  const [suppliers, setSuppliers] = useState<
+    { id: number; supplierNumber: string; name: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,9 +43,10 @@ export function useBranches(tenantId: string) {
       setIsLoading(true);
       setError(null);
 
-      const [branchesData, managersData] = await Promise.all([
+      const [branchesData, managersData, suppliersData] = await Promise.all([
         getBranchesByCompany(tenantId),
         getManagersByCompany(tenantId),
+        getSuppliersByCompany(tenantId),
       ]);
 
       setBranches(branchesData);
@@ -49,6 +54,13 @@ export function useBranches(tenantId: string) {
         managersData.map((m: any) => ({
           id: m.id,
           name: m.fullName,
+        }))
+      );
+      setSuppliers(
+        suppliersData.map((s: any) => ({
+          id: s.id,
+          supplierNumber: s.supplierNumber,
+          name: s.fullName,
         }))
       );
     } catch (err) {
@@ -155,6 +167,7 @@ export function useBranches(tenantId: string) {
     branches: filteredBranches,
     allBranches: branches,
     managers,
+    suppliers,
     metrics,
     isLoading,
     error,

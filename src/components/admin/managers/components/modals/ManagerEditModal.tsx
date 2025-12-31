@@ -37,7 +37,7 @@ export function ManagerEditModal({
     phone: manager.phone || "",
     email: manager.email,
     salary: manager.salary,
-    branchIds: manager.branches.map(b => b.id),
+    branchIds: manager.branches.map((b) => b.id),
   };
 
   return (

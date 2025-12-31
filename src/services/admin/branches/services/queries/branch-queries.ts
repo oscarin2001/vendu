@@ -10,20 +10,31 @@ export async function getBranchesByCompany(tenantId: string) {
       },
     },
     include: {
-      tbemployee_profiles: {
-        where: {
-          auth: {
-            privilege: {
-              privilegeCode: "BRANCH_MANAGER",
+      managerBranches: {
+        include: {
+          manager: {
+            include: {
+              auth: {
+                include: {
+                  privilege: true,
+                },
+              },
             },
           },
-          deletedAt: null, // Solo incluir empleados no eliminados
         },
+        where: {
+          manager: {
+            deletedAt: null,
+          },
+        },
+      },
+      supplierBranches: {
         include: {
-          auth: {
-            include: {
-              privilege: true,
-            },
+          supplier: true,
+        },
+        where: {
+          supplier: {
+            deletedAt: null,
           },
         },
       },
@@ -45,18 +56,25 @@ export async function getBranchesByCompany(tenantId: string) {
     latitude: branch.latitude,
     longitude: branch.longitude,
     openingHours: branch.openingHours,
-    managers: branch.tbemployee_profiles.map((employee: any) => ({
-      id: employee.PK_employee,
-      name: `${employee.firstName} ${employee.lastName}`,
-      email: employee.auth.username,
+    managers: branch.managerBranches.map((mb: any) => ({
+      id: mb.manager.PK_employee,
+      name: `${mb.manager.firstName} ${mb.manager.lastName}`,
+      email: mb.manager.auth.username,
     })),
-    manager: branch.tbemployee_profiles[0]
+    suppliers: branch.supplierBranches.map((sb: any) => ({
+      id: sb.supplier.PK_supplier,
+      supplierNumber: sb.supplier.supplierNumber,
+      name: `${sb.supplier.firstName} ${sb.supplier.lastName}`,
+      email: sb.supplier.email,
+    })),
+    manager: branch.managerBranches[0]
       ? {
-          id: branch.tbemployee_profiles[0].PK_employee,
-          name: `${branch.tbemployee_profiles[0].firstName} ${branch.tbemployee_profiles[0].lastName}`,
-          email: branch.tbemployee_profiles[0].auth.username,
+          id: branch.managerBranches[0].manager.PK_employee,
+          name: `${branch.managerBranches[0].manager.firstName} ${branch.managerBranches[0].manager.lastName}`,
+          email: branch.managerBranches[0].manager.auth.username,
         }
       : null,
     createdAt: branch.createdAt,
+    updatedAt: branch.updatedAt,
   }));
 }

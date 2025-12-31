@@ -30,14 +30,14 @@ export function SuppliersMetrics({
     },
     {
       title: "Con Encargado",
-      value: metrics.withManager,
+      value: metrics.withManagers,
       icon: UserCheck,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
       title: "Sin Encargado",
-      value: metrics.withoutManager,
+      value: metrics.withoutManagers,
       icon: UserX,
       color: "text-orange-600",
       bgColor: "bg-orange-50",

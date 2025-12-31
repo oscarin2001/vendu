@@ -11,7 +11,7 @@ export const createSupplierSchema = z.object({
   department: z.string().optional(),
   country: z.string().optional(),
   notes: z.string().optional(),
-  managerId: z.number().optional(),
+  managerIds: z.array(z.number()).optional().default([]),
 });
 
 export const updateSupplierSchema = createSupplierSchema.partial();

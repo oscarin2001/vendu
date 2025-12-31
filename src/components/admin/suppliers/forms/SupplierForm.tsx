@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Truck,
@@ -34,7 +27,7 @@ interface SupplierFormData {
   department: string;
   country: string;
   notes: string;
-  managerId?: number;
+  managerIds: number[];
 }
 
 interface SupplierFormProps {
@@ -63,7 +56,7 @@ export function SupplierForm({
     department: initialData?.department || "",
     country: initialData?.country || "",
     notes: initialData?.notes || "",
-    managerId: initialData?.managerId,
+    managerIds: initialData?.managerIds || [],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -110,7 +103,7 @@ export function SupplierForm({
     const submitData = {
       ...formData,
       email: formData.email?.trim() || undefined,
-      managerId: formData.managerId || undefined,
+      managerIds: formData.managerIds,
     };
 
     onSubmit(submitData);
@@ -275,30 +268,40 @@ export function SupplierForm({
               </div>
             </div>
 
-            {/* Manager */}
+            {/* Managers */}
             <div className="md:col-span-2">
-              <Label htmlFor="manager">Encargado Asignado</Label>
-              <Select
-                value={formData.managerId?.toString() || "none"}
-                onValueChange={(value) =>
-                  handleChange(
-                    "managerId",
-                    value === "none" ? undefined : parseInt(value)
-                  )
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar encargado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Sin encargado asignado</SelectItem>
-                  {managers.map((manager) => (
-                    <SelectItem key={manager.id} value={manager.id.toString()}>
-                      {manager.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Encargados Asignados</Label>
+              <div className="mt-2 space-y-2">
+                {managers.map((manager) => (
+                  <label
+                    key={manager.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.managerIds.includes(manager.id)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        handleChange(
+                          "managerIds",
+                          checked
+                            ? [...formData.managerIds, manager.id]
+                            : formData.managerIds.filter(
+                                (id) => id !== manager.id
+                              )
+                        );
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm">{manager.name}</span>
+                  </label>
+                ))}
+                {managers.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No hay encargados disponibles
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Notes */}

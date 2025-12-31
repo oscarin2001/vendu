@@ -148,10 +148,17 @@ export function SuppliersTable({
                 </div>
               </TableCell>
               <TableCell>
-                {supplier.manager ? (
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{supplier.manager.name}</span>
+                {supplier.managers.length > 0 ? (
+                  <div className="flex flex-col space-y-1">
+                    {supplier.managers.map((manager, index) => (
+                      <div
+                        key={manager.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{manager.name}</span>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <Badge variant="secondary" className="text-xs">

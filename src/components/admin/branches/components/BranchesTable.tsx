@@ -25,6 +25,7 @@ import {
   MapPin,
   User,
   Phone,
+  Truck,
 } from "lucide-react";
 import { Branch } from "@/services/admin/branches/types/branch.types";
 
@@ -93,6 +94,9 @@ export function BranchesTable({
                   <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
                 </TableCell>
                 <TableCell>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                </TableCell>
+                <TableCell>
                   <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
                 </TableCell>
                 <TableCell>
@@ -139,6 +143,7 @@ export function BranchesTable({
             <TableHead>Ubicación</TableHead>
             <TableHead>Contacto</TableHead>
             <TableHead>Gerente</TableHead>
+            <TableHead>Proveedores</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead>Creado</TableHead>
             <TableHead>Actualizado</TableHead>
@@ -210,6 +215,32 @@ export function BranchesTable({
                             Principal
                           </Badge>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground italic">
+                    Sin asignar
+                  </span>
+                )}
+              </TableCell>
+              <TableCell>
+                {branch.suppliers && branch.suppliers.length > 0 ? (
+                  <div className="space-y-2">
+                    {branch.suppliers.map((supplier, index) => (
+                      <div
+                        key={supplier.id}
+                        className="flex items-center gap-2"
+                      >
+                        <Truck className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm font-medium">
+                            {supplier.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            #{supplier.supplierNumber}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>

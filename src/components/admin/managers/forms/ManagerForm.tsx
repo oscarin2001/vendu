@@ -196,7 +196,7 @@ export function ManagerForm({
     setFormData((prev) => ({
       ...prev,
       branchIds: prev.branchIds.includes(branchId)
-        ? prev.branchIds.filter(id => id !== branchId)
+        ? prev.branchIds.filter((id) => id !== branchId)
         : [...prev.branchIds, branchId],
     }));
   };
@@ -204,11 +204,11 @@ export function ManagerForm({
   const removeBranch = (branchId: number) => {
     setFormData((prev) => ({
       ...prev,
-      branchIds: prev.branchIds.filter(id => id !== branchId),
+      branchIds: prev.branchIds.filter((id) => id !== branchId),
     }));
   };
 
-  const selectedBranches = branches.filter(branch =>
+  const selectedBranches = branches.filter((branch) =>
     formData.branchIds.includes(branch.id)
   );
 
@@ -411,9 +411,14 @@ export function ManagerForm({
                 {selectedBranches.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedBranches.map((branch) => (
-                      <Badge key={branch.id} variant="secondary" className="flex items-center gap-1">
+                      <Badge
+                        key={branch.id}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
                         <Building className="h-3 w-3" />
-                        {branch.name} {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
+                        {branch.name}{" "}
+                        {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
                         <button
                           type="button"
                           onClick={() => removeBranch(branch.id)}
@@ -435,18 +440,24 @@ export function ManagerForm({
                     {branches.map((branch) => {
                       const isSelected = formData.branchIds.includes(branch.id);
                       return (
-                        <div key={branch.id} className="flex items-center space-x-2">
+                        <div
+                          key={branch.id}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             id={`branch-${branch.id}`}
                             checked={isSelected}
-                            onCheckedChange={() => handleBranchToggle(branch.id)}
+                            onCheckedChange={() =>
+                              handleBranchToggle(branch.id)
+                            }
                           />
                           <Label
                             htmlFor={`branch-${branch.id}`}
                             className="text-sm cursor-pointer flex items-center gap-2"
                           >
                             <Building className="h-3 w-3" />
-                            {branch.name} {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
+                            {branch.name}{" "}
+                            {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
                           </Label>
                         </div>
                       );

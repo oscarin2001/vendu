@@ -11,6 +11,7 @@ export const createBranchSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   managerIds: z.array(z.number()).optional().default([]),
+  supplierIds: z.array(z.number()).optional().default([]),
 });
 
 export const updateBranchSchema = createBranchSchema.partial();

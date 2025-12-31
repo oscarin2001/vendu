@@ -79,7 +79,7 @@ export async function createManager(tenantId: string, data: CreateManagerData) {
 
       // Crear las asignaciones de sucursales
       if (validatedData.branchIds && validatedData.branchIds.length > 0) {
-        const managerBranchData = validatedData.branchIds.map(branchId => ({
+        const managerBranchData = validatedData.branchIds.map((branchId) => ({
           FK_manager: employee.PK_employee,
           FK_branch: branchId,
         }));
@@ -108,8 +108,8 @@ export async function updateManager(
 ) {
   const validatedData = updateManagerSchema.parse(data);
 
-  // Extraer branchIds del validatedData para manejarlo por separado
-  const { branchIds, ...employeeData } = validatedData;
+  // Separar los campos que van a diferentes tablas
+  const { branchIds, email, ...employeeData } = validatedData;
 
   // Actualizar los datos básicos del empleado
   const employee = await prisma.tbemployee_profiles.update({
@@ -117,9 +117,22 @@ export async function updateManager(
     data: employeeData,
   });
 
+  // Actualizar el email en tbauth si se proporcionó
+  if (email !== undefined) {
+    await prisma.tbauth.update({
+      where: { PK_auth: employee.FK_auth },
+      data: { username: email },
+    });
+  }
+
   // Manejar la asignación/desasignación de sucursales
   if (branchIds !== undefined) {
-    console.log("Actualizando sucursales para manager:", managerId, "nuevas sucursales:", branchIds);
+    console.log(
+      "Actualizando sucursales para manager:",
+      managerId,
+      "nuevas sucursales:",
+      branchIds
+    );
 
     // Obtener sucursales actualmente asignadas a este manager
     const currentManagerBranches = await prisma.tbmanager_branches.findMany({
@@ -131,15 +144,19 @@ export async function updateManager(
       },
     });
 
-    const currentBranchIds = currentManagerBranches.map(mb => mb.FK_branch);
+    const currentBranchIds = currentManagerBranches.map((mb) => mb.FK_branch);
     console.log("Sucursales actuales:", currentBranchIds);
 
     // Sucursales a desasignar (están en current pero no en branchIds)
-    const branchesToUnassign = currentBranchIds.filter(id => !branchIds.includes(id));
+    const branchesToUnassign = currentBranchIds.filter(
+      (id) => !branchIds.includes(id)
+    );
     console.log("Sucursales a desasignar:", branchesToUnassign);
 
     // Sucursales a asignar (están en branchIds pero no en current)
-    const branchesToAssign = branchIds.filter(id => !currentBranchIds.includes(id));
+    const branchesToAssign = branchIds.filter(
+      (id) => !currentBranchIds.includes(id)
+    );
     console.log("Sucursales a asignar:", branchesToAssign);
 
     // Desasignar sucursales que ya no están en la lista
@@ -156,7 +173,7 @@ export async function updateManager(
 
     // Asignar sucursales nuevas
     if (branchesToAssign.length > 0) {
-      const managerBranchData = branchesToAssign.map(branchId => ({
+      const managerBranchData = branchesToAssign.map((branchId) => ({
         FK_manager: managerId,
         FK_branch: branchId,
       }));
@@ -167,6 +184,12 @@ export async function updateManager(
     }
   }
 
+  // Obtener el email actualizado del auth
+  const updatedAuth = await prisma.tbauth.findUnique({
+    where: { PK_auth: employee.FK_auth },
+    select: { username: true },
+  });
+
   return {
     id: employee.PK_employee,
     firstName: employee.firstName,
@@ -174,6 +197,7 @@ export async function updateManager(
     ci: employee.ci,
     phone: employee.phone,
     salary: employee.salary,
+    email: updatedAuth?.username,
     branchIds: branchIds || [],
   };
 }

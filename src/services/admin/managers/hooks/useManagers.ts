@@ -62,17 +62,22 @@ export function useManagers(tenantId: string) {
           manager.fullName.toLowerCase().includes(searchTerm) ||
           manager.email.toLowerCase().includes(searchTerm) ||
           manager.ci.includes(searchTerm) ||
-          manager.branches.some(branch => branch.name.toLowerCase().includes(searchTerm));
+          manager.branches.some((branch) =>
+            branch.name.toLowerCase().includes(searchTerm)
+          );
 
         if (!matchesSearch) return false;
       }
 
       // Branch filter
       if (filters.branch !== "all") {
-        if (filters.branch === "none" && manager.branches.length > 0) return false;
+        if (filters.branch === "none" && manager.branches.length > 0)
+          return false;
         if (
           filters.branch !== "none" &&
-          !manager.branches.some(branch => branch.id.toString() === filters.branch)
+          !manager.branches.some(
+            (branch) => branch.id.toString() === filters.branch
+          )
         )
           return false;
       }
@@ -88,7 +93,9 @@ export function useManagers(tenantId: string) {
   const metrics: ManagerMetrics = useMemo(() => {
     const total = managers.length;
     const active = managers.length; // All loaded managers are active
-    const withBranch = managers.filter((m) => m.branches && m.branches.length > 0).length;
+    const withBranch = managers.filter(
+      (m) => m.branches && m.branches.length > 0
+    ).length;
     const withoutBranch = total - withBranch;
 
     return { total, active, withBranch, withoutBranch };

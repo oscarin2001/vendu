@@ -12,11 +12,11 @@ export interface Supplier {
   country: string | null;
   notes: string | null;
   isActive: boolean;
-  manager: {
+  managers: {
     id: number;
     name: string;
     email: string;
-  } | null;
+  }[];
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -32,7 +32,7 @@ export interface CreateSupplierData {
   department?: string;
   country?: string;
   notes?: string;
-  managerId?: number;
+  managerIds: number[];
 }
 
 export interface UpdateSupplierData {
@@ -46,14 +46,14 @@ export interface UpdateSupplierData {
   department?: string;
   country?: string;
   notes?: string;
-  managerId?: number;
+  managerIds?: number[];
 }
 
 export interface SupplierMetrics {
   total: number;
   active: number;
-  withManager: number;
-  withoutManager: number;
+  withManagers: number;
+  withoutManagers: number;
 }
 
 export interface SupplierFilters {

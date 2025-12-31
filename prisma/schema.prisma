@@ -250,8 +250,8 @@ model tbemployee_profiles {
   tbpurchases        tbpurchases[]
   tbpaymentsuppliers tbpaymentsuppliers[]
 
-  // Relación con proveedores asignados
-  suppliers tbsuppliers[]
+  // Relación con proveedores asignados (muchos-a-muchos)
+  supplierManagers tbsupplier_managers[]
 
   // Relación many-to-many con sucursales a través de tabla intermedia
   managerBranches tbmanager_branches[]
@@ -362,7 +362,7 @@ model tbbranches {
   latitude     Float?
   longitude    Float?
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime?
+  updatedAt    DateTime? @updatedAt
 
   tbinventories       tbinventories[]
   // Relaciones para transferencias
@@ -383,6 +383,9 @@ model tbbranches {
 
   // Relación many-to-many con managers a través de tabla intermedia
   managerBranches tbmanager_branches[]
+
+  // Relación many-to-many con proveedores a través de tabla intermedia
+  supplierBranches tbsupplier_branches[]
 }
 
 // HORARIOS DE DIAS ESPECIALES DE LA SUCURSAL
@@ -1098,11 +1101,41 @@ model tbsuppliers {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
 
-  // Relación con manager (encargado de sucursal)
-  FK_manager Int?
-  manager    tbemployee_profiles? @relation(fields: [FK_manager], references: [PK_employee])
+  // Relación muchos-a-muchos con managers (encargados de sucursal)
+  supplierManagers tbsupplier_managers[]
+
+  // Relación muchos-a-muchos con sucursales
+  supplierBranches tbsupplier_branches[]
 
   tbpurchases tbpurchases[]
+}
+
+model tbsupplier_managers {
+  PK_supplier_manager Int @id @default(autoincrement())
+  FK_supplier         Int
+  FK_manager          Int
+  assignedAt          DateTime @default(now())
+
+  supplier tbsuppliers @relation(fields: [FK_supplier], references: [PK_supplier], onDelete: Cascade)
+  manager  tbemployee_profiles @relation(fields: [FK_manager], references: [PK_employee], onDelete: Cascade)
+
+  @@unique([FK_supplier, FK_manager])
+  @@index([FK_supplier])
+  @@index([FK_manager])
+}
+
+model tbsupplier_branches {
+  PK_supplier_branch Int @id @default(autoincrement())
+  FK_supplier        Int
+  FK_branch          Int
+  assignedAt         DateTime @default(now())
+
+  supplier tbsuppliers @relation(fields: [FK_supplier], references: [PK_supplier], onDelete: Cascade)
+  branch   tbbranches @relation(fields: [FK_branch], references: [PK_branch], onDelete: Cascade)
+
+  @@unique([FK_supplier, FK_branch])
+  @@index([FK_supplier])
+  @@index([FK_branch])
 }
 
 model tbpurchases {

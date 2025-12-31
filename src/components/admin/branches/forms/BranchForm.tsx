@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Users } from "lucide-react";
+import { X, Users, Truck } from "lucide-react";
 
 interface BranchFormData {
   name: string;
@@ -25,11 +25,13 @@ interface BranchFormData {
   department: string;
   country: string;
   managerIds: number[];
+  supplierIds: number[];
 }
 
 interface BranchFormProps {
   initialData?: Partial<BranchFormData>;
   managers?: { id: number; name: string }[];
+  suppliers?: { id: number; supplierNumber: string; name: string }[];
   onSubmit: (data: BranchFormData) => void;
   isLoading?: boolean;
   mode: "create" | "edit";
@@ -43,6 +45,7 @@ interface BranchFormProps {
 export function BranchForm({
   initialData,
   managers = [],
+  suppliers = [],
   onSubmit,
   isLoading,
   mode,
@@ -57,7 +60,26 @@ export function BranchForm({
     department: initialData?.department || "",
     country: initialData?.country || "",
     managerIds: initialData?.managerIds || [],
+    supplierIds: initialData?.supplierIds || [],
   });
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      console.log("Updating form data with initialData:", initialData);
+      setFormData({
+        name: initialData.name || "",
+        isWarehouse: initialData.isWarehouse || false,
+        phone: initialData.phone || "",
+        address: initialData.address || "",
+        city: initialData.city || "",
+        department: initialData.department || "",
+        country: initialData.country || "",
+        managerIds: initialData.managerIds || [],
+        supplierIds: initialData.supplierIds || [],
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +108,26 @@ export function BranchForm({
 
   const selectedManagers = managers.filter((manager) =>
     formData.managerIds.includes(manager.id)
+  );
+
+  const handleSupplierToggle = (supplierId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      supplierIds: prev.supplierIds.includes(supplierId)
+        ? prev.supplierIds.filter((id) => id !== supplierId)
+        : [...prev.supplierIds, supplierId],
+    }));
+  };
+
+  const removeSupplier = (supplierId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      supplierIds: prev.supplierIds.filter((id) => id !== supplierId),
+    }));
+  };
+
+  const selectedSuppliers = suppliers.filter((supplier) =>
+    formData.supplierIds.includes(supplier.id)
   );
 
   return (
@@ -291,6 +333,73 @@ export function BranchForm({
                     {managers.length === 0 && (
                       <div className="text-sm text-muted-foreground text-center py-4">
                         No hay encargados disponibles
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <Label>Proveedores (opcional)</Label>
+              <div className="space-y-3">
+                {/* Suppliers seleccionados */}
+                {selectedSuppliers.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSuppliers.map((supplier) => (
+                      <Badge
+                        key={supplier.id}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        <Truck className="h-3 w-3" />
+                        {supplier.name}
+                        <button
+                          type="button"
+                          onClick={() => removeSupplier(supplier.id)}
+                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {/* Lista de suppliers disponibles */}
+                <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Seleccionar proveedores:
+                  </div>
+                  <div className="space-y-2">
+                    {suppliers.map((supplier) => {
+                      const isSelected = formData.supplierIds.includes(
+                        supplier.id
+                      );
+                      return (
+                        <div
+                          key={supplier.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`supplier-${supplier.id}`}
+                            checked={isSelected}
+                            onCheckedChange={() =>
+                              handleSupplierToggle(supplier.id)
+                            }
+                          />
+                          <Label
+                            htmlFor={`supplier-${supplier.id}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {supplier.name}
+                          </Label>
+                        </div>
+                      );
+                    })}
+                    {suppliers.length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                        No hay proveedores disponibles
                       </div>
                     )}
                   </div>

@@ -27,6 +27,7 @@ export default function BranchesPage() {
   const {
     branches,
     managers,
+    suppliers,
     metrics,
     isLoading,
     filters,
@@ -34,6 +35,7 @@ export default function BranchesPage() {
     createBranch,
     updateBranch,
     deleteBranch,
+    reloadBranches,
   } = useBranches(tenantId);
 
   // Modal states
@@ -119,6 +121,7 @@ export default function BranchesPage() {
   const handleCreateSubmit = async (data: any) => {
     try {
       await createBranch(data);
+      await reloadBranches(); // Refresh the branches data
       setIsCreateModalOpen(false);
     } catch (error) {
       // Error is handled by the hook
@@ -130,6 +133,7 @@ export default function BranchesPage() {
 
     try {
       await updateBranch(selectedBranch.id, data);
+      await reloadBranches(); // Refresh the branches data
       setIsEditModalOpen(false);
       setSelectedBranch(null);
     } catch (error) {
@@ -174,6 +178,7 @@ export default function BranchesPage() {
           </DialogHeader>
           <BranchForm
             managers={managers}
+            suppliers={suppliers}
             onSubmit={handleCreateSubmit}
             isLoading={isLoading}
             mode="create"
@@ -198,8 +203,10 @@ export default function BranchesPage() {
                 department: selectedBranch.department || "",
                 country: selectedBranch.country || "",
                 managerIds: selectedBranch.managers.map((m) => m.id),
+                supplierIds: selectedBranch.suppliers?.map((s) => s.id) || [],
               }}
               managers={managers}
+              suppliers={suppliers}
               onSubmit={handleEditSubmit}
               isLoading={isLoading}
               mode="edit"

@@ -163,7 +163,7 @@ export default function SuppliersPage() {
                 department: selectedSupplier.department || "",
                 country: selectedSupplier.country || "",
                 notes: selectedSupplier.notes || "",
-                managerId: selectedSupplier.manager?.id,
+                managerIds: selectedSupplier.managers.map((m) => m.id),
               }}
               managers={managers}
               onSubmit={handleEditSubmit}
@@ -229,7 +229,9 @@ export default function SuppliersPage() {
                 <div>
                   <label className="text-sm font-medium">Encargado</label>
                   <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.manager?.name || "Sin asignar"}
+                    {selectedSupplier.managers.length > 0
+                      ? selectedSupplier.managers.map((m) => m.name).join(", ")
+                      : "Sin asignar"}
                   </p>
                 </div>
               </div>

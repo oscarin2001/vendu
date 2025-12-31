@@ -5,17 +5,25 @@ import { prisma } from "@/lib/prisma";
 export async function getSuppliersByCompany(tenantId: string) {
   const suppliers = await prisma.tbsuppliers.findMany({
     where: {
-      manager: {
-        company: {
-          slug: tenantId,
+      supplierManagers: {
+        some: {
+          manager: {
+            company: {
+              slug: tenantId,
+            },
+          },
         },
       },
       deletedAt: null,
     },
     include: {
-      manager: {
+      supplierManagers: {
         include: {
-          auth: true,
+          manager: {
+            include: {
+              auth: true,
+            },
+          },
         },
       },
     },
@@ -38,13 +46,11 @@ export async function getSuppliersByCompany(tenantId: string) {
     country: supplier.country,
     notes: supplier.notes,
     isActive: supplier.isActive,
-    manager: supplier.manager
-      ? {
-          id: supplier.manager.PK_employee,
-          name: `${supplier.manager.firstName} ${supplier.manager.lastName}`,
-          email: supplier.manager.auth.username,
-        }
-      : null,
+    managers: supplier.supplierManagers.map((sm: any) => ({
+      id: sm.manager.PK_employee,
+      name: `${sm.manager.firstName} ${sm.manager.lastName}`,
+      email: sm.manager.auth.username,
+    })),
     createdAt: supplier.createdAt,
     updatedAt: supplier.updatedAt,
   }));
@@ -54,9 +60,13 @@ export async function getSupplierById(supplierId: number) {
   const supplier = await prisma.tbsuppliers.findUnique({
     where: { PK_supplier: supplierId },
     include: {
-      manager: {
+      supplierManagers: {
         include: {
-          auth: true,
+          manager: {
+            include: {
+              auth: true,
+            },
+          },
         },
       },
     },
@@ -77,13 +87,11 @@ export async function getSupplierById(supplierId: number) {
     department: supplier.department,
     notes: supplier.notes,
     isActive: supplier.isActive,
-    manager: supplier.manager
-      ? {
-          id: supplier.manager.PK_employee,
-          name: `${supplier.manager.firstName} ${supplier.manager.lastName}`,
-          email: supplier.manager.auth.username,
-        }
-      : null,
+    managers: supplier.supplierManagers.map((sm: any) => ({
+      id: sm.manager.PK_employee,
+      name: `${sm.manager.firstName} ${sm.manager.lastName}`,
+      email: sm.manager.auth.username,
+    })),
     createdAt: supplier.createdAt,
     updatedAt: supplier.updatedAt,
   };

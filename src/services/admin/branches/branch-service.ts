@@ -178,16 +178,32 @@ export async function assignManagerToBranch(
     throw new Error("Employee not found");
   }
 
-  // Verificar que es un manager (puedes ajustar los códigos según tu esquema)
+  // Verificar que es un manager
   const isManager = employee.auth.privilege.privilegeCode === "BRANCH_MANAGER";
   if (!isManager) {
     throw new Error("Employee is not a manager");
   }
 
-  // Asignar el empleado a la sucursal
-  await prisma.tbemployee_profiles.update({
-    where: { PK_employee: employeeId },
-    data: { FK_branch: branchId },
+  // Verificar que no esté ya asignado a esta sucursal
+  const existingAssignment = await prisma.tbmanager_branches.findUnique({
+    where: {
+      FK_manager_FK_branch: {
+        FK_manager: employeeId,
+        FK_branch: branchId,
+      },
+    },
+  });
+
+  if (existingAssignment) {
+    throw new Error("Manager is already assigned to this branch");
+  }
+
+  // Crear la asignación en la tabla intermedia
+  await prisma.tbmanager_branches.create({
+    data: {
+      FK_manager: employeeId,
+      FK_branch: branchId,
+    },
   });
 
   return { success: true };

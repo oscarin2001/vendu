@@ -15,6 +15,12 @@ export interface Branch {
     name: string;
     email: string;
   }[];
+  suppliers: {
+    id: number;
+    supplierNumber: string;
+    name: string;
+    email: string | null;
+  }[];
   manager: {
     id: number;
     name: string;

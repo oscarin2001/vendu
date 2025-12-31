@@ -141,9 +141,7 @@ export function ManagersTable({
                     {manager.branches.map((branch) => (
                       <Badge
                         key={branch.id}
-                        variant={
-                          branch.isWarehouse ? "secondary" : "default"
-                        }
+                        variant={branch.isWarehouse ? "secondary" : "default"}
                         className="text-xs"
                       >
                         {branch.name}
