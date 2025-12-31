@@ -12,6 +12,7 @@ import {
   Settings,
   BarChart3,
   ChevronDown,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -81,6 +82,13 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
             ? `/vendu/dashboard/${tenantId}/admin/employees`
             : "/admin/employees",
           icon: UserCheck,
+        },
+        {
+          title: "Proveedores",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/suppliers`
+            : "/admin/suppliers",
+          icon: Truck,
         },
       ],
     },

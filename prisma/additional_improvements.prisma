@@ -1,0 +1,74 @@
+// MEJORAS ADICIONALES RECOMENDADAS
+
+// 1. TABLA DE AUDITORÍA CENTRALIZADA (reemplaza campos createdAt/updatedAt repetidos)
+model tbaudit_trail {
+  PK_audit     Int       @id @default(autoincrement())
+  table_name   String    // Nombre de la tabla afectada
+  record_id    Int       // ID del registro
+  action       String    // INSERT, UPDATE, DELETE
+  old_values   Json?     // Valores anteriores (solo UPDATE)
+  new_values   Json?     // Valores nuevos
+  FK_user      Int?      // Usuario que realizó la acción
+  timestamp    DateTime  @default(now())
+  ip_address   String?
+
+  user tbemployee_profiles? @relation(fields: [FK_user], references: [PK_employee])
+}
+
+// 2. TABLA DE CONFIGURACIÓN DEL SISTEMA
+model tbsystem_config {
+  PK_config Int      @id @default(autoincrement())
+  config_key String  @unique
+  config_value String
+  description String?
+  is_encrypted Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime?
+}
+
+// 3. MEJORAR tbcompanies con más campos normalizados
+model tbcompanies {
+  PK_company Int      @id @default(autoincrement())
+  name       String
+  slug       String   @unique
+  taxId      String?  @unique
+  country    String
+  state      String?
+  city       String
+  address    String
+  phone      String?
+  email      String?  @unique
+  website    String?
+  logo_url   String?
+  is_active  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime?
+
+  // Relaciones existentes...
+  tbauth               tbauth[]
+  tbemployee_profiles  tbemployee_profiles[]
+  tbbranches           tbbranches[]
+  tbproducts           tbproducts[]
+  tbaudit_logs         tbaudit_logs[]
+}
+
+// 4. INDEXES RECOMENDADOS PARA PERFORMANCE
+// Agregar estos índices en las tablas existentes:
+
+// En tbproducts
+@@index([FK_brand, FK_season, isActive])
+@@index([slug])
+
+// En tbproductvariants
+@@index([FK_product, isPublished, isActive])
+@@index([sku])
+
+// En tborderitems
+@@index([FK_order, FK_variant])
+
+// En tbstockmovements
+@@index([FK_branch, FK_productvariant, createdAt])
+
+// En tbcash_flows
+@@index([FK_session, createdAt])</content>
+<parameter name="filePath">c:\Users\oscar\Desktop\ecommerce-management\prisma\additional_improvements.prisma

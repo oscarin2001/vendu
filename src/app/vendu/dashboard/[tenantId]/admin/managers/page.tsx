@@ -10,6 +10,10 @@ import { ManagersTable } from "@/components/admin/managers/components/ManagersTa
 import { ManagerDetailsModal } from "@/components/admin/managers/components/modals/ManagerDetailsModal";
 import { ManagerCreateModal } from "@/components/admin/managers/components/modals/ManagerCreateModal";
 import { ManagerEditModal } from "@/components/admin/managers/components/modals/ManagerEditModal";
+import { ManagerDeleteInitialModal } from "@/components/admin/managers/components/modals/ManagerDeleteInitialModal";
+import { ManagerDeleteWarningModal } from "@/components/admin/managers/components/modals/ManagerDeleteWarningModal";
+import { ManagerDeleteFinalModal } from "@/components/admin/managers/components/modals/ManagerDeleteFinalModal";
+
 import { useManagers } from "@/services/admin/managers/hooks/useManagers";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
 
@@ -33,9 +37,17 @@ export default function ManagersPage() {
 
   // Modal states
   const [selectedManager, setSelectedManager] = useState<any>(null);
+  const [editData, setEditData] = useState<any>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditConfirmModalOpen, setIsEditConfirmModalOpen] = useState(false);
+  // Delete flow states
+  const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
+  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
+    useState(false);
+  const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
 
   // Modal handlers
   const handleCreateManager = () => {
@@ -53,10 +65,51 @@ export default function ManagersPage() {
   };
 
   const handleDeleteManager = (manager: any) => {
-    if (
-      confirm(`¿Estás seguro de que quieres eliminar a ${manager.fullName}?`)
-    ) {
-      deleteManager(manager.id);
+    setSelectedManager(manager);
+    setDeleteStep(1);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteNextStep = () => {
+    if (deleteStep === 1) {
+      setIsDeleteModalOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    } else if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteFinalModalOpen(true);
+      setDeleteStep(3);
+    }
+  };
+
+  const handleDeletePreviousStep = () => {
+    if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteModalOpen(true);
+      setDeleteStep(1);
+    } else if (deleteStep === 3) {
+      setIsDeleteFinalModalOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setIsDeleteWarningModalOpen(false);
+    setIsDeleteFinalModalOpen(false);
+    setSelectedManager(null);
+    setDeleteStep(1);
+  };
+
+  const handleDeleteConfirm = async (password: string) => {
+    if (!selectedManager) return;
+
+    try {
+      await deleteManager(selectedManager.id, password);
+      handleDeleteCancel(); // Close all modals
+    } catch (error) {
+      // Error is handled by the hook
     }
   };
 
@@ -148,6 +201,30 @@ export default function ManagersPage() {
           setSelectedManager(null);
         }}
         onSubmit={handleEditSubmit}
+        isLoading={isLoading}
+      />
+
+      <ManagerDeleteInitialModal
+        manager={selectedManager}
+        isOpen={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNextStep}
+      />
+
+      <ManagerDeleteWarningModal
+        manager={selectedManager}
+        isOpen={isDeleteWarningModalOpen}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNextStep}
+        onPrevious={handleDeletePreviousStep}
+      />
+
+      <ManagerDeleteFinalModal
+        manager={selectedManager}
+        isOpen={isDeleteFinalModalOpen}
+        onClose={handleDeleteCancel}
+        onPrevious={handleDeletePreviousStep}
+        onConfirm={handleDeleteConfirm}
         isLoading={isLoading}
       />
     </div>

@@ -7,6 +7,7 @@ import {
   updateManager,
   deleteManager,
 } from "@/services/admin/managers/services/manager-service";
+import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { useCompany } from "@/services/admin/company/hooks/useCompany";
 import { toast } from "sonner";
 import type {
@@ -61,17 +62,17 @@ export function useManagers(tenantId: string) {
           manager.fullName.toLowerCase().includes(searchTerm) ||
           manager.email.toLowerCase().includes(searchTerm) ||
           manager.ci.includes(searchTerm) ||
-          manager.branch?.name.toLowerCase().includes(searchTerm);
+          manager.branches.some(branch => branch.name.toLowerCase().includes(searchTerm));
 
         if (!matchesSearch) return false;
       }
 
       // Branch filter
       if (filters.branch !== "all") {
-        if (filters.branch === "none" && manager.branch) return false;
+        if (filters.branch === "none" && manager.branches.length > 0) return false;
         if (
           filters.branch !== "none" &&
-          (!manager.branch || manager.branch.id.toString() !== filters.branch)
+          !manager.branches.some(branch => branch.id.toString() === filters.branch)
         )
           return false;
       }
@@ -87,7 +88,7 @@ export function useManagers(tenantId: string) {
   const metrics: ManagerMetrics = useMemo(() => {
     const total = managers.length;
     const active = managers.length; // All loaded managers are active
-    const withBranch = managers.filter((m) => m.branch).length;
+    const withBranch = managers.filter((m) => m.branches && m.branches.length > 0).length;
     const withoutBranch = total - withBranch;
 
     return { total, active, withBranch, withoutBranch };
@@ -184,8 +185,15 @@ export function useManagers(tenantId: string) {
     }
   };
 
-  const handleDeleteManager = async (managerId: number) => {
+  const handleDeleteManager = async (
+    managerId: number,
+    adminPassword: string
+  ) => {
     try {
+      // Validar contraseña del administrador (por ahora solo longitud)
+      await validateAdminPassword(tenantId, "", adminPassword);
+
+      // Si la validación pasa, proceder con la eliminación
       await deleteManager(managerId);
       await loadManagers();
       toast.success("Encargado eliminado exitosamente");

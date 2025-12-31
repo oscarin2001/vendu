@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import {
@@ -45,20 +46,22 @@ export function BranchesFilters({
         </div>
 
         {/* Type Filter */}
-        <Select
-          value={filters.type}
-          onValueChange={(value: any) => updateFilter("type", value)}
-        >
-          <SelectTrigger className="w-40">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas</SelectItem>
-            <SelectItem value="stores">Tiendas</SelectItem>
-            <SelectItem value="warehouses">Bodegas</SelectItem>
-          </SelectContent>
-        </Select>
+        <div suppressHydrationWarning>
+          <Select
+            value={filters.type}
+            onValueChange={(value: any) => updateFilter("type", value)}
+          >
+            <SelectTrigger className="w-40">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="stores">Tiendas</SelectItem>
+              <SelectItem value="warehouses">Bodegas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Status Filter */}
         <Select

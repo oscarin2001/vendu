@@ -10,11 +10,16 @@ export interface Branch {
   latitude: number | null;
   longitude: number | null;
   openingHours: any;
+  managers: {
+    id: number;
+    name: string;
+    email: string;
+  }[];
   manager: {
     id: number;
     name: string;
     email: string;
-  } | null;
+  } | null; // Para compatibilidad con código existente
   createdAt: Date;
   updatedAt?: Date;
   createdBy?: {

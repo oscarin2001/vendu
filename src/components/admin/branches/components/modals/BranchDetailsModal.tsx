@@ -161,28 +161,35 @@ export function BranchDetailsModal({
                 )}
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Gerente Asignado</div>
-                  {branch.manager ? (
-                    <div className="bg-muted/50 p-3 rounded-lg space-y-2">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          {branch.manager.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {branch.manager.email}
-                        </span>
-                      </div>
+                  <div className="text-sm font-medium">Gerentes Asignados</div>
+                  {branch.managers && branch.managers.length > 0 ? (
+                    <div className="space-y-2">
+                      {branch.managers.map((manager) => (
+                        <div
+                          key={manager.id}
+                          className="bg-muted/50 p-3 rounded-lg space-y-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">
+                              {manager.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">
+                              {manager.email}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground italic">
-                          Sin gerente asignado
+                          Sin gerentes asignados
                         </span>
                       </div>
                     </div>

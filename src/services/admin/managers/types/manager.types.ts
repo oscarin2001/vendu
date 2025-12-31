@@ -8,15 +8,18 @@ export interface Manager {
   email: string;
   salary: number;
   hireDate: Date;
-  branch: {
+  contractType: string;
+  branches: {
     id: number;
     name: string;
     isWarehouse: boolean;
-  } | null;
+  }[];
   privilege: {
     name: string;
     code: string;
   };
+  isActive: boolean;
+  createdAt?: Date; // Fecha de creación de la cuenta (de tbauth)
 }
 
 export interface CreateManagerData {
@@ -27,7 +30,7 @@ export interface CreateManagerData {
   email: string;
   password: string;
   salary?: number;
-  branchId?: number;
+  branchIds: number[];
 }
 
 export interface UpdateManagerData {
@@ -37,7 +40,7 @@ export interface UpdateManagerData {
   phone?: string;
   email?: string;
   salary?: number;
-  branchId?: number;
+  branchIds?: number[];
 }
 
 export interface ManagerMetrics {

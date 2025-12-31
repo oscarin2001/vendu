@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -13,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCompany } from "@/services/admin/company/hooks/useCompany";
-import { Eye, EyeOff, Mail, Lock, User, Building } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Building, X } from "lucide-react";
 
 interface SubmitData {
   firstName: string;
@@ -23,7 +25,7 @@ interface SubmitData {
   email: string;
   password: string;
   salary?: number;
-  branchId: number | null;
+  branchIds: number[];
 }
 
 interface ManagerFormData extends SubmitData {
@@ -39,7 +41,7 @@ interface FormErrors {
   password?: string;
   confirmPassword?: string;
   salary?: string;
-  branchId?: string;
+  branchIds?: string;
   general?: string;
 }
 
@@ -52,7 +54,7 @@ interface ManagerFormProps {
     phone: string;
     email: string;
     salary?: number;
-    branchId: number | null;
+    branchIds: number[];
   };
   branches: { id: number; name: string; isWarehouse: boolean }[];
   onSubmit: (data: SubmitData) => void;
@@ -81,26 +83,33 @@ export function ManagerForm({
     password: "",
     confirmPassword: "",
     salary: initialData?.salary,
-    branchId: initialData?.branchId || null,
+    branchIds: initialData?.branchIds || [],
   });
 
-  const validateField = (field: keyof ManagerFormData, value: any): string | undefined => {
+  const validateField = (
+    field: keyof ManagerFormData,
+    value: any
+  ): string | undefined => {
     switch (field) {
       case "firstName":
         if (!value?.trim()) return "El nombre es requerido";
-        if (value.length < 2) return "El nombre debe tener al menos 2 caracteres";
+        if (value.length < 2)
+          return "El nombre debe tener al menos 2 caracteres";
         break;
       case "lastName":
         if (!value?.trim()) return "El apellido es requerido";
-        if (value.length < 2) return "El apellido debe tener al menos 2 caracteres";
+        if (value.length < 2)
+          return "El apellido debe tener al menos 2 caracteres";
         break;
       case "ci":
         if (!value?.trim()) return "La cédula es requerida";
-        if (!/^\d{6,10}$/.test(value)) return "La cédula debe contener solo números (6-10 dígitos)";
+        if (!/^\d{6,10}$/.test(value))
+          return "La cédula debe contener solo números (6-10 dígitos)";
         break;
       case "email":
         if (!value?.trim()) return "El correo electrónico es requerido";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Formato de correo inválido";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "Formato de correo inválido";
         if (company?.slug && !value.endsWith(`@${company.slug}.com`)) {
           return `El correo debe terminar en @${company.slug}.com`;
         }
@@ -108,20 +117,25 @@ export function ManagerForm({
       case "password":
         if (mode === "create") {
           if (!value?.trim()) return "La contraseña es requerida";
-          if (value.length < 8) return "La contraseña debe tener al menos 8 caracteres";
-          if (!/[A-Z]/.test(value)) return "La contraseña debe contener al menos una mayúscula";
+          if (value.length < 8)
+            return "La contraseña debe tener al menos 8 caracteres";
+          if (!/[A-Z]/.test(value))
+            return "La contraseña debe contener al menos una mayúscula";
         }
         break;
       case "confirmPassword":
         if (mode === "create") {
-          if (!value?.trim()) return "La confirmación de contraseña es requerida";
-          if (value !== formData.password) return "Las contraseñas no coinciden";
+          if (!value?.trim())
+            return "La confirmación de contraseña es requerida";
+          if (value !== formData.password)
+            return "Las contraseñas no coinciden";
         }
         break;
       case "salary":
         if (value !== undefined && value !== null && value !== "") {
           const numValue = parseFloat(value);
-          if (isNaN(numValue) || numValue < 0) return "El salario debe ser un número positivo";
+          if (isNaN(numValue) || numValue < 0)
+            return "El salario debe ser un número positivo";
         }
         break;
     }
@@ -157,7 +171,10 @@ export function ManagerForm({
     onSubmit(submitData as SubmitData);
   };
 
-  const handleChange = (field: keyof ManagerFormData, value: string | number | null | undefined) => {
+  const handleChange = (
+    field: keyof ManagerFormData,
+    value: string | number | null | undefined
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error for this field when user starts typing
@@ -167,10 +184,33 @@ export function ManagerForm({
 
     // Special validation for confirmPassword when password changes
     if (field === "password" && formData.confirmPassword) {
-      const confirmError = validateField("confirmPassword", formData.confirmPassword);
+      const confirmError = validateField(
+        "confirmPassword",
+        formData.confirmPassword
+      );
       setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
     }
   };
+
+  const handleBranchToggle = (branchId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      branchIds: prev.branchIds.includes(branchId)
+        ? prev.branchIds.filter(id => id !== branchId)
+        : [...prev.branchIds, branchId],
+    }));
+  };
+
+  const removeBranch = (branchId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      branchIds: prev.branchIds.filter(id => id !== branchId),
+    }));
+  };
+
+  const selectedBranches = branches.filter(branch =>
+    formData.branchIds.includes(branch.id)
+  );
 
   return (
     <Card>
@@ -289,37 +329,55 @@ export function ManagerForm({
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                    <p className="text-sm text-red-600 mt-1">
+                      {errors.password}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword">Confirmar Contraseña *</Label>
+                  <Label htmlFor="confirmPassword">
+                    Confirmar Contraseña *
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       value={formData.confirmPassword}
-                      onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("confirmPassword", e.target.value)
+                      }
                       placeholder="Repite la contraseña"
                       className="pl-10 pr-10"
                       required
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
+                    <p className="text-sm text-red-600 mt-1">
+                      {errors.confirmPassword}
+                    </p>
                   )}
                 </div>
               </>
@@ -332,7 +390,10 @@ export function ManagerForm({
                 type="number"
                 value={formData.salary || ""}
                 onChange={(e) =>
-                  handleChange("salary", e.target.value ? parseFloat(e.target.value) : undefined)
+                  handleChange(
+                    "salary",
+                    e.target.value ? parseFloat(e.target.value) : undefined
+                  )
                 }
                 placeholder="Ej: 5000"
                 min="0"
@@ -343,34 +404,63 @@ export function ManagerForm({
               )}
             </div>
 
-            <div>
-              <Label htmlFor="branch">Sucursal</Label>
-              <div className="relative">
-                <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
-                <Select
-                  value={formData.branchId?.toString() || "none"}
-                  onValueChange={(value) =>
-                    handleChange(
-                      "branchId",
-                      value === "none" ? null : parseInt(value)
-                    )
-                  }
-                >
-                  <SelectTrigger className="pl-10">
-                    <SelectValue placeholder="Seleccionar sucursal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sin sucursal asignada</SelectItem>
-                    {branches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id.toString()}>
+            <div className="md:col-span-2">
+              <Label>Sucursales</Label>
+              <div className="space-y-3">
+                {/* Sucursales seleccionadas */}
+                {selectedBranches.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedBranches.map((branch) => (
+                      <Badge key={branch.id} variant="secondary" className="flex items-center gap-1">
+                        <Building className="h-3 w-3" />
                         {branch.name} {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
-                      </SelectItem>
+                        <button
+                          type="button"
+                          onClick={() => removeBranch(branch.id)}
+                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                )}
+
+                {/* Lista de sucursales disponibles */}
+                <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Seleccionar sucursales:
+                  </div>
+                  <div className="space-y-2">
+                    {branches.map((branch) => {
+                      const isSelected = formData.branchIds.includes(branch.id);
+                      return (
+                        <div key={branch.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`branch-${branch.id}`}
+                            checked={isSelected}
+                            onCheckedChange={() => handleBranchToggle(branch.id)}
+                          />
+                          <Label
+                            htmlFor={`branch-${branch.id}`}
+                            className="text-sm cursor-pointer flex items-center gap-2"
+                          >
+                            <Building className="h-3 w-3" />
+                            {branch.name} {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
+                          </Label>
+                        </div>
+                      );
+                    })}
+                    {branches.length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                        No hay sucursales disponibles
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              {errors.branchId && (
-                <p className="text-sm text-red-600 mt-1">{errors.branchId}</p>
+              {errors.branchIds && (
+                <p className="text-sm text-red-600 mt-1">{errors.branchIds}</p>
               )}
             </div>
           </div>

@@ -22,7 +22,11 @@ export async function getManagersByCompany(tenantId: string) {
           privilege: true,
         },
       },
-      branch: true,
+      managerBranches: {
+        include: {
+          branch: true,
+        },
+      },
     },
     orderBy: {
       hireDate: "desc",
@@ -39,17 +43,18 @@ export async function getManagersByCompany(tenantId: string) {
     email: manager.auth.username,
     salary: manager.salary ? manager.salary.toNumber() : 0,
     hireDate: manager.hireDate,
-    branch: manager.branch
-      ? {
-          id: manager.branch.PK_branch,
-          name: manager.branch.name,
-          isWarehouse: manager.branch.isWarehouse,
-        }
-      : null,
+    branches: manager.managerBranches.map((mb: any) => ({
+      id: mb.branch.PK_branch,
+      name: mb.branch.name,
+      isWarehouse: mb.branch.isWarehouse,
+    })),
     privilege: {
       name: manager.auth.privilege.privilegeName,
       code: manager.auth.privilege.privilegeCode,
     },
+    isActive: manager.auth.isActive,
+    createdAt: manager.hireDate, // Usando hireDate como aproximación
+    contractType: manager.contractType,
   }));
 }
 
@@ -94,5 +99,6 @@ export async function getManagerById(managerId: number) {
       code: employee.auth.privilege.privilegeCode,
     },
     isActive: employee.auth.isActive,
+    createdAt: employee.auth.createdAt,
   };
 }

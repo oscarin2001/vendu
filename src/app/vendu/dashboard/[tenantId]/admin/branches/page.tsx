@@ -6,7 +6,9 @@ import { BranchesMetrics } from "@/components/admin/branches/components/Branches
 import { BranchesFilters } from "@/components/admin/branches/components/BranchesFilters";
 import { BranchesTable } from "@/components/admin/branches/components/BranchesTable";
 import { BranchDetailsModal } from "@/components/admin/branches/components/modals/BranchDetailsModal";
-import { DeleteBranchDialog } from "@/components/admin/branches/components/modals/DeleteBranchDialog";
+import { BranchDeleteInitialModal } from "@/components/admin/branches/components/modals/BranchDeleteInitialModal";
+import { BranchDeleteWarningModal } from "@/components/admin/branches/components/modals/BranchDeleteWarningModal";
+import { BranchDeleteFinalModal } from "@/components/admin/branches/components/modals/BranchDeleteFinalModal";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
 import {
   Dialog,
@@ -41,6 +43,11 @@ export default function BranchesPage() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  // Delete flow states
+  const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
+  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
+    useState(false);
+  const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
 
   // Modal handlers
   const handleCreateBranch = () => {
@@ -57,19 +64,51 @@ export default function BranchesPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteBranch = (branch: Branch) => {
+  const handleDeleteBranchStart = (branch: Branch) => {
     setSelectedBranch(branch);
+    setDeleteStep(1);
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleDeleteNextStep = () => {
+    if (deleteStep === 1) {
+      setIsDeleteDialogOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    } else if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteFinalModalOpen(true);
+      setDeleteStep(3);
+    }
+  };
+
+  const handleDeletePreviousStep = () => {
+    if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteDialogOpen(true);
+      setDeleteStep(1);
+    } else if (deleteStep === 3) {
+      setIsDeleteFinalModalOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setIsDeleteWarningModalOpen(false);
+    setIsDeleteFinalModalOpen(false);
+    setSelectedBranch(null);
+    setDeleteStep(1);
+  };
+
+  const handleConfirmDelete = async (password: string) => {
     if (!selectedBranch) return;
 
     setIsDeleting(true);
     try {
-      await deleteBranch(selectedBranch.id);
-      setIsDeleteDialogOpen(false);
-      setSelectedBranch(null);
+      await deleteBranch(selectedBranch.id, password);
+      handleDeleteCancel(); // Close all modals
     } catch (error) {
       // Error is handled by the hook
     } finally {
@@ -124,7 +163,7 @@ export default function BranchesPage() {
         isLoading={isLoading}
         onViewBranch={handleViewBranch}
         onEditBranch={handleEditBranch}
-        onDeleteBranch={handleDeleteBranch}
+        onDeleteBranch={handleDeleteBranchStart}
       />
 
       {/* Create Modal */}
@@ -158,7 +197,7 @@ export default function BranchesPage() {
                 city: selectedBranch.city,
                 department: selectedBranch.department || "",
                 country: selectedBranch.country || "",
-                managerId: selectedBranch.manager?.id,
+                managerIds: selectedBranch.managers.map((m) => m.id),
               }}
               managers={managers}
               onSubmit={handleEditSubmit}
@@ -184,16 +223,29 @@ export default function BranchesPage() {
         }}
       />
 
-      {/* Delete Confirmation */}
-      <DeleteBranchDialog
+      {/* Delete Confirmation Flow */}
+      <BranchDeleteInitialModal
         branch={selectedBranch}
         isOpen={isDeleteDialogOpen}
-        isDeleting={isDeleting}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNextStep}
+      />
+
+      <BranchDeleteWarningModal
+        branch={selectedBranch}
+        isOpen={isDeleteWarningModalOpen}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNextStep}
+        onPrevious={handleDeletePreviousStep}
+      />
+
+      <BranchDeleteFinalModal
+        branch={selectedBranch}
+        isOpen={isDeleteFinalModalOpen}
+        onClose={handleDeleteCancel}
+        onPrevious={handleDeletePreviousStep}
         onConfirm={handleConfirmDelete}
-        onCancel={() => {
-          setIsDeleteDialogOpen(false);
-          setSelectedBranch(null);
-        }}
+        isLoading={isDeleting}
       />
     </div>
   );

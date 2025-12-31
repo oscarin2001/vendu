@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { X, Users } from "lucide-react";
 
 interface BranchFormData {
   name: string;
@@ -22,7 +24,7 @@ interface BranchFormData {
   city: string;
   department: string;
   country: string;
-  managerId?: number;
+  managerIds: number[];
 }
 
 interface BranchFormProps {
@@ -54,7 +56,7 @@ export function BranchForm({
     city: initialData?.city || "",
     department: initialData?.department || "",
     country: initialData?.country || "",
-    managerId: initialData?.managerId,
+    managerIds: initialData?.managerIds || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,6 +67,26 @@ export function BranchForm({
   const handleChange = (field: keyof BranchFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleManagerToggle = (managerId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      managerIds: prev.managerIds.includes(managerId)
+        ? prev.managerIds.filter((id) => id !== managerId)
+        : [...prev.managerIds, managerId],
+    }));
+  };
+
+  const removeManager = (managerId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      managerIds: prev.managerIds.filter((id) => id !== managerId),
+    }));
+  };
+
+  const selectedManagers = managers.filter((manager) =>
+    formData.managerIds.includes(manager.id)
+  );
 
   return (
     <Card>
@@ -210,28 +232,70 @@ export function BranchForm({
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="manager">Encargado (opcional)</Label>
-              <Select
-                value={formData.managerId?.toString() || "none"}
-                onValueChange={(value) =>
-                  handleChange(
-                    "managerId",
-                    value === "none" ? undefined : parseInt(value)
-                  )
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar encargado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Sin encargado</SelectItem>
-                  {managers.map((manager) => (
-                    <SelectItem key={manager.id} value={manager.id.toString()}>
-                      {manager.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Encargados (opcional)</Label>
+              <div className="space-y-3">
+                {/* Managers seleccionados */}
+                {selectedManagers.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedManagers.map((manager) => (
+                      <Badge
+                        key={manager.id}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        <Users className="h-3 w-3" />
+                        {manager.name}
+                        <button
+                          type="button"
+                          onClick={() => removeManager(manager.id)}
+                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {/* Lista de managers disponibles */}
+                <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Seleccionar encargados:
+                  </div>
+                  <div className="space-y-2">
+                    {managers.map((manager) => {
+                      const isSelected = formData.managerIds.includes(
+                        manager.id
+                      );
+                      return (
+                        <div
+                          key={manager.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`manager-${manager.id}`}
+                            checked={isSelected}
+                            onCheckedChange={() =>
+                              handleManagerToggle(manager.id)
+                            }
+                          />
+                          <Label
+                            htmlFor={`manager-${manager.id}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {manager.name}
+                          </Label>
+                        </div>
+                      );
+                    })}
+                    {managers.length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                        No hay encargados disponibles
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

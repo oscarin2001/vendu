@@ -99,6 +99,7 @@ export function ManagersTable({
             <TableHead>Sucursal</TableHead>
             <TableHead>Salario</TableHead>
             <TableHead>Contratación</TableHead>
+            <TableHead>Estado</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -135,14 +136,20 @@ export function ManagersTable({
                 </div>
               </TableCell>
               <TableCell>
-                {manager.branch ? (
-                  <Badge
-                    variant={
-                      manager.branch.isWarehouse ? "secondary" : "default"
-                    }
-                  >
-                    {manager.branch.name}
-                  </Badge>
+                {manager.branches && manager.branches.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {manager.branches.map((branch) => (
+                      <Badge
+                        key={branch.id}
+                        variant={
+                          branch.isWarehouse ? "secondary" : "default"
+                        }
+                        className="text-xs"
+                      >
+                        {branch.name}
+                      </Badge>
+                    ))}
+                  </div>
                 ) : (
                   <Badge variant="outline">Sin asignar</Badge>
                 )}
@@ -156,6 +163,11 @@ export function ManagersTable({
                   month: "short",
                   day: "numeric",
                 })}
+              </TableCell>
+              <TableCell>
+                <Badge variant={manager.isActive ? "default" : "secondary"}>
+                  {manager.isActive ? "Activo" : "Inactivo"}
+                </Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>

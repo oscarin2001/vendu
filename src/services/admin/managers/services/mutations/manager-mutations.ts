@@ -69,7 +69,6 @@ export async function createManager(tenantId: string, data: CreateManagerData) {
         data: {
           FK_auth: auth.PK_auth,
           FK_company: company.PK_company,
-          FK_branch: validatedData.branchId,
           firstName: validatedData.firstName,
           lastName: validatedData.lastName,
           ci: validatedData.ci,
@@ -77,6 +76,18 @@ export async function createManager(tenantId: string, data: CreateManagerData) {
           salary: validatedData.salary,
         },
       });
+
+      // Crear las asignaciones de sucursales
+      if (validatedData.branchIds && validatedData.branchIds.length > 0) {
+        const managerBranchData = validatedData.branchIds.map(branchId => ({
+          FK_manager: employee.PK_employee,
+          FK_branch: branchId,
+        }));
+
+        await tx.tbmanager_branches.createMany({
+          data: managerBranchData,
+        });
+      }
 
       return { auth, employee };
     }
@@ -87,7 +98,7 @@ export async function createManager(tenantId: string, data: CreateManagerData) {
     firstName: result.employee.firstName,
     lastName: result.employee.lastName,
     email: result.auth.username,
-    branchId: result.employee.FK_branch,
+    branchIds: validatedData.branchIds || [],
   };
 }
 
@@ -97,17 +108,64 @@ export async function updateManager(
 ) {
   const validatedData = updateManagerSchema.parse(data);
 
+  // Extraer branchIds del validatedData para manejarlo por separado
+  const { branchIds, ...employeeData } = validatedData;
+
+  // Actualizar los datos básicos del empleado
   const employee = await prisma.tbemployee_profiles.update({
     where: { PK_employee: managerId },
-    data: {
-      firstName: validatedData.firstName,
-      lastName: validatedData.lastName,
-      ci: validatedData.ci,
-      phone: validatedData.phone,
-      salary: validatedData.salary,
-      FK_branch: validatedData.branchId,
-    },
+    data: employeeData,
   });
+
+  // Manejar la asignación/desasignación de sucursales
+  if (branchIds !== undefined) {
+    console.log("Actualizando sucursales para manager:", managerId, "nuevas sucursales:", branchIds);
+
+    // Obtener sucursales actualmente asignadas a este manager
+    const currentManagerBranches = await prisma.tbmanager_branches.findMany({
+      where: {
+        FK_manager: managerId,
+      },
+      select: {
+        FK_branch: true,
+      },
+    });
+
+    const currentBranchIds = currentManagerBranches.map(mb => mb.FK_branch);
+    console.log("Sucursales actuales:", currentBranchIds);
+
+    // Sucursales a desasignar (están en current pero no en branchIds)
+    const branchesToUnassign = currentBranchIds.filter(id => !branchIds.includes(id));
+    console.log("Sucursales a desasignar:", branchesToUnassign);
+
+    // Sucursales a asignar (están en branchIds pero no en current)
+    const branchesToAssign = branchIds.filter(id => !currentBranchIds.includes(id));
+    console.log("Sucursales a asignar:", branchesToAssign);
+
+    // Desasignar sucursales que ya no están en la lista
+    if (branchesToUnassign.length > 0) {
+      await prisma.tbmanager_branches.deleteMany({
+        where: {
+          FK_manager: managerId,
+          FK_branch: {
+            in: branchesToUnassign,
+          },
+        },
+      });
+    }
+
+    // Asignar sucursales nuevas
+    if (branchesToAssign.length > 0) {
+      const managerBranchData = branchesToAssign.map(branchId => ({
+        FK_manager: managerId,
+        FK_branch: branchId,
+      }));
+
+      await prisma.tbmanager_branches.createMany({
+        data: managerBranchData,
+      });
+    }
+  }
 
   return {
     id: employee.PK_employee,
@@ -116,7 +174,7 @@ export async function updateManager(
     ci: employee.ci,
     phone: employee.phone,
     salary: employee.salary,
-    branchId: employee.FK_branch,
+    branchIds: branchIds || [],
   };
 }
 
@@ -128,6 +186,23 @@ export async function deleteManager(managerId: number) {
       deletedAt: new Date(),
     },
   });
+
+  return { success: true };
+}
+
+export async function validateAdminPassword(
+  tenantId: string,
+  adminEmail: string,
+  password: string
+) {
+  // TODO: Implementar validación de contraseña del administrador
+  // Por ahora, solo validamos que se proporcione una contraseña
+  if (!password || password.length < 6) {
+    throw new Error("La contraseña debe tener al menos 6 caracteres");
+  }
+
+  // En una implementación completa, aquí validaríamos contra el usuario autenticado
+  // o contra un usuario administrador de la compañía
 
   return { success: true };
 }

@@ -17,6 +17,7 @@ export async function getBranchesByCompany(tenantId: string) {
               privilegeCode: "BRANCH_MANAGER",
             },
           },
+          deletedAt: null, // Solo incluir empleados no eliminados
         },
         include: {
           auth: {
@@ -44,6 +45,11 @@ export async function getBranchesByCompany(tenantId: string) {
     latitude: branch.latitude,
     longitude: branch.longitude,
     openingHours: branch.openingHours,
+    managers: branch.tbemployee_profiles.map((employee: any) => ({
+      id: employee.PK_employee,
+      name: `${employee.firstName} ${employee.lastName}`,
+      email: employee.auth.username,
+    })),
     manager: branch.tbemployee_profiles[0]
       ? {
           id: branch.tbemployee_profiles[0].PK_employee,

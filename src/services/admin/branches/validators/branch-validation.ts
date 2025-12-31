@@ -10,6 +10,7 @@ export const createBranchSchema = z.object({
   country: z.string().optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
+  managerIds: z.array(z.number()).optional().default([]),
 });
 
 export const updateBranchSchema = createBranchSchema.partial();

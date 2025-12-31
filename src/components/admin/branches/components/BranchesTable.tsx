@@ -192,17 +192,26 @@ export function BranchesTable({
                 )}
               </TableCell>
               <TableCell>
-                {branch.manager ? (
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="text-sm font-medium">
-                        {branch.manager.name}
+                {branch.managers && branch.managers.length > 0 ? (
+                  <div className="space-y-2">
+                    {branch.managers.map((manager, index) => (
+                      <div key={manager.id} className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm font-medium">
+                            {manager.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {manager.email}
+                          </div>
+                        </div>
+                        {index === 0 && branch.managers.length > 1 && (
+                          <Badge variant="secondary" className="text-xs">
+                            Principal
+                          </Badge>
+                        )}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {branch.manager.email}
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 ) : (
                   <span className="text-sm text-muted-foreground italic">

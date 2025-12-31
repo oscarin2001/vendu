@@ -249,6 +249,12 @@ model tbemployee_profiles {
   tbreservations     tbreservations[]
   tbpurchases        tbpurchases[]
   tbpaymentsuppliers tbpaymentsuppliers[]
+
+  // Relación con proveedores asignados
+  suppliers tbsuppliers[]
+
+  // Relación many-to-many con sucursales a través de tabla intermedia
+  managerBranches tbmanager_branches[]
 }
 
 model tbcustomer_profiles {
@@ -375,6 +381,9 @@ model tbbranches {
   tbstockmovements    tbstockmovements[]
   tbshifts_schedule   tbshifts_schedule[]
   tbexpenses          tbexpenses[]
+
+  // Relación many-to-many con managers a través de tabla intermedia
+  managerBranches tbmanager_branches[]
 }
 
 // HORARIOS DE DIAS ESPECIALES DE LA SUCURSAL
@@ -1024,11 +1033,16 @@ model tbsuppliers {
   address        String?
   city           String?
   department     String?
+  country        String?
   notes          String?
   isActive       Boolean   @default(true)
   deletedAt      DateTime? // Fecha de borrado lógico (soft-delete) para proveedores
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
+
+  // Relación con manager (encargado de sucursal)
+  FK_manager Int?
+  manager    tbemployee_profiles? @relation(fields: [FK_manager], references: [PK_employee])
 
   tbpurchases tbpurchases[]
 }
@@ -1136,4 +1150,19 @@ model tbcart_items {
 
   @@unique([FK_customer, FK_variant]) // Evita duplicados en el carrito
   @@index([FK_customer, createdAt])
+}
+
+// Tabla intermedia para relación many-to-many entre managers y sucursales
+model tbmanager_branches {
+  PK_manager_branch Int       @id @default(autoincrement())
+  FK_manager        Int
+  FK_branch         Int
+  assignedAt        DateTime  @default(now())
+
+  manager tbemployee_profiles @relation(fields: [FK_manager], references: [PK_employee])
+  branch  tbbranches         @relation(fields: [FK_branch], references: [PK_branch])
+
+  @@unique([FK_manager, FK_branch]) // Un manager no puede estar asignado dos veces a la misma sucursal
+  @@index([FK_manager])
+  @@index([FK_branch])
 }

@@ -13,6 +13,7 @@ import {
   deleteBranch,
 } from "@/services/admin/branches/services/branch-service";
 import { getManagersByCompany } from "@/services/admin/managers/services/manager-service";
+import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { toast } from "sonner";
 
 export function useBranches(tenantId: string) {
@@ -92,7 +93,9 @@ export function useBranches(tenantId: string) {
     const total = branches.length;
     const stores = branches.filter((b) => !b.isWarehouse).length;
     const warehouses = branches.filter((b) => b.isWarehouse).length;
-    const withManager = branches.filter((b) => b.manager).length;
+    const withManager = branches.filter(
+      (b) => b.managers && b.managers.length > 0
+    ).length;
     const withoutManager = total - withManager;
 
     return { total, stores, warehouses, withManager, withoutManager };
@@ -127,8 +130,15 @@ export function useBranches(tenantId: string) {
     }
   };
 
-  const handleDeleteBranch = async (branchId: number) => {
+  const handleDeleteBranch = async (
+    branchId: number,
+    adminPassword: string
+  ) => {
     try {
+      // Validar contraseña del administrador primero
+      await validateAdminPassword(tenantId, "", adminPassword);
+
+      // Si la validación pasa, proceder con la eliminación
       await deleteBranch(branchId);
       await loadData();
       toast.success("Sucursal eliminada exitosamente");

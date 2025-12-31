@@ -148,17 +148,22 @@ export function ManagerDetailsModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
-                    Sucursal Asignada
+                    Sucursales Asignadas
                   </label>
                   <div className="mt-1">
-                    {manager.branch ? (
-                      <Badge
-                        variant={
-                          manager.branch.isWarehouse ? "secondary" : "default"
-                        }
-                      >
-                        {manager.branch.name}
-                      </Badge>
+                    {manager.branches && manager.branches.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {manager.branches.map((branch) => (
+                          <Badge
+                            key={branch.id}
+                            variant={
+                              branch.isWarehouse ? "secondary" : "default"
+                            }
+                          >
+                            {branch.name}
+                          </Badge>
+                        ))}
+                      </div>
                     ) : (
                       <Badge variant="outline">Sin asignar</Badge>
                     )}
@@ -185,6 +190,47 @@ export function ManagerDetailsModal({
                     })}
                   </p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Información de Auditoría */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Información de Auditoría
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Estado de la Cuenta
+                  </label>
+                  <div className="mt-1">
+                    <Badge variant={manager.isActive ? "default" : "secondary"}>
+                      {manager.isActive ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </div>
+                </div>
+                {manager.createdAt && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Fecha de Creación
+                    </label>
+                    <p className="flex items-center gap-2 mt-1">
+                      <Calendar className="h-4 w-4" />
+                      {new Date(manager.createdAt).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
