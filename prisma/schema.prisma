@@ -616,7 +616,7 @@ model tbproductvariants {
   PK_variant    Int       @id @default(autoincrement())
   FK_product    Int
   sku           String    @unique
-  price         Decimal? // Precision intent: 12,2
+  price         Decimal?  // Precision intent: 12,2
   imageUrl      String? // URL de Cloudflare R2 / Images
   isPublished   Boolean   @default(false)
   featured      Boolean   @default(false) // Para destacar en ecommerce
