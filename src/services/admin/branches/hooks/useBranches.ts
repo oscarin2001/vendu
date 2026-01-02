@@ -20,9 +20,9 @@ import { toast } from "sonner";
 export function useBranches(tenantId: string) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
-  const [suppliers, setSuppliers] = useState<
-    { id: number; supplierNumber: string; name: string }[]
-  >([]);
+  const [suppliers, setSuppliers] = useState<{ id: number; name: string }[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +64,6 @@ export function useBranches(tenantId: string) {
       setSuppliers(
         suppliersData.map((s: any) => ({
           id: s.id,
-          supplierNumber: s.supplierNumber,
           name: s.fullName,
         }))
       );

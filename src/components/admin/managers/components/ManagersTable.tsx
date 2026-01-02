@@ -352,7 +352,9 @@ export function ManagersTable({
                           </>
                         )}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onConfigureService(manager)}>
+                      <DropdownMenuItem
+                        onClick={() => onConfigureService(manager)}
+                      >
                         <Settings className="h-4 w-4 mr-2" />
                         Configurar Servicio
                       </DropdownMenuItem>

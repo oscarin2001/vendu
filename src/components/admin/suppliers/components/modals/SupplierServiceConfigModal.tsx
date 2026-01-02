@@ -91,7 +91,7 @@ export function SupplierServiceConfigModal({
     setIsAssigning(true);
     try {
       // Obtener los managers actuales del supplier
-      const currentManagerIds = supplier.managers?.map(m => m.id) || [];
+      const currentManagerIds = supplier.managers?.map((m) => m.id) || [];
 
       // Agregar el nuevo manager
       const newManagerIds = [...currentManagerIds, managerId];
@@ -102,17 +102,17 @@ export function SupplierServiceConfigModal({
       toast.success("Encargado asignado exitosamente");
 
       // Actualizar el estado local
-      setAvailableManagers(prev =>
-        prev.map(manager =>
-          manager.id === managerId
-            ? { ...manager, isAssigned: true }
-            : manager
+      setAvailableManagers((prev) =>
+        prev.map((manager) =>
+          manager.id === managerId ? { ...manager, isAssigned: true } : manager
         )
       );
 
       // Actualizar el supplier prop para que se refleje en la UI
       if (supplier.managers) {
-        const assignedManager = availableManagers.find(m => m.id === managerId);
+        const assignedManager = availableManagers.find(
+          (m) => m.id === managerId
+        );
         if (assignedManager) {
           supplier.managers.push({
             id: assignedManager.id,
@@ -137,10 +137,10 @@ export function SupplierServiceConfigModal({
     setIsAssigning(true);
     try {
       // Obtener los managers actuales del supplier
-      const currentManagerIds = supplier.managers?.map(m => m.id) || [];
+      const currentManagerIds = supplier.managers?.map((m) => m.id) || [];
 
       // Remover el manager
-      const newManagerIds = currentManagerIds.filter(id => id !== managerId);
+      const newManagerIds = currentManagerIds.filter((id) => id !== managerId);
 
       // Actualizar el supplier con los managers restantes
       await removeManagerFromSupplier(tenantId, supplier.id, managerId);
@@ -148,17 +148,15 @@ export function SupplierServiceConfigModal({
       toast.success("Encargado removido exitosamente");
 
       // Actualizar el estado local
-      setAvailableManagers(prev =>
-        prev.map(manager =>
-          manager.id === managerId
-            ? { ...manager, isAssigned: false }
-            : manager
+      setAvailableManagers((prev) =>
+        prev.map((manager) =>
+          manager.id === managerId ? { ...manager, isAssigned: false } : manager
         )
       );
 
       // Actualizar el supplier prop para que se refleje en la UI
       if (supplier.managers) {
-        supplier.managers = supplier.managers.filter(m => m.id !== managerId);
+        supplier.managers = supplier.managers.filter((m) => m.id !== managerId);
       }
 
       onSuccess?.();
@@ -171,17 +169,23 @@ export function SupplierServiceConfigModal({
   };
 
   // Función auxiliar para actualizar los managers del supplier
-  const updateSupplierManagers = async (supplierId: number, managerIds: number[]) => {
-    const response = await fetch(`/api/admin/suppliers/${supplierId}/managers`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ managerIds }),
-    });
+  const updateSupplierManagers = async (
+    supplierId: number,
+    managerIds: number[]
+  ) => {
+    const response = await fetch(
+      `/api/admin/suppliers/${supplierId}/managers`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ managerIds }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to update supplier managers');
+      throw new Error("Failed to update supplier managers");
     }
 
     return response.json();
@@ -189,8 +193,12 @@ export function SupplierServiceConfigModal({
 
   if (!supplier) return null;
 
-  const assignedManagers = availableManagers.filter(manager => manager.isAssigned);
-  const unassignedManagers = availableManagers.filter(manager => !manager.isAssigned);
+  const assignedManagers = availableManagers.filter(
+    (manager) => manager.isAssigned
+  );
+  const unassignedManagers = availableManagers.filter(
+    (manager) => !manager.isAssigned
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -211,10 +219,11 @@ export function SupplierServiceConfigModal({
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Código:</span> {supplier.supplierNumber}
+                <span className="text-gray-600">ID:</span> {supplier.id}
               </div>
               <div>
-                <span className="text-gray-600">Email:</span> {supplier.email || 'No especificado'}
+                <span className="text-gray-600">Email:</span>{" "}
+                {supplier.email || "No especificado"}
               </div>
               <div>
                 <span className="text-gray-600">Encargados Asignados:</span>{" "}
@@ -222,9 +231,7 @@ export function SupplierServiceConfigModal({
               </div>
               <div>
                 <span className="text-gray-600">Estado:</span>{" "}
-                <Badge
-                  variant={supplier.isActive ? "default" : "secondary"}
-                >
+                <Badge variant={supplier.isActive ? "default" : "secondary"}>
                   {supplier.isActive ? "Activo" : "Inactivo"}
                 </Badge>
               </div>

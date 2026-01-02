@@ -34,7 +34,6 @@ export async function getSuppliersByCompany(tenantId: string) {
 
   return suppliers.map((supplier: any) => ({
     id: supplier.PK_supplier,
-    supplierNumber: supplier.supplierNumber,
     firstName: supplier.firstName,
     lastName: supplier.lastName,
     fullName: `${supplier.firstName} ${supplier.lastName}`,
@@ -76,7 +75,6 @@ export async function getSupplierById(supplierId: number) {
 
   return {
     id: supplier.PK_supplier,
-    supplierNumber: supplier.supplierNumber,
     firstName: supplier.firstName,
     lastName: supplier.lastName,
     fullName: `${supplier.firstName} ${supplier.lastName}`,

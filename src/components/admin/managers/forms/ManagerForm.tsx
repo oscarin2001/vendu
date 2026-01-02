@@ -99,9 +99,9 @@ export function ManagerForm({
   // Update email domain when company loads in create mode
   useEffect(() => {
     if (mode === "create" && company && !formData.email) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        email: `@${company.slug}.com`
+        email: `@${company.slug}.com`,
       }));
     }
   }, [company, mode]); // Removed formData.email to avoid dependency array size changes
@@ -366,10 +366,10 @@ export function ManagerForm({
                   <Input
                     id="email"
                     type="text"
-                    value={formData.email.replace(`@${company?.slug}.com`, '')}
+                    value={formData.email.replace(`@${company?.slug}.com`, "")}
                     onChange={(e) => {
                       const username = e.target.value;
-                      const domain = company ? `@${company.slug}.com` : '';
+                      const domain = company ? `@${company.slug}.com` : "";
                       handleChange("email", username + domain);
                     }}
                     placeholder="usuario"
@@ -377,7 +377,7 @@ export function ManagerForm({
                     required
                   />
                   <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-gray-600 text-sm">
-                    {company ? `@${company.slug}.com` : ''}
+                    {company ? `@${company.slug}.com` : ""}
                   </div>
                 </div>
               </div>

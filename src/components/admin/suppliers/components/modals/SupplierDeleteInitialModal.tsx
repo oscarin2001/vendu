@@ -47,9 +47,6 @@ export function SupplierDeleteInitialModal({
               <Truck className="h-4 w-4" />
               <span className="text-sm">
                 <span className="block font-medium">{supplier.fullName}</span>
-                <span className="block text-muted-foreground">
-                  {supplier.supplierNumber}
-                </span>
               </span>
             </span>
           </DialogDescription>

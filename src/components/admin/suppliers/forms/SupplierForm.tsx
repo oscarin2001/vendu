@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 
 interface SupplierFormData {
-  supplierNumber: string;
   firstName: string;
   lastName: string;
   phone: string;
@@ -27,12 +26,10 @@ interface SupplierFormData {
   department: string;
   country: string;
   notes: string;
-  managerIds: number[];
 }
 
 interface SupplierFormProps {
   initialData?: Partial<SupplierFormData>;
-  managers?: { id: number; name: string }[];
   onSubmit: (data: SupplierFormData) => void;
   isLoading?: boolean;
   mode: "create" | "edit";
@@ -40,13 +37,11 @@ interface SupplierFormProps {
 
 export function SupplierForm({
   initialData,
-  managers = [],
   onSubmit,
   isLoading,
   mode,
 }: SupplierFormProps) {
   const [formData, setFormData] = useState<SupplierFormData>({
-    supplierNumber: initialData?.supplierNumber || "",
     firstName: initialData?.firstName || "",
     lastName: initialData?.lastName || "",
     phone: initialData?.phone || "",
@@ -56,7 +51,6 @@ export function SupplierForm({
     department: initialData?.department || "",
     country: initialData?.country || "",
     notes: initialData?.notes || "",
-    managerIds: initialData?.managerIds || [],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -71,10 +65,6 @@ export function SupplierForm({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.supplierNumber.trim()) {
-      newErrors.supplierNumber = "El número de proveedor es requerido";
-    }
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = "El nombre es requerido";
@@ -103,7 +93,6 @@ export function SupplierForm({
     const submitData = {
       ...formData,
       email: formData.email?.trim() || undefined,
-      managerIds: formData.managerIds,
     };
 
     onSubmit(submitData);
@@ -120,24 +109,6 @@ export function SupplierForm({
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Supplier Number */}
-            <div className="md:col-span-2">
-              <Label htmlFor="supplierNumber">Número de Proveedor *</Label>
-              <Input
-                id="supplierNumber"
-                value={formData.supplierNumber}
-                onChange={(e) => handleChange("supplierNumber", e.target.value)}
-                placeholder="Ej: PROV-001"
-                required
-                className={errors.supplierNumber ? "border-red-500" : ""}
-              />
-              {errors.supplierNumber && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.supplierNumber}
-                </p>
-              )}
-            </div>
-
             {/* First Name */}
             <div>
               <Label htmlFor="firstName">Nombre *</Label>
@@ -265,42 +236,6 @@ export function SupplierForm({
                   placeholder="Dirección completa"
                   className="pl-10"
                 />
-              </div>
-            </div>
-
-            {/* Managers */}
-            <div className="md:col-span-2">
-              <Label>Encargados Asignados</Label>
-              <div className="mt-2 space-y-2">
-                {managers.map((manager) => (
-                  <label
-                    key={manager.id}
-                    className="flex items-center space-x-2"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.managerIds.includes(manager.id)}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        handleChange(
-                          "managerIds",
-                          checked
-                            ? [...formData.managerIds, manager.id]
-                            : formData.managerIds.filter(
-                                (id) => id !== manager.id
-                              )
-                        );
-                      }}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm">{manager.name}</span>
-                  </label>
-                ))}
-                {managers.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No hay encargados disponibles
-                  </p>
-                )}
               </div>
             </div>
 

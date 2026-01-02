@@ -1,6 +1,5 @@
 export interface Supplier {
   id: number;
-  supplierNumber: string;
   firstName: string;
   lastName: string;
   fullName: string;
@@ -22,7 +21,6 @@ export interface Supplier {
 }
 
 export interface CreateSupplierData {
-  supplierNumber: string;
   firstName: string;
   lastName: string;
   phone?: string;
@@ -32,11 +30,9 @@ export interface CreateSupplierData {
   department?: string;
   country?: string;
   notes?: string;
-  managerIds: number[];
 }
 
 export interface UpdateSupplierData {
-  supplierNumber?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -46,7 +42,6 @@ export interface UpdateSupplierData {
   department?: string;
   country?: string;
   notes?: string;
-  managerIds?: number[];
 }
 
 export interface SupplierMetrics {

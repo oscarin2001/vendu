@@ -106,7 +106,10 @@ export function WarehousesTable({
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Una bodega puede atender múltiples sucursales.</p>
-                    <p>La sucursal designada como "Principal" recibe prioridad en el servicio.</p>
+                    <p>
+                      La sucursal designada como "Principal" recibe prioridad en
+                      el servicio.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TableHead>
@@ -166,7 +169,8 @@ export function WarehousesTable({
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs">
                           {warehouse.branches.length} área
-                          {warehouse.branches.length !== 1 ? "s" : ""} de servicio
+                          {warehouse.branches.length !== 1 ? "s" : ""} de
+                          servicio
                         </Badge>
                       </div>
                       <div className="flex flex-col gap-1">

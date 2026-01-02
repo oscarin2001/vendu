@@ -92,7 +92,7 @@ export function ManagerServiceConfigModal({
     setIsAssigning(true);
     try {
       // Obtener las sucursales actuales del manager
-      const currentBranchIds = manager.branches?.map(b => b.id) || [];
+      const currentBranchIds = manager.branches?.map((b) => b.id) || [];
 
       // Agregar la nueva sucursal
       const newBranchIds = [...currentBranchIds, branchId];
@@ -103,17 +103,15 @@ export function ManagerServiceConfigModal({
       toast.success("Sucursal asignada exitosamente");
 
       // Actualizar el estado local
-      setAvailableBranches(prev =>
-        prev.map(branch =>
-          branch.id === branchId
-            ? { ...branch, isAssigned: true }
-            : branch
+      setAvailableBranches((prev) =>
+        prev.map((branch) =>
+          branch.id === branchId ? { ...branch, isAssigned: true } : branch
         )
       );
 
       // Actualizar el manager prop para que se refleje en la UI
       if (manager.branches) {
-        const assignedBranch = availableBranches.find(b => b.id === branchId);
+        const assignedBranch = availableBranches.find((b) => b.id === branchId);
         if (assignedBranch) {
           manager.branches.push({
             id: assignedBranch.id,
@@ -137,10 +135,10 @@ export function ManagerServiceConfigModal({
     setIsAssigning(true);
     try {
       // Obtener las sucursales actuales del manager
-      const currentBranchIds = manager.branches?.map(b => b.id) || [];
+      const currentBranchIds = manager.branches?.map((b) => b.id) || [];
 
       // Remover la sucursal
-      const newBranchIds = currentBranchIds.filter(id => id !== branchId);
+      const newBranchIds = currentBranchIds.filter((id) => id !== branchId);
 
       // Actualizar el manager con las sucursales restantes
       await removeBranchFromManager(tenantId, manager.id, branchId);
@@ -148,17 +146,15 @@ export function ManagerServiceConfigModal({
       toast.success("Sucursal removida exitosamente");
 
       // Actualizar el estado local
-      setAvailableBranches(prev =>
-        prev.map(branch =>
-          branch.id === branchId
-            ? { ...branch, isAssigned: false }
-            : branch
+      setAvailableBranches((prev) =>
+        prev.map((branch) =>
+          branch.id === branchId ? { ...branch, isAssigned: false } : branch
         )
       );
 
       // Actualizar el manager prop para que se refleje en la UI
       if (manager.branches) {
-        manager.branches = manager.branches.filter(b => b.id !== branchId);
+        manager.branches = manager.branches.filter((b) => b.id !== branchId);
       }
 
       onSuccess?.();
@@ -172,8 +168,12 @@ export function ManagerServiceConfigModal({
 
   if (!manager) return null;
 
-  const assignedBranches = availableBranches.filter(branch => branch.isAssigned);
-  const unassignedBranches = availableBranches.filter(branch => !branch.isAssigned);
+  const assignedBranches = availableBranches.filter(
+    (branch) => branch.isAssigned
+  );
+  const unassignedBranches = availableBranches.filter(
+    (branch) => !branch.isAssigned
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

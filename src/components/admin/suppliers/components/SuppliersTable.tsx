@@ -107,7 +107,6 @@ export function SuppliersTable({
         <TableHeader>
           <TableRow>
             <TableHead>Proveedor</TableHead>
-            <TableHead>Número</TableHead>
             <TableHead>Contacto</TableHead>
             <TableHead>Encargado</TableHead>
             <TableHead>Contribución</TableHead>
@@ -144,11 +143,6 @@ export function SuppliersTable({
                     </div>
                   </div>
                 </div>
-              </TableCell>
-              <TableCell>
-                <code className="text-sm bg-muted px-2 py-1 rounded">
-                  {supplier.supplierNumber}
-                </code>
               </TableCell>
               <TableCell>
                 <div className="space-y-1">
@@ -225,7 +219,9 @@ export function SuppliersTable({
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onConfigureService(supplier)}>
+                    <DropdownMenuItem
+                      onClick={() => onConfigureService(supplier)}
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       Configurar Servicio
                     </DropdownMenuItem>

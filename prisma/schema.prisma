@@ -1226,7 +1226,6 @@ model tbstockmovements {
 
 model tbsuppliers {
   PK_supplier    Int       @id @default(autoincrement())
-  supplierNumber String    @unique
   firstName      String
   lastName       String
   phone          String?

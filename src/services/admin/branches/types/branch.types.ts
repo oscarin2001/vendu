@@ -16,7 +16,6 @@ export interface Branch {
   }[];
   suppliers: {
     id: number;
-    supplierNumber: string;
     name: string;
     email: string | null;
   }[];

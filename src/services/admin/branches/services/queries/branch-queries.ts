@@ -62,7 +62,6 @@ export async function getBranchesByCompany(tenantId: string) {
     })),
     suppliers: branch.supplierBranches.map((sb: any) => ({
       id: sb.supplier.PK_supplier,
-      supplierNumber: sb.supplier.supplierNumber,
       name: `${sb.supplier.firstName} ${sb.supplier.lastName}`,
       email: sb.supplier.email,
     })),

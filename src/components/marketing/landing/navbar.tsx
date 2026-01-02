@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import MobileMenu from "./mobile-menu";
+import { checkAuthAndRedirect } from "@/services/auth/login/actions";
 
 export default function MarketingNavbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -43,12 +44,14 @@ export default function MarketingNavbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/register-company?mode=login"
-              className="text-sm text-slate-700 hover:underline"
-            >
-              Iniciar sesión
-            </Link>
+            <form action={checkAuthAndRedirect}>
+              <button
+                type="submit"
+                className="text-sm text-slate-700 hover:underline"
+              >
+                Iniciar sesión
+              </button>
+            </form>
             <Button>
               <Link href="/register-company">Registrar mi empresa</Link>
             </Button>

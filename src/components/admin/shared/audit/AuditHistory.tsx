@@ -45,7 +45,7 @@ interface AuditLog {
 }
 
 const formatDate = (date: string | Date) => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -91,9 +91,12 @@ const formatChanges = (oldValue: any, newValue: any) => {
   if (oldValue && newValue) {
     // Actualización
     const changes: Array<{ field: string; old: any; new: any }> = [];
-    const allKeys = new Set([...Object.keys(oldValue), ...Object.keys(newValue)]);
+    const allKeys = new Set([
+      ...Object.keys(oldValue),
+      ...Object.keys(newValue),
+    ]);
 
-    allKeys.forEach(key => {
+    allKeys.forEach((key) => {
       const oldVal = oldValue[key];
       const newVal = newValue[key];
 
@@ -214,7 +217,9 @@ export function AuditHistory({
 
                   {changes.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Cambios realizados:</h4>
+                      <h4 className="text-sm font-medium">
+                        Cambios realizados:
+                      </h4>
                       <div className="bg-muted/50 rounded p-3">
                         <Table>
                           <TableHeader>
@@ -232,7 +237,9 @@ export function AuditHistory({
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   {change.old === null ? (
-                                    <span className="text-muted-foreground italic">nulo</span>
+                                    <span className="text-muted-foreground italic">
+                                      nulo
+                                    </span>
                                   ) : (
                                     <span className="font-mono text-xs bg-red-50 text-red-700 px-2 py-1 rounded">
                                       {JSON.stringify(change.old)}
@@ -241,7 +248,9 @@ export function AuditHistory({
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   {change.new === null ? (
-                                    <span className="text-muted-foreground italic">nulo</span>
+                                    <span className="text-muted-foreground italic">
+                                      nulo
+                                    </span>
                                   ) : (
                                     <span className="font-mono text-xs bg-green-50 text-green-700 px-2 py-1 rounded">
                                       {JSON.stringify(change.new)}

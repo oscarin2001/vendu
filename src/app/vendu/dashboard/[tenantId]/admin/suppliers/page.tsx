@@ -46,8 +46,10 @@ export default function SuppliersPage() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   // Delete flow states
   const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
-  const [isDeleteInitialModalOpen, setIsDeleteInitialModalOpen] = useState(false);
-  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(false);
+  const [isDeleteInitialModalOpen, setIsDeleteInitialModalOpen] =
+    useState(false);
+  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
+    useState(false);
   const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
@@ -196,7 +198,6 @@ export default function SuppliersPage() {
             <DialogTitle>Crear Nuevo Proveedor</DialogTitle>
           </DialogHeader>
           <SupplierForm
-            managers={managers}
             onSubmit={handleCreateSubmit}
             isLoading={isLoading}
             mode="create"
@@ -213,7 +214,6 @@ export default function SuppliersPage() {
           {selectedSupplier && (
             <SupplierForm
               initialData={{
-                supplierNumber: selectedSupplier.supplierNumber,
                 firstName: selectedSupplier.firstName,
                 lastName: selectedSupplier.lastName,
                 phone: selectedSupplier.phone || "",
@@ -223,9 +223,7 @@ export default function SuppliersPage() {
                 department: selectedSupplier.department || "",
                 country: selectedSupplier.country || "",
                 notes: selectedSupplier.notes || "",
-                managerIds: selectedSupplier.managers.map((m) => m.id),
               }}
-              managers={managers}
               onSubmit={handleEditSubmit}
               isLoading={isLoading}
               mode="edit"
@@ -243,12 +241,6 @@ export default function SuppliersPage() {
           {selectedSupplier && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Número</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.supplierNumber}
-                  </p>
-                </div>
                 <div>
                   <label className="text-sm font-medium">Nombre Completo</label>
                   <p className="text-sm text-muted-foreground">

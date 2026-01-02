@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { checkAuthAndRedirect } from "@/services/auth/login/actions";
 
 export default function MobileMenu({
   open = false,
@@ -28,13 +29,11 @@ export default function MobileMenu({
           Casos
         </Link>
         <div className="mt-4 flex flex-col gap-2">
-          <Link
-            href="/register-company?mode=login"
-            onClick={onClose}
-            className="text-center"
-          >
-            Iniciar sesión
-          </Link>
+          <form action={checkAuthAndRedirect} onSubmit={onClose}>
+            <button type="submit" className="text-center w-full">
+              Iniciar sesión
+            </button>
+          </form>
           <div className="text-center">
             <Button>
               <Link href="/register-company">Registrar mi empresa</Link>

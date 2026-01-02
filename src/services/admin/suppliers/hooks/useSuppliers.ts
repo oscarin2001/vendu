@@ -67,7 +67,6 @@ export function useSuppliers(tenantId: string) {
         const searchTerm = filters.search.toLowerCase();
         const matchesSearch =
           supplier.fullName.toLowerCase().includes(searchTerm) ||
-          supplier.supplierNumber.toLowerCase().includes(searchTerm) ||
           supplier.email?.toLowerCase().includes(searchTerm) ||
           supplier.phone?.includes(searchTerm);
 

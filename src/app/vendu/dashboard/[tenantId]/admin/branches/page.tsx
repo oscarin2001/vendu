@@ -220,7 +220,8 @@ export default function BranchesPage() {
               Crear Nueva Sucursal
             </DialogTitle>
             <div className="text-sm text-gray-600 mt-2">
-              Configure una nueva ubicación de venta con toda la información necesaria
+              Configure una nueva ubicación de venta con toda la información
+              necesaria
             </div>
           </DialogHeader>
           <BranchForm
@@ -241,7 +242,10 @@ export default function BranchesPage() {
             </DialogTitle>
             <div className="text-sm text-gray-600 mt-2">
               {selectedBranch && (
-                <>Modificando información de <strong>{selectedBranch.name}</strong></>
+                <>
+                  Modificando información de{" "}
+                  <strong>{selectedBranch.name}</strong>
+                </>
               )}
             </div>
           </DialogHeader>

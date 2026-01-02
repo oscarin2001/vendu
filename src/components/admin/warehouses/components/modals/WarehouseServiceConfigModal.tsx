@@ -89,7 +89,12 @@ export function WarehouseServiceConfigModal({
 
     setIsAssigning(true);
     try {
-      await assignWarehouseToBranch(tenantId, warehouse.id, branchId, isPrimary);
+      await assignWarehouseToBranch(
+        tenantId,
+        warehouse.id,
+        branchId,
+        isPrimary
+      );
       toast.success(
         isPrimary
           ? "Sucursal designada como bodega principal exitosamente"
@@ -122,8 +127,8 @@ export function WarehouseServiceConfigModal({
     }
   };
 
-  const assignedBranches = availableBranches.filter(
-    (branch) => warehouse?.branches?.some((wb) => wb.id === branch.id)
+  const assignedBranches = availableBranches.filter((branch) =>
+    warehouse?.branches?.some((wb) => wb.id === branch.id)
   );
 
   const unassignedBranches = availableBranches.filter(
@@ -139,7 +144,8 @@ export function WarehouseServiceConfigModal({
             Configurar Servicio de Distribución
           </DialogTitle>
           <div className="text-sm text-gray-600 mt-2">
-            <strong>{warehouse?.name}</strong> - Gestiona las sucursales que atenderá esta bodega
+            <strong>{warehouse?.name}</strong> - Gestiona las sucursales que
+            atenderá esta bodega
           </div>
         </DialogHeader>
 
@@ -148,9 +154,12 @@ export function WarehouseServiceConfigModal({
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-gray-900">Resumen de Servicio</h3>
+                <h3 className="font-medium text-gray-900">
+                  Resumen de Servicio
+                </h3>
                 <p className="text-sm text-gray-600">
-                  {assignedBranches.length} de {availableBranches.length} sucursales atendidas
+                  {assignedBranches.length} de {availableBranches.length}{" "}
+                  sucursales atendidas
                 </p>
               </div>
               <Badge variant="outline" className="text-xs">
@@ -173,7 +182,11 @@ export function WarehouseServiceConfigModal({
                     className="flex items-center justify-between p-4 border rounded-lg bg-green-50 border-green-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${branch.isPrimary ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                      <div
+                        className={`p-2 rounded-full ${
+                          branch.isPrimary ? "bg-blue-100" : "bg-gray-100"
+                        }`}
+                      >
                         {branch.isPrimary ? (
                           <Star className="h-4 w-4 text-blue-600" />
                         ) : (
@@ -181,10 +194,19 @@ export function WarehouseServiceConfigModal({
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{branch.name}</p>
-                        <p className="text-sm text-gray-600">{branch.address}</p>
-                        <Badge variant={branch.isPrimary ? "default" : "secondary"} className="text-xs mt-1">
-                          {branch.isPrimary ? "Bodega Principal" : "Bodega Secundaria"}
+                        <p className="font-medium text-gray-900">
+                          {branch.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {branch.address}
+                        </p>
+                        <Badge
+                          variant={branch.isPrimary ? "default" : "secondary"}
+                          className="text-xs mt-1"
+                        >
+                          {branch.isPrimary
+                            ? "Bodega Principal"
+                            : "Bodega Secundaria"}
                         </Badge>
                       </div>
                     </div>
@@ -220,8 +242,12 @@ export function WarehouseServiceConfigModal({
                     <div className="flex items-center gap-3">
                       <Building2 className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-medium text-gray-900">{branch.name}</p>
-                        <p className="text-sm text-gray-600">{branch.address}</p>
+                        <p className="font-medium text-gray-900">
+                          {branch.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {branch.address}
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-2">

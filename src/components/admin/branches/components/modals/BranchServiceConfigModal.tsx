@@ -49,7 +49,9 @@ export function BranchServiceConfigModal({
   tenantId,
   onSuccess,
 }: BranchServiceConfigModalProps) {
-  const [availableWarehouses, setAvailableWarehouses] = useState<Warehouse[]>([]);
+  const [availableWarehouses, setAvailableWarehouses] = useState<Warehouse[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
@@ -87,12 +89,20 @@ export function BranchServiceConfigModal({
     }
   };
 
-  const handleAssignWarehouse = async (warehouseId: number, isPrimary: boolean) => {
+  const handleAssignWarehouse = async (
+    warehouseId: number,
+    isPrimary: boolean
+  ) => {
     if (!branch) return;
 
     setIsAssigning(true);
     try {
-      await assignWarehouseToBranch(tenantId, warehouseId, branch.id, isPrimary);
+      await assignWarehouseToBranch(
+        tenantId,
+        warehouseId,
+        branch.id,
+        isPrimary
+      );
       toast.success(
         isPrimary
           ? "Bodega designada como principal exitosamente"
@@ -142,7 +152,8 @@ export function BranchServiceConfigModal({
             Configurar Servicio de Bodegas
           </DialogTitle>
           <div className="text-sm text-gray-600 mt-2">
-            <strong>{branch?.name}</strong> - Gestiona las bodegas que atenderán esta sucursal
+            <strong>{branch?.name}</strong> - Gestiona las bodegas que atenderán
+            esta sucursal
           </div>
         </DialogHeader>
 
@@ -151,9 +162,12 @@ export function BranchServiceConfigModal({
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-gray-900">Resumen de Servicio</h3>
+                <h3 className="font-medium text-gray-900">
+                  Resumen de Servicio
+                </h3>
                 <p className="text-sm text-gray-600">
-                  {assignedWarehouses.length} de {availableWarehouses.length} bodegas asignadas
+                  {assignedWarehouses.length} de {availableWarehouses.length}{" "}
+                  bodegas asignadas
                 </p>
               </div>
               <Badge variant="outline" className="text-xs">
@@ -176,7 +190,11 @@ export function BranchServiceConfigModal({
                     className="flex items-center justify-between p-4 border rounded-lg bg-green-50 border-green-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${warehouse.isPrimary ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                      <div
+                        className={`p-2 rounded-full ${
+                          warehouse.isPrimary ? "bg-blue-100" : "bg-gray-100"
+                        }`}
+                      >
                         {warehouse.isPrimary ? (
                           <Star className="h-4 w-4 text-blue-600" />
                         ) : (
@@ -184,10 +202,21 @@ export function BranchServiceConfigModal({
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{warehouse.name}</p>
-                        <p className="text-sm text-gray-600">{warehouse.address}</p>
-                        <Badge variant={warehouse.isPrimary ? "default" : "secondary"} className="text-xs mt-1">
-                          {warehouse.isPrimary ? "Bodega Principal" : "Bodega Secundaria"}
+                        <p className="font-medium text-gray-900">
+                          {warehouse.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {warehouse.address}
+                        </p>
+                        <Badge
+                          variant={
+                            warehouse.isPrimary ? "default" : "secondary"
+                          }
+                          className="text-xs mt-1"
+                        >
+                          {warehouse.isPrimary
+                            ? "Bodega Principal"
+                            : "Bodega Secundaria"}
                         </Badge>
                       </div>
                     </div>
@@ -223,15 +252,21 @@ export function BranchServiceConfigModal({
                     <div className="flex items-center gap-3">
                       <Warehouse className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-medium text-gray-900">{warehouse.name}</p>
-                        <p className="text-sm text-gray-600">{warehouse.address}</p>
+                        <p className="font-medium text-gray-900">
+                          {warehouse.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {warehouse.address}
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleAssignWarehouse(warehouse.id, false)}
+                        onClick={() =>
+                          handleAssignWarehouse(warehouse.id, false)
+                        }
                         disabled={isAssigning}
                         className="text-blue-600 hover:text-blue-700"
                       >
@@ -241,7 +276,9 @@ export function BranchServiceConfigModal({
                       <Button
                         variant="default"
                         size="sm"
-                        onClick={() => handleAssignWarehouse(warehouse.id, true)}
+                        onClick={() =>
+                          handleAssignWarehouse(warehouse.id, true)
+                        }
                         disabled={isAssigning}
                       >
                         <Star className="h-4 w-4 mr-1" />
@@ -254,12 +291,13 @@ export function BranchServiceConfigModal({
             </div>
           )}
 
-          {assignedWarehouses.length === 0 && unassignedWarehouses.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <Warehouse className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No hay bodegas disponibles para configurar</p>
-            </div>
-          )}
+          {assignedWarehouses.length === 0 &&
+            unassignedWarehouses.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <Warehouse className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No hay bodegas disponibles para configurar</p>
+              </div>
+            )}
         </div>
       </DialogContent>
     </Dialog>
