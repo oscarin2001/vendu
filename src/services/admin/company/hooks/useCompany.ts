@@ -29,7 +29,11 @@ export function useCompany(tenantId: string) {
 
   // Load company data
   useEffect(() => {
-    loadCompanyData();
+    if (tenantId) {
+      loadCompanyData();
+    } else {
+      setIsLoading(false);
+    }
   }, [tenantId]);
 
   const loadCompanyData = async () => {

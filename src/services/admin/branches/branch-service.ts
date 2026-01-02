@@ -349,3 +349,13 @@ export async function assignManagerToBranch(
 
   return { success: true };
 }
+
+export async function getBranchAuditLogs(branchId: number, companyId?: number) {
+  const auditService = getAuditService(prisma);
+
+  return await auditService.getAuditLogs({
+    entityType: "BRANCH",
+    entityId: branchId,
+    companyId,
+  });
+}

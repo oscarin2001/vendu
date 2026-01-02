@@ -13,6 +13,7 @@ import { ManagerEditModal } from "@/components/admin/managers/components/modals/
 import { ManagerDeleteInitialModal } from "@/components/admin/managers/components/modals/ManagerDeleteInitialModal";
 import { ManagerDeleteWarningModal } from "@/components/admin/managers/components/modals/ManagerDeleteWarningModal";
 import { ManagerDeleteFinalModal } from "@/components/admin/managers/components/modals/ManagerDeleteFinalModal";
+import { ManagerServiceConfigModal } from "@/components/admin/managers/components/modals/ManagerServiceConfigModal";
 
 import { useManagers } from "@/services/admin/managers/hooks/useManagers";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
@@ -49,6 +50,7 @@ export default function ManagersPage() {
   const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
     useState(false);
   const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
 
   // Modal handlers
   const handleCreateManager = () => {
@@ -122,6 +124,16 @@ export default function ManagersPage() {
     }
   };
 
+  const handleConfigureManager = (manager: any) => {
+    setSelectedManager(manager);
+    setIsConfigureModalOpen(true);
+  };
+
+  const handleReloadManagers = () => {
+    // Recargar managers después de cambios en configuración
+    window.location.reload();
+  };
+
   const handleCreateSubmit = async (data: any) => {
     try {
       await createManager(data);
@@ -180,6 +192,7 @@ export default function ManagersPage() {
         onEdit={handleEditManager}
         onDelete={handleDeleteManager}
         onToggleStatus={handleToggleManagerStatus}
+        onConfigureService={handleConfigureManager}
       />
 
       {/* Modals */}
@@ -236,6 +249,15 @@ export default function ManagersPage() {
         onPrevious={handleDeletePreviousStep}
         onConfirm={handleDeleteConfirm}
         isLoading={isLoading}
+      />
+
+      {/* Service Configuration Modal */}
+      <ManagerServiceConfigModal
+        manager={selectedManager}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={handleReloadManagers}
       />
     </div>
   );

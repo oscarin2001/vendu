@@ -43,14 +43,18 @@ export function useWarehouses(tenantId: string) {
       ]);
 
       setWarehouses(warehousesData);
-      setManagers(managersData.map(manager => ({
-        id: manager.id,
-        name: manager.fullName,
-      })));
-      setBranches(branchesData.map(branch => ({
-        id: branch.id,
-        name: branch.name,
-      })));
+      setManagers(
+        managersData.map((manager) => ({
+          id: manager.id,
+          name: manager.fullName,
+        }))
+      );
+      setBranches(
+        branchesData.map((branch) => ({
+          id: branch.id,
+          name: branch.name,
+        }))
+      );
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load warehouses"
@@ -92,13 +96,18 @@ export function useWarehouses(tenantId: string) {
     const total = warehouses.length;
     const withManager = warehouses.filter((w) => w.managers.length > 0).length;
     const withoutManager = total - withManager;
-    const totalBranches = warehouses.reduce((sum, w) => sum + w.branches.length, 0);
+    const totalBranches = warehouses.reduce(
+      (sum, w) => sum + w.branches.length,
+      0
+    );
 
     // Calculate unassigned managers
     const assignedManagerIds = new Set(
-      warehouses.flatMap(w => w.managers.map(m => m.id))
+      warehouses.flatMap((w) => w.managers.map((m) => m.id))
     );
-    const unassignedManagers = managers.filter(m => !assignedManagerIds.has(m.id)).length;
+    const unassignedManagers = managers.filter(
+      (m) => !assignedManagerIds.has(m.id)
+    ).length;
 
     return {
       total,
@@ -122,11 +131,14 @@ export function useWarehouses(tenantId: string) {
   }) => {
     try {
       const newWarehouse = await createWarehouse(tenantId, data);
-      setWarehouses((prev) => [...prev, {
-        ...newWarehouse,
-        managers: [],
-        branches: [],
-      }]);
+      setWarehouses((prev) => [
+        ...prev,
+        {
+          ...newWarehouse,
+          managers: [],
+          branches: [],
+        },
+      ]);
       toast.success("Warehouse created successfully");
       return newWarehouse;
     } catch (err) {
@@ -158,7 +170,13 @@ export function useWarehouses(tenantId: string) {
       );
       setWarehouses((prev) =>
         prev.map((w) =>
-          w.id === warehouseId ? { ...w, ...updatedWarehouse, updatedAt: updatedWarehouse.updatedAt || w.updatedAt } : w
+          w.id === warehouseId
+            ? {
+                ...w,
+                ...updatedWarehouse,
+                updatedAt: updatedWarehouse.updatedAt || w.updatedAt,
+              }
+            : w
         )
       );
       toast.success("Warehouse updated successfully");

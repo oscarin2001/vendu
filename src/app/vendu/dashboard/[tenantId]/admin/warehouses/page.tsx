@@ -6,6 +6,7 @@ import { WarehousesMetrics } from "@/components/admin/warehouses/components/Ware
 import { WarehousesFilters } from "@/components/admin/warehouses/components/WarehousesFilters";
 import { WarehousesTable } from "@/components/admin/warehouses/components/WarehousesTable";
 import { WarehouseDetailsModal } from "@/components/admin/warehouses/components/modals/WarehouseDetailsModal";
+import { WarehouseServiceConfigModal } from "@/components/admin/warehouses/components/modals/WarehouseServiceConfigModal";
 import { WarehouseDeleteInitialModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteInitialModal";
 import { WarehouseDeleteWarningModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteWarningModal";
 import { WarehouseDeleteFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteFinalModal";
@@ -39,13 +40,18 @@ export default function WarehousesPage() {
   } = useWarehouses(tenantId);
 
   // Modal states
-  const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(
+    null
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
 
   // Delete flow states
-  const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">("initial");
+  const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">(
+    "initial"
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
@@ -63,6 +69,11 @@ export default function WarehousesPage() {
   const handleEditWarehouse = (warehouse: Warehouse) => {
     setSelectedWarehouse(warehouse);
     setIsEditModalOpen(true);
+  };
+
+  const handleConfigureWarehouse = (warehouse: Warehouse) => {
+    setSelectedWarehouse(warehouse);
+    setIsConfigureModalOpen(true);
   };
 
   const handleDeleteWarehouse = (warehouse: Warehouse) => {
@@ -123,7 +134,6 @@ export default function WarehousesPage() {
         city: data.city,
         department: data.department,
         country: data.country,
-
       });
       setIsCreateModalOpen(false);
       refreshData();
@@ -181,6 +191,7 @@ export default function WarehousesPage() {
         warehouses={warehouses}
         isLoading={isLoading}
         onViewWarehouse={handleViewWarehouse}
+        onConfigureWarehouse={handleConfigureWarehouse}
         onEditWarehouse={handleEditWarehouse}
         onDeleteWarehouse={handleDeleteWarehouse}
       />
@@ -191,10 +202,7 @@ export default function WarehousesPage() {
           <DialogHeader>
             <DialogTitle>Crear Nueva Bodega</DialogTitle>
           </DialogHeader>
-          <WarehouseForm
-            onSubmit={handleSubmitCreate}
-            mode="create"
-          />
+          <WarehouseForm onSubmit={handleSubmitCreate} mode="create" />
         </DialogContent>
       </Dialog>
 
@@ -264,6 +272,15 @@ export default function WarehousesPage() {
           isLoading={isDeleting}
         />
       )}
+
+      {/* Service Configuration Modal */}
+      <WarehouseServiceConfigModal
+        warehouse={selectedWarehouse}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={refreshData}
+      />
     </div>
   );
 }

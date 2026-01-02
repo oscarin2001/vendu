@@ -188,6 +188,64 @@ export class AuditService {
   }
 
   /**
+   * Obtiene el historial de auditoría para una entidad específica
+   */
+  async getAuditLogs(params: {
+    entityType: string;
+    entityId: number;
+    companyId?: number;
+    limit?: number;
+    offset?: number;
+  }) {
+    const { entityType, entityId, companyId, limit = 50, offset = 0 } = params;
+
+    const where: any = {
+      entity: entityType,
+      entityId,
+    };
+
+    if (companyId) {
+      where.FK_company = companyId;
+    }
+
+    const auditLogs = await this.prisma.tbaudit_logs.findMany({
+      where,
+      include: {
+        employee: {
+          select: {
+            PK_employee: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      skip: offset,
+    });
+
+    return auditLogs.map((log) => ({
+      id: log.PK_log,
+      entity: log.entity,
+      entityId: log.entityId,
+      action: log.action,
+      oldValue: log.oldValue,
+      newValue: log.newValue,
+      createdAt: log.createdAt.toISOString(),
+      employee: log.employee
+        ? {
+            id: log.employee.PK_employee,
+            name: `${log.employee.firstName} ${log.employee.lastName}`,
+          }
+        : null,
+      ipAddress: log.ipAddress,
+      userAgent: log.userAgent,
+    }));
+  }
+
+  /**
    * Obtiene estadísticas de auditoría para un período
    */
   async getAuditStats(companyId?: number, days: number = 30) {

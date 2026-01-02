@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
@@ -95,6 +95,16 @@ export function ManagerForm({
       (!initialData?.salary || initialData.salary === 0 ? "none" : "paid"),
     hireDate: initialData?.hireDate || new Date(),
   });
+
+  // Update email domain when company loads in create mode
+  useEffect(() => {
+    if (mode === "create" && company && !formData.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: `@${company.slug}.com`
+      }));
+    }
+  }, [company, mode]); // Removed formData.email to avoid dependency array size changes
 
   const validateField = (
     field: keyof ManagerFormData,
@@ -352,21 +362,25 @@ export function ManagerForm({
               <Label htmlFor="email">Correo Electrónico *</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder={`Ej: juan.perez@${company?.slug}.com`}
-                  className="pl-10"
-                  required
-                />
+                <div className="flex">
+                  <Input
+                    id="email"
+                    type="text"
+                    value={formData.email.replace(`@${company?.slug}.com`, '')}
+                    onChange={(e) => {
+                      const username = e.target.value;
+                      const domain = company ? `@${company.slug}.com` : '';
+                      handleChange("email", username + domain);
+                    }}
+                    placeholder="usuario"
+                    className="pl-10 rounded-r-none border-r-0"
+                    required
+                  />
+                  <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-gray-600 text-sm">
+                    {company ? `@${company.slug}.com` : ''}
+                  </div>
+                </div>
               </div>
-              {company?.slug && (
-                <p className="text-sm text-gray-500 mt-1">
-                  El correo debe terminar en @{company.slug}.com
-                </p>
-              )}
               {errors.email && (
                 <p className="text-sm text-red-600 mt-1">{errors.email}</p>
               )}
@@ -521,8 +535,7 @@ export function ManagerForm({
                         className="flex items-center gap-1"
                       >
                         <Building className="h-3 w-3" />
-                        {branch.name}{" "}
-                        (Tienda)
+                        {branch.name} (Tienda)
                         <button
                           type="button"
                           onClick={() => removeBranch(branch.id)}
@@ -560,8 +573,7 @@ export function ManagerForm({
                             className="text-sm cursor-pointer flex items-center gap-2"
                           >
                             <Building className="h-3 w-3" />
-                            {branch.name}{" "}
-                            (Tienda)
+                            {branch.name} (Tienda)
                           </Label>
                         </div>
                       );

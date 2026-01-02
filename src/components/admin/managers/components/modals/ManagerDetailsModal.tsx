@@ -186,10 +186,7 @@ export function ManagerDetailsModal({
                       {manager.branches && manager.branches.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {manager.branches.map((branch) => (
-                            <Badge
-                              key={branch.id}
-                              variant="default"
-                            >
+                            <Badge key={branch.id} variant="default">
                               {branch.name}
                             </Badge>
                           ))}

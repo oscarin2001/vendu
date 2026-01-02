@@ -79,7 +79,10 @@ export function WarehouseForm({
     }
   };
 
-  const handleChange = (field: keyof WarehouseFormData, value: string | number | null) => {
+  const handleChange = (
+    field: keyof WarehouseFormData,
+    value: string | number | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -216,7 +219,9 @@ export function WarehouseForm({
               {warehouseInfo.updatedAt && (
                 <div className="col-span-2">
                   <span className="font-medium">Última modificación:</span>{" "}
-                  {new Date(warehouseInfo.updatedAt).toLocaleDateString("es-ES")}
+                  {new Date(warehouseInfo.updatedAt).toLocaleDateString(
+                    "es-ES"
+                  )}
                 </div>
               )}
             </div>
@@ -230,7 +235,11 @@ export function WarehouseForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Guardando..." : mode === "create" ? "Crear Bodega" : "Guardar Cambios"}
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+            ? "Crear Bodega"
+            : "Guardar Cambios"}
         </Button>
       </div>
     </form>

@@ -27,6 +27,7 @@ import {
   Phone,
   Truck,
   History,
+  Settings,
 } from "lucide-react";
 import { Branch } from "@/services/admin/branches/types/branch.types";
 
@@ -44,6 +45,7 @@ interface BranchesTableProps {
   branches: Branch[];
   isLoading: boolean;
   onViewBranch: (branch: Branch) => void;
+  onConfigureBranch: (branch: Branch) => void;
   onEditBranch: (branch: Branch) => void;
   onDeleteBranch: (branch: Branch) => void;
   onViewHistory?: (branch: Branch) => void;
@@ -53,6 +55,7 @@ export function BranchesTable({
   branches,
   isLoading,
   onViewBranch,
+  onConfigureBranch,
   onEditBranch,
   onDeleteBranch,
   onViewHistory,
@@ -290,6 +293,10 @@ export function BranchesTable({
                     <DropdownMenuItem onClick={() => onViewBranch(branch)}>
                       <Eye className="h-4 w-4 mr-2" />
                       Ver detalles
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onConfigureBranch(branch)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurar Servicio
                     </DropdownMenuItem>
                     {onViewHistory && (
                       <DropdownMenuItem onClick={() => onViewHistory(branch)}>

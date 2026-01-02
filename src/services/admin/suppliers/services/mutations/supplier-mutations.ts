@@ -238,3 +238,109 @@ export async function deleteSupplier(supplierId: number) {
 
   return { success: true };
 }
+
+export async function assignManagerToSupplier(
+  tenantId: string,
+  supplierId: number,
+  managerId: number
+) {
+  const company = await prisma.tbcompanies.findUnique({
+    where: { slug: tenantId },
+  });
+
+  if (!company) {
+    throw new Error("Company not found");
+  }
+
+  // Verificar que el supplier existe y pertenece a la compañía
+  const supplier = await prisma.tbsuppliers.findFirst({
+    where: {
+      PK_supplier: supplierId,
+      deletedAt: null,
+    },
+  });
+
+  if (!supplier) {
+    throw new Error("Supplier not found");
+  }
+
+  // Verificar que el manager existe, pertenece a la compañía y tiene el rol correcto
+  const manager = await prisma.tbemployee_profiles.findFirst({
+    where: {
+      PK_employee: managerId,
+      company: {
+        slug: tenantId,
+      },
+      auth: {
+        privilege: {
+          privilegeCode: "BRANCH_MANAGER",
+        },
+      },
+      deletedAt: null,
+    },
+  });
+
+  if (!manager) {
+    throw new Error("Manager not found or does not have the required role");
+  }
+
+  // Verificar que la asignación no existe ya
+  const existing = await prisma.tbsupplier_managers.findFirst({
+    where: {
+      FK_supplier: supplierId,
+      FK_manager: managerId,
+    },
+  });
+
+  if (existing) {
+    throw new Error("Manager is already assigned to this supplier");
+  }
+
+  const assignment = await prisma.tbsupplier_managers.create({
+    data: {
+      FK_supplier: supplierId,
+      FK_manager: managerId,
+    },
+  });
+
+  return {
+    id: assignment.PK_supplier_manager,
+    supplierId: assignment.FK_supplier,
+    managerId: assignment.FK_manager,
+    assignedAt: assignment.assignedAt,
+  };
+}
+
+export async function removeManagerFromSupplier(
+  tenantId: string,
+  supplierId: number,
+  managerId: number
+) {
+  const company = await prisma.tbcompanies.findUnique({
+    where: { slug: tenantId },
+  });
+
+  if (!company) {
+    throw new Error("Company not found");
+  }
+
+  const assignment = await prisma.tbsupplier_managers.findFirst({
+    where: {
+      FK_supplier: supplierId,
+      FK_manager: managerId,
+      supplier: {
+        deletedAt: null,
+      },
+    },
+  });
+
+  if (!assignment) {
+    throw new Error("Assignment not found");
+  }
+
+  await prisma.tbsupplier_managers.delete({
+    where: { PK_supplier_manager: assignment.PK_supplier_manager },
+  });
+
+  return { success: true };
+}

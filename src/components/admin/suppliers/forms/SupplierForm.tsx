@@ -203,8 +203,8 @@ export function SupplierForm({
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="proveedor@empresa.com"
-                  className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
+                  placeholder="proveedor@ejemplo.com"
+                  className="pl-10"
                 />
               </div>
               {errors.email && (

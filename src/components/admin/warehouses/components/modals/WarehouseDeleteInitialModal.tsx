@@ -83,8 +83,7 @@ export function WarehouseDeleteInitialModal({
                   <p className="text-blue-700 mt-1">
                     {warehouse.managers.length === 1
                       ? `${warehouse.managers[0].name} está asignado a esta bodega.`
-                      : `${warehouse.managers.length} gerentes están asignados a esta bodega.`
-                    }
+                      : `${warehouse.managers.length} gerentes están asignados a esta bodega.`}
                   </p>
                 </div>
               </div>

@@ -112,7 +112,10 @@ export function WarehouseDeleteFinalModal({
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="warehouseName" className="flex items-center gap-2">
+              <Label
+                htmlFor="warehouseName"
+                className="flex items-center gap-2"
+              >
                 <Type className="h-4 w-4" />
                 Escribe el nombre de la bodega
               </Label>
@@ -123,9 +126,7 @@ export function WarehouseDeleteFinalModal({
                 placeholder={`Escribe "${warehouse.name}"`}
                 className={nameError ? "border-red-500" : ""}
               />
-              {nameError && (
-                <p className="text-sm text-red-500">{nameError}</p>
-              )}
+              {nameError && <p className="text-sm text-red-500">{nameError}</p>}
             </div>
 
             <div className="space-y-2">

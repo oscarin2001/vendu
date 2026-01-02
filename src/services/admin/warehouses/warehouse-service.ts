@@ -310,7 +310,9 @@ export async function deleteWarehouse(
   });
 
   if (managerAssignments > 0 || branchAssignments > 0) {
-    throw new Error("Cannot delete warehouse with active assignments. Remove all manager and branch assignments first.");
+    throw new Error(
+      "Cannot delete warehouse with active assignments. Remove all manager and branch assignments first."
+    );
   }
 
   await prisma.tbwarehouses.delete({

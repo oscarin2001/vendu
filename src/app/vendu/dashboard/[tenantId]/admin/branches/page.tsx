@@ -6,6 +6,7 @@ import { BranchesMetrics } from "@/components/admin/branches/components/Branches
 import { BranchesFilters } from "@/components/admin/branches/components/BranchesFilters";
 import { BranchesTable } from "@/components/admin/branches/components/BranchesTable";
 import { BranchDetailsModal } from "@/components/admin/branches/components/modals/BranchDetailsModal";
+import { BranchServiceConfigModal } from "@/components/admin/branches/components/modals/BranchServiceConfigModal";
 import { BranchDeleteInitialModal } from "@/components/admin/branches/components/modals/BranchDeleteInitialModal";
 import { BranchDeleteWarningModal } from "@/components/admin/branches/components/modals/BranchDeleteWarningModal";
 import { BranchDeleteFinalModal } from "@/components/admin/branches/components/modals/BranchDeleteFinalModal";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
 import { Branch } from "@/services/admin/branches/types/branch.types";
+import { Building2 } from "lucide-react";
 
 export default function BranchesPage() {
   const params = useParams();
@@ -44,6 +46,7 @@ export default function BranchesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAuditHistoryOpen, setIsAuditHistoryOpen] = useState(false);
@@ -66,6 +69,11 @@ export default function BranchesPage() {
   const handleEditBranch = (branch: Branch) => {
     setSelectedBranch(branch);
     setIsEditModalOpen(true);
+  };
+
+  const handleConfigureBranch = (branch: Branch) => {
+    setSelectedBranch(branch);
+    setIsConfigureModalOpen(true);
   };
 
   const handleViewHistory = (branch: Branch) => {
@@ -197,6 +205,7 @@ export default function BranchesPage() {
         branches={branches}
         isLoading={isLoading}
         onViewBranch={handleViewBranch}
+        onConfigureBranch={handleConfigureBranch}
         onEditBranch={handleEditBranch}
         onDeleteBranch={handleDeleteBranchStart}
         onViewHistory={handleViewHistory}
@@ -204,13 +213,17 @@ export default function BranchesPage() {
 
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Crear Nueva Sucursal</DialogTitle>
+            <DialogTitle className="flex items-center gap-3">
+              <Building2 className="h-6 w-6 text-blue-600" />
+              Crear Nueva Sucursal
+            </DialogTitle>
+            <div className="text-sm text-gray-600 mt-2">
+              Configure una nueva ubicación de venta con toda la información necesaria
+            </div>
           </DialogHeader>
           <BranchForm
-            managers={managers}
-            suppliers={suppliers}
             onSubmit={handleCreateSubmit}
             isLoading={isLoading}
             mode="create"
@@ -220,9 +233,17 @@ export default function BranchesPage() {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Editar Sucursal</DialogTitle>
+            <DialogTitle className="flex items-center gap-3">
+              <Building2 className="h-6 w-6 text-blue-600" />
+              Editar Sucursal
+            </DialogTitle>
+            <div className="text-sm text-gray-600 mt-2">
+              {selectedBranch && (
+                <>Modificando información de <strong>{selectedBranch.name}</strong></>
+              )}
+            </div>
           </DialogHeader>
           {selectedBranch && (
             <BranchForm
@@ -233,11 +254,7 @@ export default function BranchesPage() {
                 city: selectedBranch.city,
                 department: selectedBranch.department || "",
                 country: selectedBranch.country || "",
-                managerIds: selectedBranch.managers.map((m) => m.id),
-                supplierIds: selectedBranch.suppliers?.map((s) => s.id) || [],
               }}
-              managers={managers}
-              suppliers={suppliers}
               onSubmit={handleEditSubmit}
               isLoading={isLoading}
               mode="edit"
@@ -296,6 +313,15 @@ export default function BranchesPage() {
           setIsAuditHistoryOpen(false);
           setSelectedBranch(null);
         }}
+      />
+
+      {/* Service Configuration Modal */}
+      <BranchServiceConfigModal
+        branch={selectedBranch}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={reloadBranches}
       />
     </div>
   );

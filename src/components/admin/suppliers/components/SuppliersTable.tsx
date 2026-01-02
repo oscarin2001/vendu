@@ -28,6 +28,7 @@ import {
   Truck,
   TrendingUp,
   TrendingDown,
+  Settings,
 } from "lucide-react";
 import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
 
@@ -37,6 +38,7 @@ interface SuppliersTableProps {
   onViewDetails: (supplier: Supplier) => void;
   onEdit: (supplier: Supplier) => void;
   onDelete: (supplier: Supplier) => void;
+  onConfigureService: (supplier: Supplier) => void;
 }
 
 export function SuppliersTable({
@@ -45,6 +47,7 @@ export function SuppliersTable({
   onViewDetails,
   onEdit,
   onDelete,
+  onConfigureService,
 }: SuppliersTableProps) {
   const getSupplierContribution = (supplier: Supplier) => {
     // Si el proveedor está activo y tiene encargados asignados, está aportando
@@ -221,6 +224,10 @@ export function SuppliersTable({
                     <DropdownMenuItem onClick={() => onEdit(supplier)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onConfigureService(supplier)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurar Servicio
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDelete(supplier)}

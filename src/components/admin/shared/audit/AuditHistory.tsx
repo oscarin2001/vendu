@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import { History, User, Clock } from "lucide-react";
+import { getBranchAuditLogs } from "@/services/admin/branches/branch-service";
 
 interface AuditHistoryProps {
   entity: string;
@@ -28,21 +29,23 @@ interface AuditHistoryProps {
 }
 
 interface AuditLog {
-  PK_log: number;
+  id: number;
   entity: string;
   entityId: number;
   action: string;
   oldValue: any;
   newValue: any;
-  createdAt: Date;
+  createdAt: string;
   employee: {
-    PK_employee: number;
-    firstName: string;
-    lastName: string;
+    id: number;
+    name: string;
   } | null;
+  ipAddress: string | null;
+  userAgent: string | null;
 }
 
-const formatDate = (date: Date) => {
+const formatDate = (date: string | Date) => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -128,17 +131,21 @@ export function AuditHistory({
   const loadAuditHistory = async () => {
     setIsLoading(true);
     try {
-      const url = `/api/admin/audit/${entity}/${entityId}${companyId ? `?companyId=${companyId}` : ''}`;
-      const response = await fetch(url);
+      let history;
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch audit history');
+      // Usar el servicio correspondiente según la entidad
+      switch (entity) {
+        case "BRANCH":
+          history = await getBranchAuditLogs(entityId, companyId);
+          break;
+        default:
+          throw new Error(`Unsupported entity type: ${entity}`);
       }
 
-      const history = await response.json();
       setAuditLogs(history as AuditLog[]);
     } catch (error) {
       console.error("Error loading audit history:", error);
+      // No mostrar error al usuario por ahora
     } finally {
       setIsLoading(false);
     }
@@ -186,7 +193,7 @@ export function AuditHistory({
               const changes = formatChanges(log.oldValue, log.newValue);
 
               return (
-                <div key={log.PK_log} className="border rounded-lg p-4">
+                <div key={log.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Badge variant={actionInfo.variant}>
@@ -200,7 +207,7 @@ export function AuditHistory({
                     {log.employee && (
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <User className="h-3 w-3" />
-                        {log.employee.firstName} {log.employee.lastName}
+                        {log.employee.name}
                       </div>
                     )}
                   </div>

@@ -9,13 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
-import {
-  AlertTriangle,
-  Warehouse,
-  Users,
-  Package,
-  Truck,
-} from "lucide-react";
+import { AlertTriangle, Warehouse, Users, Package, Truck } from "lucide-react";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 
 interface WarehouseDeleteWarningModalProps {
@@ -71,8 +65,7 @@ export function WarehouseDeleteWarningModal({
                     <div className="text-blue-700 text-sm">
                       {warehouse.managers.length === 1
                         ? `${warehouse.managers[0].name} dejará de estar asignado`
-                        : `${warehouse.managers.length} gerentes dejarán de estar asignados`
-                      }
+                        : `${warehouse.managers.length} gerentes dejarán de estar asignados`}
                     </div>
                   </div>
                 </div>

@@ -15,6 +15,7 @@ import {
 import { SupplierDeleteInitialModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteInitialModal";
 import { SupplierDeleteWarningModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteWarningModal";
 import { SupplierDeleteFinalModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteFinalModal";
+import { SupplierServiceConfigModal } from "@/components/admin/suppliers/components/modals/SupplierServiceConfigModal";
 import { useSuppliers } from "@/services/admin/suppliers/hooks/useSuppliers";
 import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
@@ -49,6 +50,7 @@ export default function SuppliersPage() {
   const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(false);
   const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
 
   // Modal handlers
   const handleCreateSupplier = () => {
@@ -69,6 +71,16 @@ export default function SuppliersPage() {
     setSelectedSupplier(supplier);
     setDeleteStep(1);
     setIsDeleteInitialModalOpen(true);
+  };
+
+  const handleConfigureSupplier = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    setIsConfigureModalOpen(true);
+  };
+
+  const handleReloadSuppliers = () => {
+    // Recargar suppliers después de cambios en configuración
+    window.location.reload();
   };
 
   // Delete flow handlers
@@ -174,6 +186,7 @@ export default function SuppliersPage() {
         onViewDetails={handleViewSupplier}
         onEdit={handleEditSupplier}
         onDelete={handleDeleteSupplier}
+        onConfigureService={handleConfigureSupplier}
       />
 
       {/* Create Modal */}
@@ -326,6 +339,15 @@ export default function SuppliersPage() {
         onPrevious={handleDeletePrevious}
         onConfirm={handleDeleteConfirm}
         isLoading={isDeleting}
+      />
+
+      {/* Service Configuration Modal */}
+      <SupplierServiceConfigModal
+        supplier={selectedSupplier}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={handleReloadSuppliers}
       />
     </div>
   );

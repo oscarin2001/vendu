@@ -39,6 +39,7 @@ import {
   HelpCircle,
   TrendingUp,
   TrendingDown,
+  Settings,
 } from "lucide-react";
 import { Manager } from "@/services/admin/managers/types/manager.types";
 
@@ -49,6 +50,7 @@ interface ManagersTableProps {
   onEdit: (manager: Manager) => void;
   onDelete: (manager: Manager) => void;
   onToggleStatus: (manager: Manager) => void;
+  onConfigureService: (manager: Manager) => void;
 }
 
 export function ManagersTable({
@@ -58,6 +60,7 @@ export function ManagersTable({
   onEdit,
   onDelete,
   onToggleStatus,
+  onConfigureService,
 }: ManagersTableProps) {
   if (isLoading) {
     return (
@@ -348,6 +351,10 @@ export function ManagersTable({
                             Cambiar Estado
                           </>
                         )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onConfigureService(manager)}>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Configurar Servicio
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDelete(manager)}
