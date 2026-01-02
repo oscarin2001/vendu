@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const createBranchSchema = z.object({
   name: z.string().min(1, "Branch name is required"),
-  isWarehouse: z.boolean().default(false),
   phone: z.string().optional(),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),

@@ -66,24 +66,11 @@ export function BranchDetailsModal({
           {/* Status Badges */}
           <div className="flex items-center gap-2">
             <Badge
-              variant={branch.isWarehouse ? "secondary" : "default"}
-              className={
-                branch.isWarehouse
-                  ? "bg-orange-50 text-orange-700 border-orange-200"
-                  : "bg-blue-50 text-blue-700 border-blue-200"
-              }
+              variant="default"
+              className="bg-blue-50 text-blue-700 border-blue-200"
             >
-              {branch.isWarehouse ? (
-                <>
-                  <Warehouse className="h-3 w-3 mr-1" />
-                  Bodega
-                </>
-              ) : (
-                <>
-                  <Building2 className="h-3 w-3 mr-1" />
-                  Tienda
-                </>
-              )}
+              <Building2 className="h-3 w-3 mr-1" />
+              Tienda
             </Badge>
             <Badge
               variant="outline"

@@ -26,6 +26,7 @@ import {
   User,
   Phone,
   Truck,
+  History,
 } from "lucide-react";
 import { Branch } from "@/services/admin/branches/types/branch.types";
 
@@ -45,6 +46,7 @@ interface BranchesTableProps {
   onViewBranch: (branch: Branch) => void;
   onEditBranch: (branch: Branch) => void;
   onDeleteBranch: (branch: Branch) => void;
+  onViewHistory?: (branch: Branch) => void;
 }
 
 export function BranchesTable({
@@ -53,6 +55,7 @@ export function BranchesTable({
   onViewBranch,
   onEditBranch,
   onDeleteBranch,
+  onViewHistory,
 }: BranchesTableProps) {
   if (isLoading) {
     return (
@@ -159,14 +162,10 @@ export function BranchesTable({
               <TableCell className="font-medium">{branch.name}</TableCell>
               <TableCell>
                 <Badge
-                  variant={branch.isWarehouse ? "secondary" : "default"}
-                  className={
-                    branch.isWarehouse
-                      ? "bg-orange-50 text-orange-700 border-orange-200"
-                      : "bg-blue-50 text-blue-700 border-blue-200"
-                  }
+                  variant="default"
+                  className="bg-blue-50 text-blue-700 border-blue-200"
                 >
-                  {branch.isWarehouse ? "Bodega" : "Tienda"}
+                  Tienda
                 </Badge>
               </TableCell>
               <TableCell>
@@ -259,10 +258,26 @@ export function BranchesTable({
                 </Badge>
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
-                {formatDate(branch.createdAt)}
+                <div>
+                  <div>{formatDate(branch.createdAt)}</div>
+                  {branch.createdBy && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      por {branch.createdBy.name}
+                    </div>
+                  )}
+                </div>
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
-                {branch.updatedAt ? formatDate(branch.updatedAt) : "Nunca"}
+                <div>
+                  <div>
+                    {branch.updatedAt ? formatDate(branch.updatedAt) : "Nunca"}
+                  </div>
+                  {branch.updatedBy && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      por {branch.updatedBy.name}
+                    </div>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -276,6 +291,12 @@ export function BranchesTable({
                       <Eye className="h-4 w-4 mr-2" />
                       Ver detalles
                     </DropdownMenuItem>
+                    {onViewHistory && (
+                      <DropdownMenuItem onClick={() => onViewHistory(branch)}>
+                        <History className="h-4 w-4 mr-2" />
+                        Ver historial
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => onEditBranch(branch)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar

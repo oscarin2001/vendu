@@ -87,6 +87,7 @@ export function ManagersFilters({
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="active">Activos</SelectItem>
+            <SelectItem value="deactivated">Desactivados</SelectItem>
             <SelectItem value="inactive">Inactivos</SelectItem>
           </SelectContent>
         </Select>

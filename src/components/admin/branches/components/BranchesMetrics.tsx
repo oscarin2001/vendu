@@ -19,20 +19,6 @@ export function BranchesMetrics({ metrics, isLoading }: BranchesMetricsProps) {
       bgColor: "bg-blue-50",
     },
     {
-      title: "Tiendas",
-      value: metrics.stores,
-      icon: Building2,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Bodegas",
-      value: metrics.warehouses,
-      icon: Warehouse,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
-    {
       title: "Con Gerente",
       value: metrics.withManager,
       icon: UserCheck,
@@ -50,9 +36,9 @@ export function BranchesMetrics({ metrics, isLoading }: BranchesMetricsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
+      <div className="grid gap-4 md:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card key={index} className="animate-pulse">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 bg-gray-200 rounded w-24"></div>
               <div className="h-4 w-4 bg-gray-200 rounded"></div>
@@ -67,7 +53,7 @@ export function BranchesMetrics({ metrics, isLoading }: BranchesMetricsProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 md:grid-cols-3">
       {metricCards.map((metric) => (
         <Card key={metric.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

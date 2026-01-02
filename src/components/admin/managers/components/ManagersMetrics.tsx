@@ -26,18 +26,18 @@ export function ManagersMetrics({ metrics, isLoading }: ManagersMetricsProps) {
       bgColor: "bg-green-50",
     },
     {
-      title: "Con Sucursal",
-      value: metrics.withBranch,
-      icon: Building,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-    },
-    {
-      title: "Sin Sucursal",
-      value: metrics.withoutBranch,
+      title: "Desactivados",
+      value: metrics.deactivated,
       icon: UserX,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
+    },
+    {
+      title: "Inactivos",
+      value: metrics.inactive,
+      icon: UserX,
+      color: "text-red-600",
+      bgColor: "bg-red-50",
     },
   ];
 

@@ -41,7 +41,6 @@ export async function getBranchById(branchId: number) {
 export async function createBranch(data: {
   FK_company: number;
   name: string;
-  isWarehouse?: boolean;
   phone?: string;
   address: string;
   city: string;
@@ -59,7 +58,6 @@ export async function updateBranch(
   branchId: number,
   data: {
     name?: string;
-    isWarehouse?: boolean;
     phone?: string;
     address?: string;
     city?: string;

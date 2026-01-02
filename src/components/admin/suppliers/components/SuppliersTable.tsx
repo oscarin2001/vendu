@@ -26,6 +26,8 @@ import {
   Phone,
   User,
   Truck,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
 
@@ -44,6 +46,24 @@ export function SuppliersTable({
   onEdit,
   onDelete,
 }: SuppliersTableProps) {
+  const getSupplierContribution = (supplier: Supplier) => {
+    // Si el proveedor está activo y tiene encargados asignados, está aportando
+    if (supplier.isActive && supplier.managers.length > 0) {
+      return {
+        text: "Aporta",
+        variant: "default" as const,
+        icon: TrendingUp,
+        color: "text-white",
+      };
+    }
+    // Si está inactivo o no tiene encargados, no está contribuyendo activamente
+    return {
+      text: "Inactivo",
+      variant: "secondary" as const,
+      icon: TrendingDown,
+      color: "text-gray-600",
+    };
+  };
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -87,6 +107,7 @@ export function SuppliersTable({
             <TableHead>Número</TableHead>
             <TableHead>Contacto</TableHead>
             <TableHead>Encargado</TableHead>
+            <TableHead>Contribución</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -165,6 +186,20 @@ export function SuppliersTable({
                     Sin asignar
                   </Badge>
                 )}
+              </TableCell>
+              <TableCell>
+                {(() => {
+                  const contribution = getSupplierContribution(supplier);
+                  const IconComponent = contribution.icon;
+                  return (
+                    <Badge variant={contribution.variant} className="text-xs">
+                      <IconComponent
+                        className={`w-3 h-3 mr-1 ${contribution.color}`}
+                      />
+                      {contribution.text}
+                    </Badge>
+                  );
+                })()}
               </TableCell>
               <TableCell>
                 <Badge variant={supplier.isActive ? "default" : "secondary"}>

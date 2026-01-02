@@ -10,12 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Plus, Filter } from "lucide-react";
-import { BranchFiltersState } from "@/services/admin/branches/types/branch.types";
+import { Search, Plus } from "lucide-react";
 
 interface BranchesFiltersProps {
-  filters: BranchFiltersState;
-  onFiltersChange: (filters: BranchFiltersState) => void;
+  filters: {
+    search: string;
+    status: "all" | "withManager" | "withoutManager";
+  };
+  onFiltersChange: (filters: {
+    search: string;
+    status: "all" | "withManager" | "withoutManager";
+  }) => void;
   onCreateBranch: () => void;
 }
 
@@ -24,7 +29,7 @@ export function BranchesFilters({
   onFiltersChange,
   onCreateBranch,
 }: BranchesFiltersProps) {
-  const updateFilter = (key: keyof BranchFiltersState, value: any) => {
+  const updateFilter = (key: keyof typeof filters, value: any) => {
     onFiltersChange({
       ...filters,
       [key]: value,
@@ -45,38 +50,22 @@ export function BranchesFilters({
           />
         </div>
 
-        {/* Type Filter */}
+        {/* Status Filter */}
         <div suppressHydrationWarning>
           <Select
-            value={filters.type}
-            onValueChange={(value: any) => updateFilter("type", value)}
+            value={filters.status}
+            onValueChange={(value) => updateFilter("status", value)}
           >
-            <SelectTrigger className="w-40">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Tipo" />
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="stores">Tiendas</SelectItem>
-              <SelectItem value="warehouses">Bodegas</SelectItem>
+              <SelectItem value="all">Todas las sucursales</SelectItem>
+              <SelectItem value="withManager">Con gerente</SelectItem>
+              <SelectItem value="withoutManager">Sin gerente</SelectItem>
             </SelectContent>
           </Select>
         </div>
-
-        {/* Status Filter */}
-        <Select
-          value={filters.status}
-          onValueChange={(value: any) => updateFilter("status", value)}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            <SelectItem value="active">Activas</SelectItem>
-            <SelectItem value="inactive">Inactivas</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Create Button */}

@@ -1,7 +1,6 @@
 export interface Branch {
   id: number;
   name: string;
-  isWarehouse: boolean;
   phone: string | null;
   address: string;
   city: string;

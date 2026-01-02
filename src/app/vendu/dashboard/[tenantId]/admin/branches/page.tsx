@@ -10,6 +10,7 @@ import { BranchDeleteInitialModal } from "@/components/admin/branches/components
 import { BranchDeleteWarningModal } from "@/components/admin/branches/components/modals/BranchDeleteWarningModal";
 import { BranchDeleteFinalModal } from "@/components/admin/branches/components/modals/BranchDeleteFinalModal";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
+import { AuditHistory } from "@/components/admin/shared/audit";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,7 @@ export default function BranchesPage() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAuditHistoryOpen, setIsAuditHistoryOpen] = useState(false);
   // Delete flow states
   const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
   const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
@@ -64,6 +66,11 @@ export default function BranchesPage() {
   const handleEditBranch = (branch: Branch) => {
     setSelectedBranch(branch);
     setIsEditModalOpen(true);
+  };
+
+  const handleViewHistory = (branch: Branch) => {
+    setSelectedBranch(branch);
+    setIsAuditHistoryOpen(true);
   };
 
   const handleDeleteBranchStart = (branch: Branch) => {
@@ -109,7 +116,15 @@ export default function BranchesPage() {
 
     setIsDeleting(true);
     try {
-      await deleteBranch(selectedBranch.id, password);
+      // TODO: Get real user context from authentication
+      const userContext = {
+        employeeId: 1, // Mock user ID
+        companyId: 1, // Mock company ID
+        ipAddress: "127.0.0.1", // Mock IP
+        userAgent: "Mock User Agent",
+      };
+
+      await deleteBranch(selectedBranch.id, password, userContext);
       handleDeleteCancel(); // Close all modals
     } catch (error) {
       // Error is handled by the hook
@@ -120,7 +135,15 @@ export default function BranchesPage() {
 
   const handleCreateSubmit = async (data: any) => {
     try {
-      await createBranch(data);
+      // TODO: Get real user context from authentication
+      const userContext = {
+        employeeId: 1, // Mock user ID
+        companyId: 1, // Mock company ID
+        ipAddress: "127.0.0.1", // Mock IP
+        userAgent: "Mock User Agent",
+      };
+
+      await createBranch(data, userContext);
       await reloadBranches(); // Refresh the branches data
       setIsCreateModalOpen(false);
     } catch (error) {
@@ -132,7 +155,15 @@ export default function BranchesPage() {
     if (!selectedBranch) return;
 
     try {
-      await updateBranch(selectedBranch.id, data);
+      // TODO: Get real user context from authentication
+      const userContext = {
+        employeeId: 1, // Mock user ID
+        companyId: 1, // Mock company ID
+        ipAddress: "127.0.0.1", // Mock IP
+        userAgent: "Mock User Agent",
+      };
+
+      await updateBranch(selectedBranch.id, data, userContext);
       await reloadBranches(); // Refresh the branches data
       setIsEditModalOpen(false);
       setSelectedBranch(null);
@@ -168,6 +199,7 @@ export default function BranchesPage() {
         onViewBranch={handleViewBranch}
         onEditBranch={handleEditBranch}
         onDeleteBranch={handleDeleteBranchStart}
+        onViewHistory={handleViewHistory}
       />
 
       {/* Create Modal */}
@@ -196,7 +228,6 @@ export default function BranchesPage() {
             <BranchForm
               initialData={{
                 name: selectedBranch.name,
-                isWarehouse: selectedBranch.isWarehouse,
                 phone: selectedBranch.phone || "",
                 address: selectedBranch.address,
                 city: selectedBranch.city,
@@ -253,6 +284,18 @@ export default function BranchesPage() {
         onPrevious={handleDeletePreviousStep}
         onConfirm={handleConfirmDelete}
         isLoading={isDeleting}
+      />
+
+      {/* Audit History Modal */}
+      <AuditHistory
+        entity="BRANCH"
+        entityId={selectedBranch?.id || 0}
+        companyId={1} // TODO: Get from tenant context
+        isOpen={isAuditHistoryOpen}
+        onClose={() => {
+          setIsAuditHistoryOpen(false);
+          setSelectedBranch(null);
+        }}
       />
     </div>
   );

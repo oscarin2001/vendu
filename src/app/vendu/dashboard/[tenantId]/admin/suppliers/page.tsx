@@ -12,7 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SupplierDeleteInitialModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteInitialModal";
+import { SupplierDeleteWarningModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteWarningModal";
+import { SupplierDeleteFinalModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteFinalModal";
 import { useSuppliers } from "@/services/admin/suppliers/hooks/useSuppliers";
+import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
 
 export default function SuppliersPage() {
@@ -39,7 +43,11 @@ export default function SuppliersPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // Delete flow states
+  const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
+  const [isDeleteInitialModalOpen, setIsDeleteInitialModalOpen] = useState(false);
+  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(false);
+  const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Modal handlers
@@ -59,7 +67,41 @@ export default function SuppliersPage() {
 
   const handleDeleteSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
-    setIsDeleteModalOpen(true);
+    setDeleteStep(1);
+    setIsDeleteInitialModalOpen(true);
+  };
+
+  // Delete flow handlers
+  const handleDeleteNext = () => {
+    if (deleteStep === 1) {
+      setIsDeleteInitialModalOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    } else if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteFinalModalOpen(true);
+      setDeleteStep(3);
+    }
+  };
+
+  const handleDeletePrevious = () => {
+    if (deleteStep === 2) {
+      setIsDeleteWarningModalOpen(false);
+      setIsDeleteInitialModalOpen(true);
+      setDeleteStep(1);
+    } else if (deleteStep === 3) {
+      setIsDeleteFinalModalOpen(false);
+      setIsDeleteWarningModalOpen(true);
+      setDeleteStep(2);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteInitialModalOpen(false);
+    setIsDeleteWarningModalOpen(false);
+    setIsDeleteFinalModalOpen(false);
+    setSelectedSupplier(null);
+    setDeleteStep(1);
   };
 
   // Form handlers
@@ -84,14 +126,19 @@ export default function SuppliersPage() {
     }
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async (password: string) => {
     if (!selectedSupplier) return;
 
     setIsDeleting(true);
     try {
+      // Validate admin password first
+      await validateAdminPassword(tenantId, "", password);
+
+      // If validation passes, proceed with deletion
       await deleteSupplier(selectedSupplier.id);
-      setIsDeleteModalOpen(false);
-      setSelectedSupplier(null);
+
+      // Close all modals and reset state
+      handleDeleteCancel();
     } catch (error) {
       // Error is handled by the hook
     } finally {
@@ -256,37 +303,30 @@ export default function SuppliersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Modal */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Eliminar Proveedor</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              ¿Estás seguro de que quieres eliminar a{" "}
-              <strong>{selectedSupplier?.fullName}</strong>? Esta acción no se
-              puede deshacer.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                disabled={isDeleting}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50"
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Eliminando..." : "Eliminar"}
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Modals */}
+      <SupplierDeleteInitialModal
+        supplier={selectedSupplier}
+        isOpen={isDeleteInitialModalOpen}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNext}
+      />
+
+      <SupplierDeleteWarningModal
+        supplier={selectedSupplier}
+        isOpen={isDeleteWarningModalOpen}
+        onClose={handleDeleteCancel}
+        onNext={handleDeleteNext}
+        onPrevious={handleDeletePrevious}
+      />
+
+      <SupplierDeleteFinalModal
+        supplier={selectedSupplier}
+        isOpen={isDeleteFinalModalOpen}
+        onClose={handleDeleteCancel}
+        onPrevious={handleDeletePrevious}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

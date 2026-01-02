@@ -23,7 +23,6 @@ export async function createBranch(tenantId: string, data: CreateBranchData) {
     data: {
       FK_company: company.PK_company,
       name: validatedData.name,
-      isWarehouse: validatedData.isWarehouse,
       phone: validatedData.phone,
       address: validatedData.address,
       city: validatedData.city,
@@ -37,7 +36,6 @@ export async function createBranch(tenantId: string, data: CreateBranchData) {
   return {
     id: branch.PK_branch,
     name: branch.name,
-    isWarehouse: branch.isWarehouse,
     phone: branch.phone,
     address: branch.address,
     city: branch.city,
@@ -183,7 +181,6 @@ export async function updateBranch(branchId: number, data: UpdateBranchData) {
   return {
     id: branch.PK_branch,
     name: branch.name,
-    isWarehouse: branch.isWarehouse,
     phone: branch.phone,
     address: branch.address,
     city: branch.city,
@@ -191,7 +188,6 @@ export async function updateBranch(branchId: number, data: UpdateBranchData) {
     country: branch.country,
     latitude: branch.latitude,
     longitude: branch.longitude,
-    updatedAt: branch.updatedAt,
   };
 }
 

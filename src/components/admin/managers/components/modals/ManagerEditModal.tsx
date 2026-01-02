@@ -12,7 +12,7 @@ import { Manager } from "@/services/admin/managers/types/manager.types";
 interface ManagerEditModalProps {
   tenantId: string;
   manager: Manager | null;
-  branches: { id: number; name: string; isWarehouse: boolean }[];
+  branches: { id: number; name: string }[];
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
@@ -38,6 +38,8 @@ export function ManagerEditModal({
     email: manager.email,
     salary: manager.salary,
     branchIds: manager.branches.map((b) => b.id),
+    contributionType: manager.contributionType,
+    hireDate: manager.hireDate,
   };
 
   return (

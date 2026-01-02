@@ -66,7 +66,6 @@ export async function createCompanyAndOwner(params: CreateParams) {
           city: branch.city,
           department: branch.department ?? "",
           phone: branch.phone ?? "",
-          isWarehouse: false,
         },
       });
 

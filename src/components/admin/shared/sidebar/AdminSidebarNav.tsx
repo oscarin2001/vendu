@@ -13,6 +13,7 @@ import {
   BarChart3,
   ChevronDown,
   Truck,
+  Warehouse,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -62,6 +63,13 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
             ? `/vendu/dashboard/${tenantId}/admin/branches`
             : "/admin/branches",
           icon: MapPin,
+        },
+        {
+          title: "Bodegas",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/warehouses`
+            : "/admin/warehouses",
+          icon: Warehouse,
         },
       ],
     },

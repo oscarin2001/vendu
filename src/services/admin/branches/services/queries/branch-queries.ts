@@ -47,7 +47,6 @@ export async function getBranchesByCompany(tenantId: string) {
   return branches.map((branch: any) => ({
     id: branch.PK_branch,
     name: branch.name,
-    isWarehouse: branch.isWarehouse,
     phone: branch.phone,
     address: branch.address,
     city: branch.city,

@@ -11,7 +11,7 @@ import {
   createBranch,
   updateBranch,
   deleteBranch,
-} from "@/services/admin/branches/services/branch-service";
+} from "../branch-service";
 import { getManagersByCompany } from "@/services/admin/managers/services/manager-service";
 import { getSuppliersByCompany } from "@/services/admin/suppliers/services/queries/supplier-queries";
 import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
@@ -26,11 +26,10 @@ export function useBranches(tenantId: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters state
-  const [filters, setFilters] = useState<BranchFiltersState>({
+  // Filters state - simplified for stores only
+  const [filters, setFilters] = useState({
     search: "",
-    type: "all",
-    status: "all",
+    status: "all" as "all" | "withManager" | "withoutManager",
   });
 
   // Load initial data
@@ -49,7 +48,13 @@ export function useBranches(tenantId: string) {
         getSuppliersByCompany(tenantId),
       ]);
 
-      setBranches(branchesData);
+      setBranches(
+        branchesData.map((branch: any) => ({
+          ...branch,
+          managers: branch.manager ? [branch.manager] : [], // Convertir manager singular a array managers
+          suppliers: [], // TODO: Implementar suppliers en getBranchesByCompany
+        }))
+      );
       setManagers(
         managersData.map((m: any) => ({
           id: m.id,
@@ -88,13 +93,13 @@ export function useBranches(tenantId: string) {
         if (!matchesSearch) return false;
       }
 
-      // Type filter
-      if (filters.type === "stores" && branch.isWarehouse) return false;
-      if (filters.type === "warehouses" && !branch.isWarehouse) return false;
-
-      // Status filter (assuming all branches are active for now)
-      // TODO: Add status field to branch model
-      if (filters.status !== "all") return false;
+      // Status filter
+      if (filters.status === "withManager") {
+        return branch.manager !== null;
+      }
+      if (filters.status === "withoutManager") {
+        return branch.manager === null;
+      }
 
       return true;
     });
@@ -103,8 +108,8 @@ export function useBranches(tenantId: string) {
   // Computed metrics
   const metrics: BranchMetrics = useMemo(() => {
     const total = branches.length;
-    const stores = branches.filter((b) => !b.isWarehouse).length;
-    const warehouses = branches.filter((b) => b.isWarehouse).length;
+    const stores = branches.length; // All branches are now stores
+    const warehouses = 0; // Warehouses are separate
     const withManager = branches.filter(
       (b) => b.managers && b.managers.length > 0
     ).length;
@@ -114,9 +119,9 @@ export function useBranches(tenantId: string) {
   }, [branches]);
 
   // CRUD operations
-  const handleCreateBranch = async (data: any) => {
+  const handleCreateBranch = async (data: any, userContext?: any) => {
     try {
-      await createBranch(tenantId, data);
+      await createBranch(tenantId, data, userContext);
       await loadData();
       toast.success("Sucursal creada exitosamente");
       return { success: true };
@@ -128,9 +133,13 @@ export function useBranches(tenantId: string) {
     }
   };
 
-  const handleUpdateBranch = async (branchId: number, data: any) => {
+  const handleUpdateBranch = async (
+    branchId: number,
+    data: any,
+    userContext?: any
+  ) => {
     try {
-      await updateBranch(branchId, data);
+      await updateBranch(branchId, data, userContext);
       await loadData();
       toast.success("Sucursal actualizada exitosamente");
       return { success: true };
@@ -144,14 +153,15 @@ export function useBranches(tenantId: string) {
 
   const handleDeleteBranch = async (
     branchId: number,
-    adminPassword: string
+    adminPassword: string,
+    userContext?: any
   ) => {
     try {
       // Validar contraseña del administrador primero
       await validateAdminPassword(tenantId, "", adminPassword);
 
       // Si la validación pasa, proceder con la eliminación
-      await deleteBranch(branchId);
+      await deleteBranch(branchId, userContext);
       await loadData();
       toast.success("Sucursal eliminada exitosamente");
       return { success: true };

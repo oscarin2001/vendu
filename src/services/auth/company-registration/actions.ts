@@ -79,7 +79,6 @@ export async function completeCompanyRegistrationAction(formData: {
     department: string;
     country: string;
     phone: string;
-    isWarehouse: boolean;
   };
   warehouse?: {
     hasWarehouse: boolean;

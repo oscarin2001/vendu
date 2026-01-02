@@ -31,6 +31,7 @@ export default function ManagersPage() {
     createManager,
     updateManager,
     deleteManager,
+    toggleManagerStatus,
   } = useManagers(tenantId);
 
   const { branches } = useBranches(tenantId);
@@ -113,6 +114,14 @@ export default function ManagersPage() {
     }
   };
 
+  const handleToggleManagerStatus = async (manager: any) => {
+    try {
+      await toggleManagerStatus(manager);
+    } catch (error) {
+      // Error is handled in the hook
+    }
+  };
+
   const handleCreateSubmit = async (data: any) => {
     try {
       await createManager(data);
@@ -170,6 +179,7 @@ export default function ManagersPage() {
         onViewDetails={handleViewManager}
         onEdit={handleEditManager}
         onDelete={handleDeleteManager}
+        onToggleStatus={handleToggleManagerStatus}
       />
 
       {/* Modals */}

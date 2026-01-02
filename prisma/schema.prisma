@@ -144,6 +144,12 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+enum EmployeeStatus {
+  ACTIVE // ACTIVO - Trabajando normalmente
+  DEACTIVATED // DESACTIVADO - Temporalmente suspendido
+  INACTIVE // INACTIVO - Permanente (renuncia, despido)
+}
+
 // Dispositivos donde se registra la asistencia
 enum DeviceType {
   POS
@@ -168,6 +174,13 @@ enum ShippingPaymentMode {
   COD // PAGO_EN_DESTINO (cash on delivery)
 }
 
+// Tipos de operaciones para auditoría
+enum AuditOperation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
 //////////////////////////////
 // privilegeS DE USUARIO Y USUARIOS
 //////////////////////////////
@@ -178,8 +191,11 @@ model tbprivileges {
   privilegeCode String    @unique //  SYS_IS
   description   String?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime?
+  FK_createdBy  Int? // Usuario que creó el privilegio
   authAccounts  tbauth[]
+
+  // Relación de auditoría
+  createdBy tbemployee_profiles? @relation("PrivilegeCreatedBy", fields: [FK_createdBy], references: [PK_employee])
 }
 
 // EJEMPLO DE CODIGO DE PRIVILEGIOS
@@ -199,6 +215,7 @@ model tbauth {
   lastLogin    DateTime?
   accountType  AccountType @default(CUSTOMER)
   createdAt    DateTime    @default(now())
+  FK_createdBy Int? // Usuario que creó la cuenta
 
   employeeProfile tbemployee_profiles?
   customerProfile tbcustomer_profiles?
@@ -207,6 +224,9 @@ model tbauth {
   tbdevices           tbdevices?
   tbpushsubscriptions tbpushsubscriptions[]
   company             tbcompanies?          @relation(fields: [FK_company], references: [PK_company])
+
+  // Relación de auditoría
+  createdBy tbemployee_profiles? @relation("AuthCreatedBy", fields: [FK_createdBy], references: [PK_employee])
 }
 
 model tbemployee_profiles {
@@ -226,8 +246,11 @@ model tbemployee_profiles {
   salary       Decimal      @default(0)
   hireDate     DateTime     @default(now())
   contractType ContractType @default(INDEFINIDO)
+  status       EmployeeStatus @default(ACTIVE) // Estado del empleado
   homeAddress  String?
   deletedAt    DateTime? // Fecha de borrado lógico (soft-delete)
+  createdAt    DateTime    @default(now())
+  FK_createdBy Int? // Usuario que creó el perfil del empleado
 
   auth   tbauth      @relation(fields: [FK_auth], references: [PK_auth])
   branch tbbranches? @relation(fields: [FK_branch], references: [PK_branch])
@@ -255,6 +278,29 @@ model tbemployee_profiles {
 
   // Relación many-to-many con sucursales a través de tabla intermedia
   managerBranches tbmanager_branches[]
+
+  // Relación many-to-many con warehouses a través de tabla intermedia
+  managerWarehouses tbmanager_warehouses[]
+
+  // Relaciones de auditoría para warehouses
+  warehousesCreated tbwarehouses[] @relation("WarehouseCreatedBy")
+  warehousesUpdated tbwarehouses[] @relation("WarehouseUpdatedBy")
+
+  // Relaciones de asignación
+  warehouseAssignments tbmanager_warehouses[] @relation("WarehouseAssignmentBy")
+  branchWarehouseAssignments tbwarehouse_branches[] @relation("BranchWarehouseAssignmentBy")
+
+  // Relaciones de auditoría para sucursales creadas/actualizadas
+  branchesCreated tbbranches[] @relation("BranchCreatedBy")
+
+  // Relaciones de auditoría para empresas y privilegios
+  companiesCreated tbcompanies[] @relation("CompanyCreatedBy")
+  privilegesCreated tbprivileges[] @relation("PrivilegeCreatedBy")
+  authAccountsCreated tbauth[] @relation("AuthCreatedBy")
+
+  // Relación de auditoría para el propio perfil
+  createdBy tbemployee_profiles? @relation("EmployeeCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+  employeesCreated tbemployee_profiles[] @relation("EmployeeCreatedBy")
 }
 
 model tbcustomer_profiles {
@@ -351,8 +397,7 @@ model tbpushsubscriptions {
 model tbbranches {
   PK_branch    Int       @id @default(autoincrement())
   FK_company   Int? // Empresa propietaria (Multi-tenancy: compañía/franquicia)
-  name         String // Ej: "Bodega Central - Norte" o "Tienda Centro"
-  isWarehouse  Boolean   @default(false) // TRUE = Bodega, FALSE = Tienda de venta
+  name         String // Ej: "Tienda Centro" - Solo puntos de venta
   FK_owner     Int? // Quién es el dueño de esta sucursal (si hay varios)
   phone        String?
   address      String
@@ -362,7 +407,7 @@ model tbbranches {
   latitude     Float?
   longitude    Float?
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
+  FK_createdBy Int? // Usuario que creó la sucursal
 
   tbinventories       tbinventories[]
   // Relaciones para transferencias
@@ -386,6 +431,89 @@ model tbbranches {
 
   // Relación many-to-many con proveedores a través de tabla intermedia
   supplierBranches tbsupplier_branches[]
+
+  // Relación many-to-many con warehouses que la sirven
+  warehouseBranches tbwarehouse_branches[]
+
+  // Relaciones de auditoría
+  createdBy tbemployee_profiles? @relation("BranchCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+}
+
+//////////////////////////////
+// BODEGAS (WAREHOUSES) - ENTIDAD COMPLETAMENTE SEPARADA
+//////////////////////////////
+
+model tbwarehouses {
+  PK_warehouse Int       @id @default(autoincrement())
+  FK_company   Int? // Empresa propietaria (Multi-tenancy)
+  name         String // Ej: "Bodega Central Norte"
+  phone        String?
+  address      String
+  city         String
+  department   String?
+  country      String?
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime?
+  FK_createdBy Int? // Usuario que creó la bodega
+  FK_updatedBy Int? // Usuario que actualizó la bodega
+
+  // Relaciones
+  company tbcompanies? @relation(fields: [FK_company], references: [PK_company])
+
+  // Relación many-to-many con managers (managers asignados a warehouses)
+  managerWarehouses tbmanager_warehouses[]
+
+  // Relación many-to-many con branches (warehouses sirven a branches)
+  warehouseBranches tbwarehouse_branches[]
+
+  // Relaciones de inventario y movimientos (TODO: implementar)
+  // warehouseEntries tbwarehouse_entry[]
+  // stockAdjustments tbstock_adjustments[]
+
+  // Relaciones de auditoría
+  createdBy tbemployee_profiles? @relation("WarehouseCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+  updatedBy tbemployee_profiles? @relation("WarehouseUpdatedBy", fields: [FK_updatedBy], references: [PK_employee])
+}
+
+//////////////////////////////
+// MANAGERS ASIGNADOS A BODEGAS (MANY-TO-MANY)
+//////////////////////////////
+
+model tbmanager_warehouses {
+  PK_manager_warehouse Int @id @default(autoincrement())
+  FK_employee          Int // Manager
+  FK_warehouse         Int // Warehouse asignada
+  assignedAt           DateTime @default(now())
+  FK_assignedBy        Int? // Quién asignó
+
+  // Relaciones
+  manager   tbemployee_profiles @relation(fields: [FK_employee], references: [PK_employee])
+  warehouse tbwarehouses        @relation(fields: [FK_warehouse], references: [PK_warehouse])
+  assignedBy tbemployee_profiles? @relation("WarehouseAssignmentBy", fields: [FK_assignedBy], references: [PK_employee])
+
+  @@unique([FK_employee, FK_warehouse]) // Un manager solo puede estar asignado una vez a una warehouse
+}
+
+//////////////////////////////
+// BODEGAS QUE SIRVEN A SUCURSALES (MANY-TO-MANY)
+//////////////////////////////
+
+model tbwarehouse_branches {
+  PK_warehouse_branch Int @id @default(autoincrement())
+  FK_warehouse        Int // Warehouse que sirve
+  FK_branch           Int // Branch que recibe servicio
+  isPrimary           Boolean @default(false) // Si es la warehouse primaria para esta branch
+  assignedAt          DateTime @default(now())
+  FK_assignedBy       Int? // Quién asignó
+
+  // Relaciones
+  warehouse tbwarehouses @relation(fields: [FK_warehouse], references: [PK_warehouse])
+  branch    tbbranches   @relation(fields: [FK_branch], references: [PK_branch])
+  assignedBy tbemployee_profiles? @relation("BranchWarehouseAssignmentBy", fields: [FK_assignedBy], references: [PK_employee])
+
+  @@unique([FK_warehouse, FK_branch]) // Una warehouse solo puede servir una vez a una branch
 }
 
 // HORARIOS DE DIAS ESPECIALES DE LA SUCURSAL
@@ -658,13 +786,19 @@ model tbcompanies {
   taxId      String? // NIT/CUIT/CI del contribuyente
   country    String? // País de operación
   createdAt  DateTime @default(now())
+  FK_createdBy Int? // Usuario que creó la empresa
 
   // Relaciones: sucursales, usuarios, empleados, productos
   branches        tbbranches[]
+  warehouses      tbwarehouses[]
   authAccounts    tbauth[]
   employees       tbemployee_profiles[]
   products        tbproducts[]
   tbsubscriptions tbsubscriptions?
+  tbaudit_logs    tbaudit_logs[] // Relación con logs de auditoría
+
+  // Relación de auditoría
+  createdBy tbemployee_profiles? @relation("CompanyCreatedBy", fields: [FK_createdBy], references: [PK_employee])
 }
 
 // Suscripciones y planes por compañía
@@ -682,17 +816,25 @@ model tbsubscriptions {
 // AUDITORÍA CENTRALIZADA
 // Logs de auditoría para trazabilidad legal e investigación
 model tbaudit_logs {
-  PK_log      Int      @id @default(autoincrement())
-  entity      String // "ORDER", "INVENTORY", "PAYMENT", etc.
+  PK_log      Int            @id @default(autoincrement())
+  entity      String // "BRANCH", "EMPLOYEE", "PRODUCT", etc.
   entityId    Int // ID de la entidad afectada
-  action      String // CREATE, UPDATE, DELETE
+  action      AuditOperation // CREATE, UPDATE, DELETE
   oldValue    Json?
   newValue    Json?
   FK_employee Int? // Empleado que hizo la acción (si aplica)
+  FK_company  Int? // Empresa del contexto (multi-tenancy)
   createdAt   DateTime @default(now())
+  ipAddress   String? // Dirección IP del usuario
+  userAgent   String? // User agent del navegador/dispositivo
 
   // Relaciones
   employee tbemployee_profiles? @relation(fields: [FK_employee], references: [PK_employee])
+  company  tbcompanies?         @relation(fields: [FK_company], references: [PK_company])
+
+  @@index([entity, entityId])
+  @@index([FK_employee])
+  @@index([createdAt])
 }
 
 //////////////////////////////

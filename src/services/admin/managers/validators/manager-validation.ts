@@ -12,6 +12,8 @@ export const createManagerSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
   salary: z.number().min(0, "Salary must be positive").optional(),
   branchIds: z.array(z.number()).optional().default([]),
+  contributionType: z.enum(["none", "contributes", "paid"]),
+  hireDate: z.date().optional(),
 });
 
 export const updateManagerSchema = createManagerSchema

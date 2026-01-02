@@ -26,6 +26,8 @@ interface SubmitData {
   password: string;
   salary?: number;
   branchIds: number[];
+  contributionType: "none" | "contributes" | "paid";
+  hireDate?: Date;
 }
 
 interface ManagerFormData extends SubmitData {
@@ -42,6 +44,8 @@ interface FormErrors {
   confirmPassword?: string;
   salary?: string;
   branchIds?: string;
+  contributionType?: string;
+  hireDate?: string;
   general?: string;
 }
 
@@ -55,8 +59,10 @@ interface ManagerFormProps {
     email: string;
     salary?: number;
     branchIds: number[];
+    contributionType?: "none" | "contributes" | "paid";
+    hireDate?: Date;
   };
-  branches: { id: number; name: string; isWarehouse: boolean }[];
+  branches: { id: number; name: string }[];
   onSubmit: (data: SubmitData) => void;
   isLoading?: boolean;
   mode?: "create" | "edit";
@@ -84,10 +90,15 @@ export function ManagerForm({
     confirmPassword: "",
     salary: initialData?.salary,
     branchIds: initialData?.branchIds || [],
+    contributionType:
+      initialData?.contributionType ||
+      (!initialData?.salary || initialData.salary === 0 ? "none" : "paid"),
+    hireDate: initialData?.hireDate || new Date(),
   });
 
   const validateField = (
     field: keyof ManagerFormData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any
   ): string | undefined => {
     switch (field) {
@@ -138,6 +149,15 @@ export function ManagerForm({
             return "El salario debe ser un número positivo";
         }
         break;
+      case "contributionType":
+        if (!value) return "Debe seleccionar el tipo de contribución";
+        break;
+      case "hireDate":
+        if (!value) return "La fecha de contratación es requerida";
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return "Fecha inválida";
+        if (date > new Date()) return "La fecha no puede ser futura";
+        break;
     }
     return undefined;
   };
@@ -175,7 +195,32 @@ export function ManagerForm({
     field: keyof ManagerFormData,
     value: string | number | null | undefined
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    let processedValue: string | number | null | undefined | Date = value;
+
+    // Convertir hireDate de string a Date
+    if (field === "hireDate" && typeof value === "string") {
+      processedValue = value ? new Date(value) : undefined;
+    }
+
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: processedValue };
+
+      // Si cambia el tipo de contribución, ajustar el salario automáticamente
+      if (field === "contributionType") {
+        if (value === "none") {
+          newData.salary = 0;
+        } else if (
+          value === "contributes" &&
+          (!prev.salary || prev.salary === 0)
+        ) {
+          newData.salary = undefined; // Permitir que ingrese un valor
+        } else if (value === "paid" && (!prev.salary || prev.salary === 0)) {
+          newData.salary = undefined; // Permitir que ingrese un valor
+        }
+      }
+
+      return newData;
+    });
 
     // Clear error for this field when user starts typing
     if (errors[field]) {
@@ -269,6 +314,24 @@ export function ManagerForm({
               />
               {errors.ci && (
                 <p className="text-sm text-red-600 mt-1">{errors.ci}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="hireDate">Fecha de Contratación *</Label>
+              <Input
+                id="hireDate"
+                type="date"
+                value={
+                  formData.hireDate
+                    ? formData.hireDate.toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) => handleChange("hireDate", e.target.value)}
+                required
+              />
+              {errors.hireDate && (
+                <p className="text-sm text-red-600 mt-1">{errors.hireDate}</p>
               )}
             </div>
 
@@ -383,8 +446,42 @@ export function ManagerForm({
               </>
             )}
 
+            <div className="md:col-span-2">
+              <Label htmlFor="contributionType">
+                Tipo de Contribución Financiera *
+              </Label>
+              <Select
+                value={formData.contributionType}
+                onValueChange={(value: "none" | "contributes" | "paid") =>
+                  handleChange("contributionType", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar tipo de contribución" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No recibe compensación</SelectItem>
+                  <SelectItem value="contributes">
+                    Aporta a la empresa
+                  </SelectItem>
+                  <SelectItem value="paid">Empresa le paga</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.contributionType && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.contributionType}
+                </p>
+              )}
+            </div>
+
             <div>
-              <Label htmlFor="salary">Salario (BOB) - Opcional</Label>
+              <Label htmlFor="salary">
+                Salario (BOB)
+                {formData.contributionType === "none" && " - No aplica"}
+                {formData.contributionType === "contributes" &&
+                  " - Monto que aporta"}
+                {formData.contributionType === "paid" && " - Monto que recibe"}
+              </Label>
               <Input
                 id="salary"
                 type="number"
@@ -395,9 +492,16 @@ export function ManagerForm({
                     e.target.value ? parseFloat(e.target.value) : undefined
                   )
                 }
-                placeholder="Ej: 5000"
+                placeholder={
+                  formData.contributionType === "none"
+                    ? "0"
+                    : formData.contributionType === "contributes"
+                    ? "Ej: 1000"
+                    : "Ej: 5000"
+                }
                 min="0"
                 step="0.01"
+                disabled={formData.contributionType === "none"}
               />
               {errors.salary && (
                 <p className="text-sm text-red-600 mt-1">{errors.salary}</p>
@@ -418,7 +522,7 @@ export function ManagerForm({
                       >
                         <Building className="h-3 w-3" />
                         {branch.name}{" "}
-                        {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
+                        (Tienda)
                         <button
                           type="button"
                           onClick={() => removeBranch(branch.id)}
@@ -457,7 +561,7 @@ export function ManagerForm({
                           >
                             <Building className="h-3 w-3" />
                             {branch.name}{" "}
-                            {branch.isWarehouse ? "(Bodega)" : "(Tienda)"}
+                            (Tienda)
                           </Label>
                         </div>
                       );

@@ -18,7 +18,6 @@ import { X, Users, Truck } from "lucide-react";
 
 interface BranchFormData {
   name: string;
-  isWarehouse: boolean;
   phone: string;
   address: string;
   city: string;
@@ -53,7 +52,6 @@ export function BranchForm({
 }: BranchFormProps) {
   const [formData, setFormData] = useState<BranchFormData>({
     name: initialData?.name || "",
-    isWarehouse: initialData?.isWarehouse || false,
     phone: initialData?.phone || "",
     address: initialData?.address || "",
     city: initialData?.city || "",
@@ -69,7 +67,6 @@ export function BranchForm({
       console.log("Updating form data with initialData:", initialData);
       setFormData({
         name: initialData.name || "",
-        isWarehouse: initialData.isWarehouse || false,
         phone: initialData.phone || "",
         address: initialData.address || "",
         city: initialData.city || "",
@@ -207,17 +204,6 @@ export function BranchForm({
                 placeholder="Ej: Sucursal Centro"
                 required
               />
-            </div>
-
-            <div className="md:col-span-2 flex items-center space-x-2">
-              <Checkbox
-                id="isWarehouse"
-                checked={formData.isWarehouse}
-                onCheckedChange={(checked) =>
-                  handleChange("isWarehouse", !!checked)
-                }
-              />
-              <Label htmlFor="isWarehouse">Esta sucursal es una bodega</Label>
             </div>
 
             <div>

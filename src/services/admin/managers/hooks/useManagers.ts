@@ -6,6 +6,7 @@ import {
   createManager,
   updateManager,
   deleteManager,
+  toggleManagerStatus,
 } from "@/services/admin/managers/services/manager-service";
 import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
 import { useCompany } from "@/services/admin/company/hooks/useCompany";
@@ -82,8 +83,18 @@ export function useManagers(tenantId: string) {
           return false;
       }
 
-      // Status filter (all managers are active for now)
-      if (filters.status !== "all") return false;
+      // Status filter
+      if (filters.status !== "all") {
+        if (filters.status === "active" && manager.status !== "ACTIVE")
+          return false;
+        if (
+          filters.status === "deactivated" &&
+          manager.status !== "DEACTIVATED"
+        )
+          return false;
+        if (filters.status === "inactive" && manager.status !== "INACTIVE")
+          return false;
+      }
 
       return true;
     });
@@ -92,13 +103,24 @@ export function useManagers(tenantId: string) {
   // Computed metrics
   const metrics: ManagerMetrics = useMemo(() => {
     const total = managers.length;
-    const active = managers.length; // All loaded managers are active
+    const active = managers.filter((m) => m.status === "ACTIVE").length;
+    const deactivated = managers.filter(
+      (m) => m.status === "DEACTIVATED"
+    ).length;
+    const inactive = managers.filter((m) => m.status === "INACTIVE").length;
     const withBranch = managers.filter(
       (m) => m.branches && m.branches.length > 0
     ).length;
     const withoutBranch = total - withBranch;
 
-    return { total, active, withBranch, withoutBranch };
+    return {
+      total,
+      active,
+      deactivated,
+      inactive,
+      withBranch,
+      withoutBranch,
+    };
   }, [managers]);
 
   // Validation functions
@@ -213,6 +235,24 @@ export function useManagers(tenantId: string) {
     }
   };
 
+  const handleToggleManagerStatus = async (manager: Manager) => {
+    try {
+      await toggleManagerStatus(manager.id, tenantId);
+      await loadManagers();
+      const newStatusText =
+        manager.status === "ACTIVE" ? "desactivado" : "activado";
+      toast.success(`Encargado ${newStatusText} exitosamente`);
+      return { success: true };
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Error cambiando estado del encargado";
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
   return {
     managers: filteredManagers,
     allManagers: managers,
@@ -224,6 +264,7 @@ export function useManagers(tenantId: string) {
     createManager: handleCreateManager,
     updateManager: handleUpdateManager,
     deleteManager: handleDeleteManager,
+    toggleManagerStatus: handleToggleManagerStatus,
     reloadManagers: loadManagers,
   };
 }

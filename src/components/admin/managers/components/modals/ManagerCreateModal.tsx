@@ -10,7 +10,7 @@ import { ManagerForm } from "../../forms/ManagerForm";
 
 interface ManagerCreateModalProps {
   tenantId: string;
-  branches: { id: number; name: string; isWarehouse: boolean }[];
+  branches: { id: number; name: string }[];
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;

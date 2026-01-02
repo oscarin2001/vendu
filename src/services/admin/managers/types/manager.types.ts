@@ -1,3 +1,6 @@
+export type ManagerStatus = "ACTIVE" | "DEACTIVATED" | "INACTIVE";
+export type ConnectionStatus = "ONLINE" | "OFFLINE" | "AWAY" | "UNKNOWN";
+
 export interface Manager {
   id: number;
   firstName: string;
@@ -9,16 +12,18 @@ export interface Manager {
   salary: number;
   hireDate: Date;
   contractType: string;
+  status: ManagerStatus; // Nuevo campo de estado
+  connectionStatus: ConnectionStatus; // Estado de conexión
+  contributionType: "none" | "contributes" | "paid"; // Tipo de contribución financiera
   branches: {
     id: number;
     name: string;
-    isWarehouse: boolean;
   }[];
   privilege: {
     name: string;
     code: string;
   };
-  isActive: boolean;
+  isActive: boolean; // Mantener para compatibilidad, calculado desde status
   createdAt?: Date; // Fecha de creación de la cuenta (de tbauth)
 }
 
@@ -31,6 +36,8 @@ export interface CreateManagerData {
   password: string;
   salary?: number;
   branchIds: number[];
+  contributionType: "none" | "contributes" | "paid";
+  hireDate?: Date;
 }
 
 export interface UpdateManagerData {
@@ -41,11 +48,15 @@ export interface UpdateManagerData {
   email?: string;
   salary?: number;
   branchIds?: number[];
+  contributionType?: "none" | "contributes" | "paid";
+  hireDate?: Date;
 }
 
 export interface ManagerMetrics {
   total: number;
   active: number;
+  deactivated: number;
+  inactive: number;
   withBranch: number;
   withoutBranch: number;
 }
@@ -53,5 +64,5 @@ export interface ManagerMetrics {
 export interface ManagerFilters {
   search: string;
   branch: string;
-  status: "all" | "active" | "inactive";
+  status: "all" | "active" | "deactivated" | "inactive";
 }
