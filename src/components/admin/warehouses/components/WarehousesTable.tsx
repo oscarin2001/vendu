@@ -26,7 +26,14 @@ import {
   User,
   Phone,
   Warehouse,
+  Info,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 
 const formatDate = (date: Date) => {
@@ -79,20 +86,32 @@ export function WarehousesTable({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Ubicación</TableHead>
-            <TableHead>País</TableHead>
-            <TableHead>Gerente</TableHead>
-            <TableHead>Sucursales</TableHead>
-            <TableHead>Teléfono</TableHead>
-            <TableHead>Creado</TableHead>
-            <TableHead className="w-[70px]">Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
+    <TooltipProvider>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Ubicación</TableHead>
+              <TableHead>País</TableHead>
+              <TableHead>Gerente</TableHead>
+              <TableHead className="flex items-center gap-2">
+                Sucursales Servidas
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Una bodega puede servir múltiples sucursales.</p>
+                    <p>La sucursal marcada como "Primaria" es la principal.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TableHead>
+              <TableHead>Teléfono</TableHead>
+              <TableHead>Creado</TableHead>
+              <TableHead className="w-[70px]">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
         <TableBody>
           {warehouses.map((warehouse) => (
             <TableRow key={warehouse.id}>
@@ -135,23 +154,30 @@ export function WarehousesTable({
               </TableCell>
               <TableCell>
                 {warehouse.branches && warehouse.branches.length > 0 ? (
-                  <div className="flex flex-col gap-1">
-                    {warehouse.branches.slice(0, 2).map((branch) => (
-                      <div key={branch.id} className="flex items-center gap-2">
-                        <MapPin className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">{branch.name}</span>
-                        {branch.isPrimary && (
-                          <Badge variant="default" className="text-xs">
-                            Primaria
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
-                    {warehouse.branches.length > 2 && (
-                      <span className="text-xs text-muted-foreground">
-                        +{warehouse.branches.length - 2} más
-                      </span>
-                    )}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {warehouse.branches.length} sucursal{warehouse.branches.length !== 1 ? 'es' : ''}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      {warehouse.branches.slice(0, 2).map((branch) => (
+                        <div key={branch.id} className="flex items-center gap-2">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm">{branch.name}</span>
+                          {branch.isPrimary && (
+                            <Badge variant="default" className="text-xs">
+                              Primaria
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                      {warehouse.branches.length > 2 && (
+                        <span className="text-xs text-muted-foreground">
+                          +{warehouse.branches.length - 2} más
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <Badge variant="outline" className="text-xs">
@@ -208,5 +234,6 @@ export function WarehousesTable({
         </TableBody>
       </Table>
     </div>
+    </TooltipProvider>
   );
 }

@@ -94,13 +94,20 @@ export function useWarehouses(tenantId: string) {
     const withoutManager = total - withManager;
     const totalBranches = warehouses.reduce((sum, w) => sum + w.branches.length, 0);
 
+    // Calculate unassigned managers
+    const assignedManagerIds = new Set(
+      warehouses.flatMap(w => w.managers.map(m => m.id))
+    );
+    const unassignedManagers = managers.filter(m => !assignedManagerIds.has(m.id)).length;
+
     return {
       total,
       withManager,
       withoutManager,
       totalBranches,
+      unassignedManagers,
     };
-  }, [warehouses]);
+  }, [warehouses, managers]);
 
   // CRUD operations
   const handleCreateWarehouse = async (data: {

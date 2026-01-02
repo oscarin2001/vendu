@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Warehouse, UserCheck, UserX } from "lucide-react";
+import { Warehouse, UserCheck, UserX, Users } from "lucide-react";
 import { WarehouseMetrics } from "@/services/admin/warehouses/types/warehouse.types";
 
 interface WarehousesMetricsProps {
@@ -35,11 +35,18 @@ export function WarehousesMetrics({
       color: "text-red-600",
       bgColor: "bg-red-50",
     },
+    {
+      title: "Gerentes sin Asignar",
+      value: metrics.unassignedManagers,
+      icon: Users,
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
+    },
   ];
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {metricCards.map((_, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -58,7 +65,7 @@ export function WarehousesMetrics({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {metricCards.map((metric) => {
         const Icon = metric.icon;
         return (

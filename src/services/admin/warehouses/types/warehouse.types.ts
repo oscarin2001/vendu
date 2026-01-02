@@ -25,6 +25,7 @@ export interface WarehouseMetrics {
   withManager: number;
   withoutManager: number;
   totalBranches: number;
+  unassignedManagers: number;
 }
 
 export type WarehouseFilters = "all" | "withManager" | "withoutManager";
