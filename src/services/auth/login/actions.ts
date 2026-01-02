@@ -64,7 +64,7 @@ export async function checkAuthAndRedirect() {
     // User is authenticated, redirect to dashboard
     redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
   } else {
-    // User is not authenticated, redirect to login
-    redirect("/login");
+    // User is not authenticated, redirect to register-company login
+    redirect("/register-company?mode=login");
   }
 }
