@@ -3,263 +3,196 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PhoneInput } from "@/components/ui/phone-input";
-import { CountrySelect } from "@/components/ui/country-select";
+import { Building2 } from "lucide-react";
 
-const countries = [
-  "Bolivia",
-  "Argentina",
-  "Chile",
-  "Perú",
-  "Colombia",
-  "Ecuador",
-  "Venezuela",
-  "Uruguay",
-  "Paraguay",
-  "Brasil",
-  "México",
-  "Estados Unidos",
-  "España",
-  "Otro",
-];
+interface BranchFormData {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  department: string;
+  country: string;
+  isWarehouse: boolean;
+}
 
 interface BranchFormProps {
-  initialData?: {
-    name: string;
-    address: string;
-    city: string;
-    department: string;
-    country: string;
-    phone: string;
-    isWarehouse: boolean;
-  };
-  onComplete?: (data: {
-    name: string;
-    address: string;
-    city: string;
-    department: string;
-    country: string;
-    phone: string;
-    isWarehouse: boolean;
-  }) => void;
+  initialData?: Partial<BranchFormData>;
+  onComplete?: (data: BranchFormData) => void;
   onBack?: () => void;
-  onDataChange?: (data: {
-    name: string;
-    address: string;
-    city: string;
-    department: string;
-    country: string;
-    phone: string;
-    isWarehouse: boolean;
-  }) => void;
+  onDataChange?: (data: BranchFormData) => void;
 }
 
 export function BranchForm({
-  initialData = {
-    name: "",
-    address: "",
-    city: "",
-    department: "",
-    country: "",
-    phone: "",
-    isWarehouse: false,
-  },
-  onComplete = () => {},
-  onBack = () => {},
+  initialData,
+  onComplete,
+  onBack,
   onDataChange,
 }: BranchFormProps) {
-  const [name, setName] = useState(initialData.name || "");
-  const [address, setAddress] = useState(initialData.address || "");
-  const [city, setCity] = useState(initialData.city || "");
-  const [department, setDepartment] = useState(initialData.department || "");
-  const [country, setCountry] = useState(initialData.country || "");
-  const [phone, setPhone] = useState(initialData.phone || "");
-  const [isWarehouse, setIsWarehouse] = useState(
-    initialData.isWarehouse || false
-  );
-  const [errors, setErrors] = useState<{
-    name?: string;
-    address?: string;
-    city?: string;
-    department?: string;
-    country?: string;
-    phone?: string;
-  }>({});
+  const [formData, setFormData] = useState<BranchFormData>({
+    name: initialData?.name || "",
+    phone: initialData?.phone || "",
+    address: initialData?.address || "",
+    city: initialData?.city || "",
+    department: initialData?.department || "",
+    country: initialData?.country || "",
+    isWarehouse: initialData?.isWarehouse || false,
+  });
 
-  // Save data whenever it changes
+  // Update form data when initialData changes
   useEffect(() => {
-    if (onDataChange) {
-      onDataChange({
-        name,
-        address,
-        city,
-        department,
-        country,
-        phone,
-        isWarehouse,
+    if (initialData) {
+      setFormData({
+        name: initialData.name || "",
+        phone: initialData.phone || "",
+        address: initialData.address || "",
+        city: initialData.city || "",
+        department: initialData.department || "",
+        country: initialData.country || "",
+        isWarehouse: initialData.isWarehouse || false,
       });
     }
-  }, [name, address, city, department, country, phone, isWarehouse]); // Removed onDataChange from dependencies
+  }, [initialData]);
 
-  const validateForm = () => {
-    const newErrors: {
-      name?: string;
-      address?: string;
-      city?: string;
-      department?: string;
-      country?: string;
-      phone?: string;
-    } = {};
-
-    if (!name.trim()) {
-      newErrors.name = "El nombre de la sucursal es requerido";
-    } else if (name.trim().length < 2) {
-      newErrors.name = "El nombre debe tener al menos 2 caracteres";
+  // Notify parent of data changes
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange(formData);
     }
-
-    if (!address.trim()) {
-      newErrors.address = "La dirección es requerida";
-    }
-
-    if (!city.trim()) {
-      newErrors.city = "La ciudad es requerida";
-    }
-
-    if (!department.trim()) {
-      newErrors.department = "El departamento es requerido";
-    }
-
-    if (!country) {
-      newErrors.country = "Debe seleccionar un país";
-    }
-
-    if (!phone.trim()) {
-      newErrors.phone = "El teléfono es requerido";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  }, [formData, onDataChange]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!formData.name.trim()) {
       return;
     }
 
-    onComplete({
-      name,
-      address,
-      city,
-      department,
-      country,
-      phone,
-      isWarehouse,
-    });
+    if (!formData.address.trim()) {
+      return;
+    }
+
+    if (!formData.city.trim()) {
+      return;
+    }
+
+    if (!formData.country.trim()) {
+      return;
+    }
+
+    if (onComplete) {
+      onComplete(formData);
+    }
+  };
+
+  const handleChange = (field: keyof BranchFormData, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Field>
-        <FieldLabel htmlFor="name">Nombre de la sucursal</FieldLabel>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Sucursal Central"
-          required
-        />
-        {errors.name && (
-          <p className="text-sm text-red-500 mt-1">{errors.name}</p>
-        )}
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="address">Dirección física</FieldLabel>
-        <Input
-          id="address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Calle 123, Zona Centro"
-          required
-        />
-        {errors.address && (
-          <p className="text-sm text-red-500 mt-1">{errors.address}</p>
-        )}
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="city">Ciudad</FieldLabel>
-        <Input
-          id="city"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="La Paz"
-          required
-        />
-        {errors.city && (
-          <p className="text-sm text-red-500 mt-1">{errors.city}</p>
-        )}
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="department">Departamento</FieldLabel>
-        <Input
-          id="department"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          placeholder="La Paz"
-          required
-        />
-        {errors.department && (
-          <p className="text-sm text-red-500 mt-1">{errors.department}</p>
-        )}
-      </Field>
-      <Field>
-        <CountrySelect
-          value={country}
-          onChange={(val) => setCountry(val || "")}
-          placeholder="Selecciona un país"
-        />
-        {errors.country && (
-          <p className="text-sm text-red-500 mt-1">{errors.country}</p>
-        )}
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="phone">Teléfono</FieldLabel>
-        <PhoneInput
-          value={phone}
-          onChange={(val, valid) => setPhone(val)}
-          placeholder="59112345678"
-          required
-        />
-        {errors.phone && (
-          <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
-        )}
-      </Field>
-      <Field>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="isWarehouse"
-            checked={isWarehouse}
-            onCheckedChange={(checked) => setIsWarehouse(checked === true)}
-          />
-          <label htmlFor="isWarehouse">¿Es bodega?</label>
-        </div>
-      </Field>
-      <div className="flex space-x-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}
-          className="flex-1"
-        >
-          Atrás
-        </Button>
-        <Button type="submit" className="flex-1">
-          Siguiente
-        </Button>
-      </div>
-    </form>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building2 className="h-5 w-5" />
+          Configurar Sucursal Principal
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="name">Nombre de la Sucursal *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                placeholder="Ej: Sucursal Centro"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="Ej: +591 12345678"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="country">País *</Label>
+              <Input
+                id="country"
+                value={formData.country}
+                onChange={(e) => handleChange("country", e.target.value)}
+                placeholder="Ej: Bolivia"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="department">Departamento</Label>
+              <Input
+                id="department"
+                value={formData.department}
+                onChange={(e) => handleChange("department", e.target.value)}
+                placeholder="Ej: La Paz"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="city">Ciudad *</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleChange("city", e.target.value)}
+                placeholder="Ej: La Paz"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="address">Dirección *</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleChange("address", e.target.value)}
+                placeholder="Dirección completa de la sucursal"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="flex items-center space-x-2">
+                <Checkbox
+                  checked={formData.isWarehouse}
+                  onCheckedChange={(checked) =>
+                    handleChange("isWarehouse", checked)
+                  }
+                />
+                <span className="text-sm">
+                  Esta sucursal también funcionará como bodega
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            {onBack && (
+              <Button type="button" variant="outline" onClick={onBack}>
+                Atrás
+              </Button>
+            )}
+            <Button type="submit" className="flex-1">
+              Continuar
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
