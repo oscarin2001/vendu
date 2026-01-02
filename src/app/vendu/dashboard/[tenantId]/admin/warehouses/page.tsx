@@ -231,6 +231,7 @@ export default function WarehousesPage() {
         warehouse={selectedWarehouse}
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
+        tenantId={tenantId}
       />
 
       {/* Delete Modals */}
