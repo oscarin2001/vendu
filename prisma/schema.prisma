@@ -452,8 +452,6 @@ model tbwarehouses {
   city         String
   department   String?
   country      String?
-  latitude     Float?
-  longitude    Float?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime?
   FK_createdBy Int? // Usuario que creó la bodega

@@ -193,8 +193,6 @@ export async function createWarehouse(
     city: warehouse.city,
     department: warehouse.department,
     country: warehouse.country,
-    latitude: warehouse.latitude,
-    longitude: warehouse.longitude,
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
   };
@@ -273,8 +271,6 @@ export async function updateWarehouse(
     city: warehouse.city,
     department: warehouse.department,
     country: warehouse.country,
-    latitude: warehouse.latitude,
-    longitude: warehouse.longitude,
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
   };
