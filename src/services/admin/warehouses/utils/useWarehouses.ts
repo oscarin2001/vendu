@@ -7,7 +7,7 @@ import {
   createWarehouse,
   updateWarehouse,
   deleteWarehouse,
-} from "../warehouse-service";
+} from "../index";
 import { getManagersByCompany } from "@/services/admin/managers/services/manager-service";
 import { getBranchesByCompany } from "@/services/admin/branches/services/branch-service";
 import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";

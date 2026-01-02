@@ -22,7 +22,7 @@ import { getBranchesByCompany } from "@/services/admin/branches/branch-service";
 import {
   assignWarehouseToBranch,
   removeWarehouseFromBranch,
-} from "@/services/admin/warehouses/warehouse-service";
+} from "@/services/admin/warehouses";
 import { toast } from "sonner";
 
 interface WarehouseServiceConfigModalProps {

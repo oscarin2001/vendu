@@ -19,11 +19,11 @@ import {
 } from "lucide-react";
 import { Branch } from "@/services/admin/branches/types/branch.types";
 import { useState, useEffect } from "react";
-import { getWarehousesByCompany } from "@/services/admin/warehouses/warehouse-service";
+import { getWarehousesByCompany } from "@/services/admin/warehouses";
 import {
   assignWarehouseToBranch,
   removeWarehouseFromBranch,
-} from "@/services/admin/warehouses/warehouse-service";
+} from "@/services/admin/warehouses";
 import { toast } from "sonner";
 
 interface BranchServiceConfigModalProps {

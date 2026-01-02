@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useWarehouses } from "@/services/admin/warehouses/hooks/useWarehouses";
+import { useWarehouses } from "@/services/admin/warehouses/utils/useWarehouses";
 import { Warehouse } from "@/services/admin/warehouses/types/warehouse.types";
 
 export default function WarehousesPage() {
