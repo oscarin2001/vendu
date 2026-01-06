@@ -36,6 +36,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Operaciones: true, // Default open
     "Recursos Humanos": false,
+    Sistema: false,
   });
 
   const navigationGroups = [
@@ -109,6 +110,17 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
         },
       ],
     },
+    {
+      title: "Ventas",
+      items: [
+        {
+          title: "Panel de Ventas",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/sales`
+            : "/admin/sales",
+        },
+      ],
+    },
   ];
 
   // Function to get breadcrumbs based on current pathname
@@ -163,8 +175,8 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {group.title === "Principal" || group.title === "Sistema" ? (
-                // Principal and Sistema groups - direct items without collapsible
+              {group.title === "Principal" || group.title === "Ventas" ? (
+                // Principal and Ventas groups - direct items without collapsible
                 group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -184,6 +196,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                         {group.title === "Principal" && item.icon && <item.icon className="h-4 w-4" />}
                         {group.title === "Sistema" && item.title === "Configuración" && <Settings className="h-4 w-4" />}
                         {group.title === "Sistema" && item.title === "Reportes" && <BarChart3 className="h-4 w-4" />}
+                        {group.title === "Ventas" && <BarChart3 className="h-4 w-4" />}
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
