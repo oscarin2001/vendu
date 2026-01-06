@@ -1,11 +1,11 @@
 "use client";
 
-import { AdminOverview } from "@/components/admin/dashboard/overview/AdminOverview";
+import { AdminDashboard } from "@/components/admin/dashboard/pages/AdminDashboard";
 
 export default function AdminPage() {
   return (
     <div className="space-y-6">
-      <AdminOverview />
+      <AdminDashboard />
     </div>
   );
 }

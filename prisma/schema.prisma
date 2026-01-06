@@ -150,6 +150,12 @@ enum EmployeeStatus {
   INACTIVE // INACTIVO - Permanente (renuncia, despido)
 }
 
+enum ContributionType {
+  NONE // NO_CONTRIBUYE
+  CONTRIBUTES // CONTRIBUYE
+  PAID // PAGADO
+}
+
 // Dispositivos donde se registra la asistencia
 enum DeviceType {
   POS
@@ -243,11 +249,12 @@ model tbemployee_profiles {
   birthDate DateTime?
 
   // Datos Laborales y Seguridad
-  salary       Decimal      @default(0)
-  hireDate     DateTime     @default(now())
-  contractType ContractType @default(INDEFINIDO)
-  status       EmployeeStatus @default(ACTIVE) // Estado del empleado
-  homeAddress  String?
+  salary          Decimal         @default(0)
+  hireDate        DateTime        @default(now())
+  contractType    ContractType    @default(INDEFINIDO)
+  contributionType ContributionType @default(NONE)
+  status          EmployeeStatus  @default(ACTIVE) // Estado del empleado
+  homeAddress     String?
   deletedAt    DateTime? // Fecha de borrado lógico (soft-delete)
   createdAt    DateTime    @default(now())
   FK_createdBy Int? // Usuario que creó el perfil del empleado
@@ -792,6 +799,7 @@ model tbcompanies {
   authAccounts    tbauth[]
   employees       tbemployee_profiles[]
   products        tbproducts[]
+  suppliers       tbsuppliers[]
   tbsubscriptions tbsubscriptions?
   tbaudit_logs    tbaudit_logs[] // Relación con logs de auditoría
 
@@ -1236,6 +1244,7 @@ model tbsuppliers {
   country        String?
   notes          String?
   isActive       Boolean   @default(true)
+  FK_company     Int?      // Compañía a la que pertenece el proveedor
   deletedAt      DateTime? // Fecha de borrado lógico (soft-delete) para proveedores
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
@@ -1245,6 +1254,9 @@ model tbsuppliers {
 
   // Relación muchos-a-muchos con sucursales
   supplierBranches tbsupplier_branches[]
+
+  // Relación con compañía
+  company tbcompanies? @relation(fields: [FK_company], references: [PK_company])
 
   tbpurchases tbpurchases[]
 }

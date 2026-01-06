@@ -1,46 +1,43 @@
-// ==================== QUERIES ====================
-// Warehouse retrieval operations
-export { getWarehousesByCompany, getWarehouseById } from './queries/get-warehouses';
+// Ultra-fragmented warehouses service
+// Following enterprise architecture patterns with maximum separation of concerns
 
-// ==================== MUTATIONS ====================
-// Warehouse CRUD operations
-export { createWarehouse } from './mutations/create-warehouse';
-export { updateWarehouse } from './mutations/update-warehouse';
-export { deleteWarehouse } from './mutations/delete-warehouse';
+// Repository layer - Database operations
+export * from "./repos";
 
-// Warehouse assignment operations
+// Services layer - Business logic and validation
+export * from "./services/logic";
+export * from "./services/validation";
+
+// Query layer - Data retrieval
+export * from "./queries";
+
+// Mutation layer - Data modification
+export * from "./mutations";
+
+// Hooks - React hooks for UI integration
+export * from "./hooks";
+
+// Types - Domain entities and UI types
+export * from "./types/entities";
+export * from "./types/ui";
+export * from "./validations/schemas";
+export * from "./validations/types";
+
+// Hooks - React state management
+export * from "./hooks/data";
+export * from "./hooks/ui";
+export * from "./hooks/actions";
+export * from "./hooks/main";
+
+// API - Backward compatible public interface (explicit exports to avoid conflicts)
 export {
+  getWarehousesByCompany,
+  getWarehouseById,
+  createWarehouse,
+  updateWarehouse,
+  deleteWarehouse,
   assignManagerToWarehouse,
-  removeManagerFromWarehouse
-} from './mutations/assign-manager';
-
-export {
+  removeManagerFromWarehouse,
   assignWarehouseToBranch,
-  removeWarehouseFromBranch
-} from './mutations/assign-branch';
-
-// ==================== VALIDATIONS ====================
-// Zod schemas and validation rules
-export {
-  createWarehouseSchema,
-  updateWarehouseSchema,
-  assignManagerSchema,
-  assignBranchSchema,
-  type CreateWarehouseData,
-  type UpdateWarehouseData,
-  type AssignManagerData,
-  type AssignBranchData
-} from './validations/warehouse-schema';
-
-// ==================== TYPES ====================
-// TypeScript type definitions
-export type {
-  Warehouse,
-  WarehouseMetrics,
-  WarehouseFilters
-} from './types/warehouse.types';
-
-// ==================== UTILS ====================
-// Utility functions and helpers
-export { normalizeWarehouseInput } from './utils/warehouse-utils';
-export { useWarehouses } from './utils/useWarehouses';
+  removeWarehouseFromBranch,
+} from "./api";

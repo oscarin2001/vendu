@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { SuppliersMetrics } from "@/components/admin/suppliers/components/SuppliersMetrics";
-import { SuppliersFilters } from "@/components/admin/suppliers/components/SuppliersFilters";
-import { SuppliersTable } from "@/components/admin/suppliers/components/SuppliersTable";
+import { SuppliersMetricsGrid } from "@/components/admin/suppliers/metrics";
+import { SuppliersFilters } from "@/components/admin/suppliers/shared/components";
+import { SuppliersTable } from "@/components/admin/suppliers/tables";
 import { SupplierForm } from "@/components/admin/suppliers/forms/SupplierForm";
 import {
   Dialog,
@@ -16,9 +16,11 @@ import { SupplierDeleteInitialModal } from "@/components/admin/suppliers/compone
 import { SupplierDeleteWarningModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteWarningModal";
 import { SupplierDeleteFinalModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteFinalModal";
 import { SupplierServiceConfigModal } from "@/components/admin/suppliers/components/modals/SupplierServiceConfigModal";
-import { useSuppliers } from "@/services/admin/suppliers/hooks/useSuppliers";
-import { validateAdminPassword } from "@/services/admin/managers/services/mutations/manager-mutations";
-import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
+import { SupplierStatusToggleModal } from "@/components/admin/suppliers/components/modals/SupplierStatusToggleModal";
+import { useSuppliers } from "@/services/admin/suppliers";
+import { validateAdminPassword } from "@/services/admin/managers";
+import { Supplier } from "@/services/admin/suppliers";
+import { toast } from "sonner";
 
 export default function SuppliersPage() {
   const params = useParams();
@@ -31,11 +33,22 @@ export default function SuppliersPage() {
     metrics,
     isLoading,
     filters,
-    setFilters,
+    updateSearch,
+    updateStatus,
+    updateManager,
+    clearFilters,
     createSupplier,
     updateSupplier,
     deleteSupplier,
+    refresh,
   } = useSuppliers(tenantId);
+
+  // Filter change handler
+  const handleFiltersChange = (newFilters: any) => {
+    updateSearch(newFilters.search || "");
+    updateStatus(newFilters.status || "all");
+    updateManager(newFilters.managerId);
+  };
 
   // Modal states
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
@@ -53,6 +66,8 @@ export default function SuppliersPage() {
   const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
+  const [isStatusToggleModalOpen, setIsStatusToggleModalOpen] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   // Modal handlers
   const handleCreateSupplier = () => {
@@ -78,6 +93,31 @@ export default function SuppliersPage() {
   const handleConfigureSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
     setIsConfigureModalOpen(true);
+  };
+
+  const handleToggleStatusSupplier = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    setIsStatusToggleModalOpen(true);
+  };
+
+  const handleStatusToggleConfirm = async (supplierId: number) => {
+    setIsTogglingStatus(true);
+    try {
+      await updateSupplier(supplierId, {
+        isActive: !selectedSupplier?.isActive,
+      });
+      toast.success(
+        `Proveedor ${
+          selectedSupplier?.isActive ? "desactivado" : "activado"
+        } exitosamente`
+      );
+      setIsStatusToggleModalOpen(false);
+    } catch (error) {
+      console.error("Error toggling supplier status:", error);
+      toast.error("Error al cambiar el estado del proveedor");
+    } finally {
+      setIsTogglingStatus(false);
+    }
   };
 
   const handleReloadSuppliers = () => {
@@ -171,12 +211,12 @@ export default function SuppliersPage() {
       </div>
 
       {/* Metrics */}
-      <SuppliersMetrics metrics={metrics} isLoading={isLoading} />
+      <SuppliersMetricsGrid metrics={metrics} isLoading={isLoading} />
 
       {/* Filters */}
       <SuppliersFilters
         filters={filters}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         managers={managers}
         onCreateSupplier={handleCreateSupplier}
       />
@@ -189,6 +229,7 @@ export default function SuppliersPage() {
         onEdit={handleEditSupplier}
         onDelete={handleDeleteSupplier}
         onConfigureService={handleConfigureSupplier}
+        onToggleStatus={handleToggleStatusSupplier}
       />
 
       {/* Create Modal */}
@@ -303,6 +344,24 @@ export default function SuppliersPage() {
                   </p>
                 </div>
               )}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <label className="text-sm font-medium">Creado</label>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(selectedSupplier.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Última actualización
+                  </label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedSupplier.updatedAt
+                      ? new Date(selectedSupplier.updatedAt).toLocaleString()
+                      : "No disponible"}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>
@@ -340,6 +399,15 @@ export default function SuppliersPage() {
         onClose={() => setIsConfigureModalOpen(false)}
         tenantId={tenantId}
         onSuccess={handleReloadSuppliers}
+      />
+
+      {/* Status Toggle Modal */}
+      <SupplierStatusToggleModal
+        supplier={selectedSupplier}
+        isOpen={isStatusToggleModalOpen}
+        onClose={() => setIsStatusToggleModalOpen(false)}
+        onConfirm={handleStatusToggleConfirm}
+        isLoading={isTogglingStatus}
       />
     </div>
   );

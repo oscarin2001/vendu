@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getAuditService } from "@/services/shared/audit";
+import { validateAdminPassword } from "@/services/admin/managers";
 
 interface UserContext {
   employeeId?: number;
@@ -14,6 +15,7 @@ interface UserContext {
  * Delete a warehouse for a specific company/tenant
  * @param tenantId - The company slug/tenant identifier
  * @param warehouseId - The warehouse ID to delete
+ * @param password - Admin password for confirmation
  * @param context - User context for auditing
  * @returns Success confirmation
  * @throws Error if warehouse has active assignments
@@ -21,8 +23,12 @@ interface UserContext {
 export async function deleteWarehouse(
   tenantId: string,
   warehouseId: number,
+  password: string,
   context?: UserContext
 ) {
+  // Validate admin password first
+  await validateAdminPassword(tenantId, "", password);
+
   const company = await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
   });
@@ -53,7 +59,7 @@ export async function deleteWarehouse(
 
   if (managerAssignments > 0 || branchAssignments > 0) {
     throw new Error(
-      "Cannot delete warehouse with active assignments. Remove all manager and branch assignments first."
+      "No se puede eliminar la bodega con asignaciones activas. Remueva todas las asignaciones de gerentes y sucursales primero."
     );
   }
 

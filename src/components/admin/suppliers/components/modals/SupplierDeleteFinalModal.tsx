@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Lock, Type } from "lucide-react";
 import { useState } from "react";
-import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
+import { Supplier } from "@/services/admin/suppliers";
 
 interface SupplierDeleteFinalModalProps {
   supplier: Supplier | null;

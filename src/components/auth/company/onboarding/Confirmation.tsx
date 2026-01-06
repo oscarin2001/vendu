@@ -6,9 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CheckCircle,
   Building2,
-  MapPin,
   User,
-  Warehouse,
   FileText,
   ArrowRight,
   Sparkles,
@@ -43,20 +41,7 @@ export function Confirmation({
         "No especificado",
       status: "success",
     },
-    {
-      icon: MapPin,
-      label: "Sucursal",
-      value: data.branch?.name || "No especificado",
-      status: "success",
-    },
-    {
-      icon: Warehouse,
-      label: "Bodega",
-      value: data.warehouse?.hasWarehouse
-        ? data.warehouse.name
-        : "No requerida",
-      status: data.warehouse?.hasWarehouse ? "success" : "info",
-    },
+
     {
       icon: FileText,
       label: "Datos Fiscales",
@@ -116,7 +101,10 @@ export function Confirmation({
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-center">
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={onBack} className="px-8">
+          Atrás
+        </Button>
         <Button
           onClick={() => {
             onComplete();

@@ -1,31 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field, FieldLabel } from "@/components/ui/field";
+import { saveFiscalData } from "@/services/auth/company-registration/onboarding/actions";
 
 interface FiscalFormProps {
   initialData?: { taxId: string; businessName: string; fiscalAddress: string };
-  onComplete?: (data: {
-    taxId: string;
-    businessName: string;
-    fiscalAddress: string;
-  }) => void;
   onBack?: () => void;
   onDataChange?: (data: {
     taxId: string;
     businessName: string;
     fiscalAddress: string;
   }) => void;
+  onNext?: () => void;
 }
 
 export function FiscalForm({
   initialData = { taxId: "", businessName: "", fiscalAddress: "" },
-  onComplete = () => {},
   onBack = () => {},
   onDataChange,
+  onNext = () => {},
 }: FiscalFormProps) {
+  const [isPending, startTransition] = useTransition();
   const [taxId, setTaxId] = useState(initialData.taxId || "");
   const [businessName, setBusinessName] = useState(
     initialData.businessName || ""
@@ -44,7 +43,7 @@ export function FiscalForm({
     if (onDataChange) {
       onDataChange({ taxId, businessName, fiscalAddress });
     }
-  }, [taxId, businessName, fiscalAddress]); // Removed onDataChange from dependencies
+  }, [taxId, businessName, fiscalAddress, onDataChange]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -59,20 +58,17 @@ export function FiscalForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onComplete({
-        taxId,
-        businessName,
-        fiscalAddress,
-      });
-    }
-  };
+      const formData = new FormData();
+      formData.append("taxId", taxId);
+      formData.append("businessName", businessName);
+      formData.append("fiscalAddress", fiscalAddress);
 
-  const handleSkip = () => {
-    onComplete({
-      taxId: "",
-      businessName: "",
-      fiscalAddress: "",
-    });
+      startTransition(() => {
+        saveFiscalData(formData);
+      });
+
+      onNext?.();
+    }
   };
 
   return (
@@ -120,11 +116,12 @@ export function FiscalForm({
           variant="outline"
           onClick={onBack}
           className="flex-1"
+          disabled={isPending}
         >
           Atrás
         </Button>
-        <Button type="submit" className="flex-1">
-          Siguiente
+        <Button type="submit" className="flex-1" disabled={isPending}>
+          {isPending ? "Guardando..." : "Siguiente"}
         </Button>
       </div>
     </form>

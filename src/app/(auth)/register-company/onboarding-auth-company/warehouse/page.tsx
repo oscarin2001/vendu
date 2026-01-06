@@ -1,4 +1,4 @@
-import { WarehouseForm } from "@/components/auth/company/onboarding/WarehouseForm";
+import { WarehouseForm } from "@/components/auth/company/forms/onboarding/warehouse";
 
 export default function WarehousePage() {
   return (

@@ -29,8 +29,8 @@ import {
 } from "lucide-react";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 import { useState, useEffect } from "react";
-import { getManagersByCompany } from "@/services/admin/managers/services/queries/manager-queries";
-import { getBranchesByCompany } from "@/services/admin/branches/branch-service";
+import { getManagersByCompany } from "@/services/admin/managers";
+import { getBranchesByCompany } from "@/services/admin/branches";
 import {
   assignManagerToWarehouse,
   removeManagerFromWarehouse,
@@ -81,10 +81,12 @@ export function WarehouseDetailsModal({
       const managers = await getManagersByCompany(tenantId);
       // Filter out already assigned managers
       const assignedIds = warehouse?.managers?.map((m) => m.id) || [];
-      const available = managers.filter((m) => !assignedIds.includes(m.id));
+      const available = managers.filter(
+        (m: any) => !assignedIds.includes(m.id)
+      );
       setAvailableManagers(available);
     } catch (error) {
-      console.error("Error loading managers:", error);
+      console.error("Error al cargar gerentes:", error);
       toast.error("Error al cargar gerentes");
     } finally {
       setIsLoadingManagers(false);
@@ -100,7 +102,7 @@ export function WarehouseDetailsModal({
       const available = branches.filter((b) => !assignedIds.includes(b.id));
       setAvailableBranches(available);
     } catch (error) {
-      console.error("Error loading branches:", error);
+      console.error("Error al cargar sucursales:", error);
       toast.error("Error al cargar sucursales");
     } finally {
       setIsLoadingBranches(false);
@@ -115,7 +117,7 @@ export function WarehouseDetailsModal({
       toast.success("Gerente asignado exitosamente a la bodega");
       onClose();
     } catch (error) {
-      console.error("Error assigning manager:", error);
+      console.error("Error al asignar gerente:", error);
       toast.error("Error al asignar gerente");
     } finally {
       setIsAssigning(false);
@@ -130,7 +132,7 @@ export function WarehouseDetailsModal({
       toast.success("Gerente removido de la bodega exitosamente");
       onClose();
     } catch (error) {
-      console.error("Error removing manager:", error);
+      console.error("Error al remover gerente:", error);
       toast.error("Error al remover gerente");
     } finally {
       setIsAssigning(false);
@@ -157,7 +159,7 @@ export function WarehouseDetailsModal({
       );
       onClose();
     } catch (error) {
-      console.error("Error assigning branch:", error);
+      console.error("Error al asignar sucursal:", error);
       toast.error("Error al asignar sucursal");
     } finally {
       setIsAssigning(false);
@@ -172,7 +174,7 @@ export function WarehouseDetailsModal({
       toast.success("Servicio de distribución removido exitosamente");
       onClose();
     } catch (error) {
-      console.error("Error removing branch:", error);
+      console.error("Error al remover sucursal:", error);
       toast.error("Error al remover el servicio de distribución");
     } finally {
       setIsAssigning(false);
@@ -200,37 +202,122 @@ export function WarehouseDetailsModal({
               <h3 className="text-lg font-semibold text-gray-900">
                 {warehouse.name}
               </h3>
-              <Badge variant="secondary" className="mt-1">
-                Bodega
-              </Badge>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="secondary" className="text-xs">
+                  ID: {warehouse.id}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Bodega
+                </Badge>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* General Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                  <Hash className="h-4 w-4" />
+                  Información General
+                </h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-muted-foreground">Creado:</span>
+                    <span>{formatDate(warehouse.createdAt)}</span>
+                  </div>
+                  {warehouse.updatedAt && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        Actualizado:
+                      </span>
+                      <span>{formatDate(warehouse.updatedAt)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Estadísticas y Estado
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-3 w-3 text-muted-foreground" />
+                    <span>
+                      {warehouse.branches?.length || 0} sucursales atendidas
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                    <span>
+                      {warehouse.managers?.length || 0} gerentes asignados
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-3 w-3 text-muted-foreground" />
+                    <span>
+                      {warehouse.branches?.filter((b) => b.isPrimary).length ||
+                        0}{" "}
+                      sucursales principales,{" "}
+                      {warehouse.branches?.filter((b) => !b.isPrimary).length ||
+                        0}{" "}
+                      sucursales secundarias
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      Estado: Activa
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Ubicación
+                </h4>
+                <div className="text-sm">
+                  <div className="font-medium">{warehouse.city}</div>
+                  {warehouse.department && (
+                    <div className="text-muted-foreground">
+                      {warehouse.department}
+                    </div>
+                  )}
+                  {warehouse.country && (
+                    <div className="text-muted-foreground">
+                      {warehouse.country}
+                    </div>
+                  )}
+                  {warehouse.address && (
+                    <div className="text-muted-foreground text-xs mt-1">
+                      {warehouse.address}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <Separator />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Contact Information */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  Información de Contacto
-                </h4>
-
-                {warehouse.phone && (
+              {warehouse.phone && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Información de Contacto
+                  </h4>
                   <div className="flex items-center gap-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <span>{warehouse.phone}</span>
                   </div>
-                )}
-
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {warehouse.address}, {warehouse.city}
-                    {warehouse.department && `, ${warehouse.department}`}
-                    {warehouse.country && `, ${warehouse.country}`}
-                  </span>
                 </div>
-              </div>
+              )}
 
               {/* Manager Information */}
               <div className="space-y-3">
@@ -267,12 +354,10 @@ export function WarehouseDetailsModal({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRemoveManager(manager.id)}
-                          disabled={isAssigning}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          disabled
+                          className="text-gray-400 cursor-not-allowed"
                         >
                           <X className="h-4 w-4 mr-1" />
-                          Remover
                         </Button>
                       </div>
                     ))}
@@ -283,50 +368,6 @@ export function WarehouseDetailsModal({
                     <p className="text-sm">Sin gerente asignado</p>
                   </div>
                 )}
-
-                {/* Assign Manager */}
-                <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700">
-                    Asignar Gerente Responsable
-                  </h5>
-                  {isLoadingManagers ? (
-                    <div className="text-sm text-gray-500">
-                      Cargando gerentes disponibles...
-                    </div>
-                  ) : availableManagers.length > 0 ? (
-                    <div className="space-y-2">
-                      {availableManagers.slice(0, 3).map((manager) => (
-                        <Button
-                          key={manager.id}
-                          variant="outline"
-                          size="sm"
-                          className="w-full justify-start p-3 h-auto"
-                          onClick={() => handleAssignManager(manager.id)}
-                          disabled={isAssigning}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="p-1 bg-blue-100 rounded">
-                              <Plus className="h-3 w-3 text-blue-600" />
-                            </div>
-                            <div className="text-left">
-                              <div className="font-medium text-sm">
-                                {manager.name}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                Gerente disponible
-                              </div>
-                            </div>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-gray-500">
-                      <Users className="h-6 w-6 mx-auto mb-1 text-gray-300" />
-                      <p className="text-xs">No hay gerentes disponibles</p>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
@@ -428,7 +469,7 @@ export function WarehouseDetailsModal({
                             <span className="font-medium text-gray-900">
                               {branch.name}
                             </span>
-                            {branch.isPrimary && (
+                            {branch.isPrimary ? (
                               <Badge
                                 variant="default"
                                 className="text-xs bg-blue-600"
@@ -436,24 +477,37 @@ export function WarehouseDetailsModal({
                                 <Shield className="h-3 w-3 mr-1" />
                                 Bodega Principal
                               </Badge>
+                            ) : (
+                              <Badge
+                                variant="outline"
+                                className="text-xs border-gray-400 text-gray-600"
+                              >
+                                <Building2 className="h-3 w-3 mr-1" />
+                                Bodega Secundaria
+                              </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500">
-                            {branch.isPrimary
-                              ? "Centro de distribución primario para esta sucursal"
-                              : "Centro de distribución secundario de respaldo"}
-                          </p>
+                          <div className="text-sm text-gray-600 mt-1">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>{branch.address}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {branch.isPrimary
+                                ? "Centro de distribución primario para esta sucursal"
+                                : "Centro de distribución secundario de respaldo"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleRemoveBranch(branch.id)}
-                        disabled={isAssigning}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled
+                        className="text-gray-400 cursor-not-allowed"
                       >
                         <X className="h-4 w-4 mr-1" />
-                        Remover Servicio
+                        Solo lectura
                       </Button>
                     </div>
                   ))}
@@ -470,82 +524,6 @@ export function WarehouseDetailsModal({
                 </p>
               </div>
             )}
-
-            {/* Service Configuration */}
-            <div className="space-y-3">
-              <h5 className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Configuración de Servicio
-              </h5>
-
-              {isLoadingBranches ? (
-                <div className="flex items-center justify-center py-4">
-                  <div className="text-sm text-gray-500">
-                    Cargando sucursales disponibles...
-                  </div>
-                </div>
-              ) : availableBranches.length > 0 ? (
-                <div className="space-y-2">
-                  <p className="text-xs text-gray-600 mb-3">
-                    Seleccione las sucursales que esta bodega atenderá:
-                  </p>
-                  {availableBranches.slice(0, 5).map((branch) => (
-                    <div
-                      key={branch.id}
-                      className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
-                    >
-                      <Building2 className="h-4 w-4 text-gray-400" />
-                      <div className="flex-1">
-                        <span className="text-sm font-medium text-gray-900">
-                          {branch.name}
-                        </span>
-                        <p className="text-xs text-gray-500">
-                          Sucursal disponible para asignación
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAssignBranch(branch.id, false)}
-                          disabled={isAssigning}
-                          className="text-xs"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Agregar Secundaria
-                        </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => handleAssignBranch(branch.id, true)}
-                          disabled={isAssigning}
-                          className="text-xs bg-blue-600 hover:bg-blue-700"
-                        >
-                          <Star className="h-3 w-3 mr-1" />
-                          Designar Principal
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {availableBranches.length > 5 && (
-                    <p className="text-xs text-gray-500 text-center py-2">
-                      +{availableBranches.length - 5} sucursales adicionales
-                      disponibles
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <Users className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                  <p className="text-sm">
-                    Todas las sucursales están asignadas
-                  </p>
-                  <p className="text-xs mt-1">
-                    No hay sucursales disponibles para asignar
-                  </p>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </DialogContent>

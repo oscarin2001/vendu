@@ -5,17 +5,12 @@ import { useEffect, useState } from "react";
 import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
 import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBreadcrumbs";
 import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/SidebarToolbarContext";
-import { getCompanyData } from "@/services/admin/company/services/company-api";
+import { useCompany } from "@/services/admin/company";
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-interface CompanyData {
-  name: string;
-  // Add other fields as needed
-}
 
 export default function AdminLayout({
   children,
@@ -25,26 +20,7 @@ export default function AdminLayout({
   const params = useParams();
   const tenantId = params.tenantId as string;
 
-  const [companyData, setCompanyData] = useState<CompanyData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCompanyData = async () => {
-      try {
-        const data = await getCompanyData(tenantId);
-        setCompanyData(data);
-      } catch (error) {
-        console.error("Error fetching company data:", error);
-        setCompanyData({ name: "Empresa" });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (tenantId) {
-      fetchCompanyData();
-    }
-  }, [tenantId]);
+  const { company, isLoading } = useCompany(tenantId);
 
   // TODO: Obtener datos reales del usuario
   // Por ahora, datos mock
@@ -79,7 +55,7 @@ export default function AdminLayout({
     <SidebarToolbarProvider>
       <SidebarProvider>
         <AdminSidebar
-          organizationName={companyData?.name || "Empresa"}
+          organizationName={company?.name || "Empresa"}
           userFirstName={mockUser.firstName}
           userLastName={mockUser.lastName}
           tenantId={tenantId}

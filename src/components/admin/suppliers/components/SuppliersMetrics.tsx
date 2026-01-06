@@ -1,15 +1,15 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Truck, CheckCircle, UserCheck, UserX } from "lucide-react";
-import { SupplierMetrics } from "@/services/admin/suppliers/types/supplier.types";
+import { SupplierMetrics } from "../shared/types";
+import { MetricCard } from "../shared/components/MetricCard";
 
 interface SuppliersMetricsProps {
   metrics: SupplierMetrics;
   isLoading: boolean;
 }
 
-export function SuppliersMetrics({
+export function SuppliersMetricsGrid({
   metrics,
   isLoading,
 }: SuppliersMetricsProps) {
@@ -44,44 +44,19 @@ export function SuppliersMetrics({
     },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cargando...</CardTitle>
-              <div className="h-4 w-4 animate-pulse rounded bg-muted"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 w-16 animate-pulse rounded bg-muted"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {metricCards.map((card, index) => {
-        const Icon = card.icon;
-        return (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {card.title}
-              </CardTitle>
-              <div className={`p-2 rounded-md ${card.bgColor}`}>
-                <Icon className={`h-4 w-4 ${card.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-            </CardContent>
-          </Card>
-        );
-      })}
+      {metricCards.map((metric) => (
+        <MetricCard
+          key={metric.title}
+          title={metric.title}
+          value={metric.value}
+          icon={metric.icon}
+          color={metric.color}
+          bgColor={metric.bgColor}
+          isLoading={isLoading}
+        />
+      ))}
     </div>
   );
 }

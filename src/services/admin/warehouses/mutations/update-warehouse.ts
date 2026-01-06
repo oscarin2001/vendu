@@ -3,7 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { normalizeWarehouseInput } from "../utils/warehouse-utils";
 import { getAuditService } from "@/services/shared/audit";
-import { updateWarehouseSchema, type UpdateWarehouseData } from "../validations/warehouse-schema";
+import {
+  updateWarehouseSchema,
+  type UpdateWarehouseData,
+} from "../validations/warehouse-schema";
 
 interface UserContext {
   employeeId?: number;

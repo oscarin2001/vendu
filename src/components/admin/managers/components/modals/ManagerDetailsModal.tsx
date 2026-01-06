@@ -3,36 +3,31 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   User,
   Mail,
   Phone,
-  Building,
+  CreditCard,
   DollarSign,
   Calendar,
-  Shield,
   FileText,
-  Wifi,
-  WifiOff,
+  Building2,
+  Shield,
   Clock,
-  HelpCircle,
-  TrendingUp,
-  TrendingDown,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
-import { Manager } from "@/services/admin/managers/types/manager.types";
+import { Manager } from "@/services/admin/managers";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface ManagerDetailsModalProps {
   manager: Manager | null;
@@ -47,353 +42,303 @@ export function ManagerDetailsModal({
 }: ManagerDetailsModalProps) {
   if (!manager) return null;
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
-
-  const formatSalary = (salary: number) => {
-    return new Intl.NumberFormat("es-BO", {
-      style: "currency",
-      currency: "BOB",
-    }).format(salary);
-  };
-
-  const getFinancialContribution = (salary: number) => {
-    if (!salary || salary === 0) {
-      return {
-        text: "Aporta a empresa",
-        variant: "default" as const,
-        icon: TrendingUp,
-        color: "text-white",
-      };
+  const getStatusBadge = (status: Manager["status"]) => {
+    switch (status) {
+      case "ACTIVE":
+        return (
+          <Badge variant="default" className="bg-green-100 text-green-800">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Activo
+          </Badge>
+        );
+      case "DEACTIVATED":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800">
+            <XCircle className="w-3 h-3 mr-1" />
+            Desactivado
+          </Badge>
+        );
+      case "INACTIVE":
+        return (
+          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Inactivo
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
-    return {
-      text: "Empresa aporta",
-      variant: "secondary" as const,
-      icon: TrendingDown,
-      color: "text-gray-600",
-    };
+  };
+
+  const getConnectionStatusBadge = (status: Manager["connectionStatus"]) => {
+    switch (status) {
+      case "ONLINE":
+        return (
+          <Badge variant="default" className="bg-green-100 text-green-800">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
+            En línea
+          </Badge>
+        );
+      case "OFFLINE":
+        return (
+          <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+            <div className="w-2 h-2 bg-gray-500 rounded-full mr-1" />
+            Fuera de línea
+          </Badge>
+        );
+      case "AWAY":
+        return (
+          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1" />
+            Ausente
+          </Badge>
+        );
+      case "UNKNOWN":
+        return (
+          <Badge variant="outline" className="bg-gray-100 text-gray-600">
+            <div className="w-2 h-2 bg-gray-400 rounded-full mr-1" />
+            Desconocido
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getContributionTypeLabel = (type: Manager["contributionType"]) => {
+    switch (type) {
+      case "none":
+        return "Sin contribución";
+      case "contributes":
+        return "Contribuyente";
+      case "paid":
+        return "Pagado";
+      default:
+        return type;
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <TooltipProvider>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback>
-                  {getInitials(manager.firstName, manager.lastName)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div>{manager.fullName}</div>
-                <div className="text-sm font-normal text-muted-foreground">
-                  Encargado
-                </div>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Detalles del Encargado
+          </DialogTitle>
+          <DialogDescription>
+            Información completa del encargado {manager.fullName}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Información Personal */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Información Personal
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Nombre Completo
+                </label>
+                <p className="text-sm font-medium">{manager.fullName}</p>
               </div>
-            </DialogTitle>
-          </DialogHeader>
 
-          <div className="space-y-6">
-            {/* Información Personal */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Información Personal
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Nombres
-                    </label>
-                    <p className="text-lg font-semibold">{manager.firstName}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Apellidos
-                    </label>
-                    <p className="text-lg font-semibold">{manager.lastName}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      CI
-                    </label>
-                    <p className="font-mono">{manager.ci}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Rol
-                    </label>
-                    <Badge variant="outline">{manager.privilege.name}</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Cédula de Identidad
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  {manager.ci}
+                </p>
+              </div>
 
-            {/* Información de Contacto */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Información de Contacto
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{manager.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Correo electrónico
-                      </p>
-                    </div>
-                  </div>
-                  {manager.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{manager.phone}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Teléfono
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Correo Electrónico
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  {manager.email}
+                </p>
+              </div>
 
-            {/* Información Laboral */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  Información Laboral
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Sucursales Asignadas
-                    </label>
-                    <div className="mt-1">
-                      {manager.branches && manager.branches.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {manager.branches.map((branch) => (
-                            <Badge key={branch.id} variant="default">
-                              {branch.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <Badge variant="outline">Sin asignar</Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Contribución Financiera
-                    </label>
-                    <div className="mt-1 space-y-2">
-                      {(() => {
-                        const contribution = getFinancialContribution(
-                          manager.salary
-                        );
-                        const IconComponent = contribution.icon;
-                        return (
-                          <Badge variant={contribution.variant}>
-                            <IconComponent
-                              className={`w-4 h-4 mr-2 ${contribution.color}`}
-                            />
-                            {contribution.text}
-                          </Badge>
-                        );
-                      })()}
-                      <p className="text-sm text-muted-foreground">
-                        Salario: {formatSalary(manager.salary)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Fecha de Contratación
-                    </label>
-                    <p className="flex items-center gap-2 mt-1">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(manager.hireDate).toLocaleDateString("es-ES", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Información de Auditoría */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Información de Auditoría
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Estado de la Cuenta
-                    </label>
-                    <div className="mt-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant={
-                              manager.status === "ACTIVE"
-                                ? "default"
-                                : manager.status === "DEACTIVATED"
-                                ? "secondary"
-                                : "destructive"
-                            }
-                          >
-                            {manager.status === "ACTIVE"
-                              ? "Activo"
-                              : manager.status === "DEACTIVATED"
-                              ? "Desactivado"
-                              : "Inactivo"}
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="max-w-sm">
-                            <p className="font-medium mb-1">
-                              {manager.status === "ACTIVE"
-                                ? "✅ Activo"
-                                : manager.status === "DEACTIVATED"
-                                ? "🟠 Desactivado"
-                                : "🔴 Inactivo"}
-                            </p>
-                            <p className="text-sm">
-                              {manager.status === "ACTIVE"
-                                ? "Trabajando normalmente. Puede acceder al sistema y gestionar sucursales."
-                                : manager.status === "DEACTIVATED"
-                                ? "Suspendido temporalmente. No puede acceder pero puede reactivarse."
-                                : "Salida permanente. Renuncia, despido o jubilación."}
-                            </p>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {manager.status === "ACTIVE"
-                          ? "El encargado puede iniciar sesión y trabajar normalmente."
-                          : manager.status === "DEACTIVATED"
-                          ? "El encargado está suspendido temporalmente pero puede volver a trabajar."
-                          : "El encargado ya no forma parte de la empresa."}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Estado de Conexión
-                    </label>
-                    <div className="mt-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Badge variant="outline">
-                            {manager.connectionStatus === "ONLINE" && (
-                              <>
-                                <Wifi className="w-4 h-4 mr-2 text-green-500" />
-                                Online
-                              </>
-                            )}
-                            {manager.connectionStatus === "OFFLINE" && (
-                              <>
-                                <WifiOff className="w-4 h-4 mr-2 text-gray-500" />
-                                Offline
-                              </>
-                            )}
-                            {manager.connectionStatus === "AWAY" && (
-                              <>
-                                <Clock className="w-4 h-4 mr-2 text-yellow-500" />
-                                Ausente
-                              </>
-                            )}
-                            {manager.connectionStatus === "UNKNOWN" && (
-                              <>
-                                <HelpCircle className="w-4 h-4 mr-2 text-gray-400" />
-                                Desconocido
-                              </>
-                            )}
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="max-w-sm">
-                            <p className="font-medium mb-1">
-                              {manager.connectionStatus === "ONLINE" &&
-                                "Conectado"}
-                              {manager.connectionStatus === "OFFLINE" &&
-                                "Desconectado"}
-                              {manager.connectionStatus === "AWAY" && "Ausente"}
-                              {manager.connectionStatus === "UNKNOWN" &&
-                                "Desconocido"}
-                            </p>
-                            <p className="text-sm">
-                              {manager.connectionStatus === "ONLINE" &&
-                                "Actualmente conectado al sistema"}
-                              {manager.connectionStatus === "OFFLINE" &&
-                                "No está conectado al sistema"}
-                              {manager.connectionStatus === "AWAY" &&
-                                "Ausente temporalmente del sistema"}
-                              {manager.connectionStatus === "UNKNOWN" &&
-                                "Estado de conexión no determinado"}
-                            </p>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Estado de conexión actual del encargado
-                      </p>
-                    </div>
-                  </div>
-                  {manager.createdAt && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Fecha de Creación
-                      </label>
-                      <p className="flex items-center gap-2 mt-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(manager.createdAt).toLocaleDateString(
-                          "es-ES",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Separator />
-
-            {/* ID del Encargado */}
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">ID del Encargado</p>
-              <p className="text-2xl font-mono font-bold">#{manager.id}</p>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Teléfono
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  {manager.phone || "No especificado"}
+                </p>
+              </div>
             </div>
           </div>
-        </TooltipProvider>
+
+          <Separator />
+
+          {/* Información Laboral */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Información Laboral
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Salario
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  {manager.salary.toLocaleString("es-BO", {
+                    style: "currency",
+                    currency: "BOB",
+                  })}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Fecha de Contratación
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {format(manager.hireDate, "PPP", { locale: es })}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Tipo de Contrato
+                </label>
+                <p className="text-sm font-medium">{manager.contractType}</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Tipo de Contribución
+                </label>
+                <p className="text-sm font-medium">
+                  {getContributionTypeLabel(manager.contributionType)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Estado y Privilegios */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Estado y Privilegios
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Estado de la Cuenta
+                </label>
+                <div>{getStatusBadge(manager.status)}</div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Estado de Conexión
+                </label>
+                <div>{getConnectionStatusBadge(manager.connectionStatus)}</div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Privilegio
+                </label>
+                <p className="text-sm font-medium">{manager.privilege.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  Código: {manager.privilege.code}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Activo
+                </label>
+                <div className="flex items-center gap-2">
+                  {manager.isActive ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-red-500" />
+                  )}
+                  <span className="text-sm">
+                    {manager.isActive ? "Sí" : "No"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Sucursales Asignadas */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Sucursales Asignadas
+            </h3>
+
+            {manager.branches.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {manager.branches.map((branch) => (
+                  <div
+                    key={branch.id}
+                    className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50"
+                  >
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">{branch.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        ID: {branch.id}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No hay sucursales asignadas</p>
+              </div>
+            )}
+          </div>
+
+          {/* Información de Creación */}
+          {manager.createdAt && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Información del Sistema
+                </h3>
+                <div className="text-sm text-muted-foreground">
+                  <p>
+                    Creado el{" "}
+                    {format(manager.createdAt, "PPP 'a las' p", { locale: es })}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex justify-end pt-4">
+          <Button onClick={onClose}>Cerrar</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

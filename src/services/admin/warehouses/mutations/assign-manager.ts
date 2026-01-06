@@ -1,7 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { assignManagerSchema, type AssignManagerData } from "../validations/warehouse-schema";
+import {
+  assignManagerSchema,
+  type AssignManagerData,
+} from "../validations/warehouse-schema";
 
 interface UserContext {
   employeeId?: number;

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { registerCompany } from "../../tenant/company-service";
 import { checkUsernameExists } from "../../tenant/repos/tenant-repo";
-import { normalizeBranchInput } from "../../admin/branches/utils/branch-utils";
+import { normalizeBranchInput } from "../../admin/branches/mappers/branch-utils";
 
 /**
  * Server action to check if username already exists

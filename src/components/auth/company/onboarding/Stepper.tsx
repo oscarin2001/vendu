@@ -1,20 +1,10 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import {
-  Building2,
-  User,
-  MapPin,
-  Warehouse,
-  FileText,
-  CheckCircle,
-} from "lucide-react";
+import { Building2, User, FileText, CheckCircle } from "lucide-react";
 
 const steps = [
   { name: "Empresa", path: "company-name", icon: Building2 },
   { name: "Responsable", path: "owner", icon: User },
-  { name: "Sucursal", path: "branch", icon: MapPin },
-  { name: "Bodega", path: "warehouse", icon: Warehouse },
   { name: "Fiscal", path: "fiscal", icon: FileText },
   { name: "Confirmación", path: "confirmation", icon: CheckCircle },
 ];

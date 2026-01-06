@@ -1,0 +1,1 @@
+export { WarehousesPageContent } from "./WarehousesPageContent";

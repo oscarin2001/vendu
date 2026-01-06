@@ -1,4 +1,4 @@
-import { BranchForm } from "@/components/auth/company/onboarding/BranchForm";
+import { BranchForm } from "@/components/auth/company/forms/onboarding/branch";
 
 export default function BranchPage() {
   return (

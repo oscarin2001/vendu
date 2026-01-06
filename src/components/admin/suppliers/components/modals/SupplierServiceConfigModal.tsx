@@ -17,13 +17,13 @@ import {
   AlertCircle,
   Truck,
 } from "lucide-react";
-import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
+import { Supplier } from "@/services/admin/suppliers";
 import { useState, useEffect } from "react";
-import { getManagersByCompany } from "@/services/admin/managers/services/queries/manager-queries";
+import { getManagersByCompany } from "@/services/admin/managers";
 import {
   assignManagerToSupplier,
   removeManagerFromSupplier,
-} from "@/services/admin/suppliers/services/mutations/supplier-mutations";
+} from "@/services/admin/suppliers";
 import { toast } from "sonner";
 
 interface SupplierServiceConfigModalProps {

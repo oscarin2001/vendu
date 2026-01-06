@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
 import { AlertTriangle, Truck } from "lucide-react";
-import { Supplier } from "@/services/admin/suppliers/types/supplier.types";
+import { Supplier } from "@/services/admin/suppliers";
 
 interface SupplierDeleteInitialModalProps {
   supplier: Supplier | null;

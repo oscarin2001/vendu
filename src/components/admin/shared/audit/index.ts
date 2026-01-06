@@ -1,2 +1,1 @@
-// Re-export audit components
-export * from "./AuditHistory";
+export { AuditHistory } from "./AuditHistory";

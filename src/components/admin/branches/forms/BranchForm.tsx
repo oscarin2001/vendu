@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2 } from "lucide-react";
+import { BranchAuditInfo } from "./components";
 
 interface BranchFormData {
   name: string;
@@ -40,134 +49,128 @@ export function BranchForm({
     address: initialData?.address || "",
     city: initialData?.city || "",
     department: initialData?.department || "",
-    country: initialData?.country || "",
+    country: initialData?.country || "Bolivia",
   });
 
-  // Update form data when initialData changes
-  useEffect(() => {
-    if (initialData) {
-      console.log("Updating form data with initialData:", initialData);
-      setFormData({
-        name: initialData.name || "",
-        phone: initialData.phone || "",
-        address: initialData.address || "",
-        city: initialData.city || "",
-        department: initialData.department || "",
-        country: initialData.country || "",
-      });
+  const [errors, setErrors] = useState<Partial<BranchFormData>>({});
+
+  const validateForm = () => {
+    const newErrors: Partial<BranchFormData> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "El nombre de la sucursal es requerido";
     }
-  }, [initialData]);
+
+    if (!formData.address.trim()) {
+      newErrors.address = "La dirección es requerida";
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = "La ciudad es requerida";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (validateForm()) {
+      onSubmit(formData);
+    }
   };
 
-  const handleChange = (field: keyof BranchFormData, value: any) => {
+  const handleChange = (
+    field: keyof BranchFormData,
+    value: string | number | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {mode === "create" ? "Crear Sucursal" : "Editar Sucursal"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {mode === "edit" && branchInfo && (
-          <div className="mb-6">
-            <Card className="border-muted">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Información de Auditoría
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <Label className="text-muted-foreground">
-                      ID de Sucursal
-                    </Label>
-                    <p className="font-medium">#{branchInfo.id}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Fecha de Creación
-                    </Label>
-                    <p className="font-medium">
-                      {new Date(branchInfo.createdAt).toLocaleDateString(
-                        "es-ES",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Última Actualización
-                    </Label>
-                    <p className="font-medium">
-                      {branchInfo.updatedAt
-                        ? new Date(branchInfo.updatedAt).toLocaleDateString(
-                            "es-ES",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )
-                        : "Nunca"}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-blue-100 rounded-lg">
+          <Building2 className="h-5 w-5 text-blue-600" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">
+            {mode === "create" ? "Crear Sucursal" : "Editar Sucursal"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {mode === "create"
+              ? "Agrega una nueva sucursal a tu red de distribución"
+              : "Modifica la información de la sucursal"}
+          </p>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Basic Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Información Básica</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <Label htmlFor="name">Nombre de la Sucursal</Label>
+            <div className="space-y-2">
+              <Label htmlFor="name">Nombre de la Sucursal *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="Ej: Sucursal Centro"
-                required
+                className={errors.name ? "border-red-500" : ""}
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phone">Teléfono</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="Ej: +591 12345678"
+                placeholder="Ej: +591 2 1234567"
               />
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="country">País</Label>
+          <div className="space-y-2">
+            <Label htmlFor="address">Dirección *</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              placeholder="Dirección completa de la sucursal"
+              className={errors.address ? "border-red-500" : ""}
+            />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Ciudad *</Label>
               <Input
-                id="country"
-                value={formData.country}
-                onChange={(e) => handleChange("country", e.target.value)}
-                placeholder="Ej: Bolivia"
-                required
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleChange("city", e.target.value)}
+                placeholder="Ej: La Paz"
+                className={errors.city ? "border-red-500" : ""}
               />
+              {errors.city && (
+                <p className="text-sm text-red-500">{errors.city}</p>
+              )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="department">Departamento</Label>
               <Input
                 id="department"
@@ -177,38 +180,46 @@ export function BranchForm({
               />
             </div>
 
-            <div>
-              <Label htmlFor="city">Ciudad</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => handleChange("city", e.target.value)}
-                placeholder="Ej: La Paz"
-                required
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <Label htmlFor="address">Dirección</Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleChange("address", e.target.value)}
-                placeholder="Dirección completa de la sucursal"
-                required
-              />
+            <div className="space-y-2">
+              <Label htmlFor="country">País</Label>
+              <Select
+                value={formData.country}
+                onValueChange={(value) => handleChange("country", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bolivia">Bolivia</SelectItem>
+                  <SelectItem value="Perú">Perú</SelectItem>
+                  <SelectItem value="Chile">Chile</SelectItem>
+                  <SelectItem value="Argentina">Argentina</SelectItem>
+                  <SelectItem value="Brasil">Brasil</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading
-              ? "Guardando..."
-              : mode === "create"
-              ? "Crear Sucursal"
-              : "Guardar Cambios"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      {/* Audit Information */}
+      {mode === "edit" && branchInfo && (
+        <BranchAuditInfo branchInfo={branchInfo} />
+      )}
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline">
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+            ? "Crear Sucursal"
+            : "Guardar Cambios"}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -4,28 +4,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Truck,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  FileText,
-  Globe,
-} from "lucide-react";
+import { Truck } from "lucide-react";
 
 interface SupplierFormData {
   firstName: string;
   lastName: string;
-  phone: string;
+  phone?: string;
   email?: string;
-  address: string;
-  city: string;
-  department: string;
-  country: string;
-  notes: string;
+  address?: string;
+  city?: string;
+  department?: string;
+  country?: string;
+  notes?: string;
 }
 
 interface SupplierFormProps {
@@ -33,6 +32,11 @@ interface SupplierFormProps {
   onSubmit: (data: SupplierFormData) => void;
   isLoading?: boolean;
   mode: "create" | "edit";
+  supplierInfo?: {
+    id: number;
+    createdAt: Date;
+    updatedAt?: Date;
+  };
 }
 
 export function SupplierForm({
@@ -40,6 +44,7 @@ export function SupplierForm({
   onSubmit,
   isLoading,
   mode,
+  supplierInfo,
 }: SupplierFormProps) {
   const [formData, setFormData] = useState<SupplierFormData>({
     firstName: initialData?.firstName || "",
@@ -49,7 +54,7 @@ export function SupplierForm({
     address: initialData?.address || "",
     city: initialData?.city || "",
     department: initialData?.department || "",
-    country: initialData?.country || "",
+    country: initialData?.country || "Bolivia",
     notes: initialData?.notes || "",
   });
 
@@ -89,117 +94,130 @@ export function SupplierForm({
       return;
     }
 
-    // Remove empty email if not provided
+    // Convert empty strings to undefined for optional fields
     const submitData = {
       ...formData,
       email: formData.email?.trim() || undefined,
+      phone: formData.phone?.trim() || undefined,
+      address: formData.address?.trim() || undefined,
+      city: formData.city?.trim() || undefined,
+      department: formData.department?.trim() || undefined,
+      country: formData.country?.trim() || undefined,
+      notes: formData.notes?.trim() || undefined,
     };
 
     onSubmit(submitData);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Truck className="h-5 w-5" />
-          {mode === "create" ? "Nuevo Proveedor" : "Editar Proveedor"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-green-100 rounded-lg">
+          <Truck className="h-5 w-5 text-green-600" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">
+            {mode === "create" ? "Crear Proveedor" : "Editar Proveedor"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {mode === "create"
+              ? "Agrega un nuevo proveedor a tu red de distribución"
+              : "Modifica la información del proveedor"}
+          </p>
+        </div>
+      </div>
+
+      {/* Basic Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Información Básica</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* First Name */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="firstName">Nombre *</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
-                  placeholder="Nombre del proveedor"
-                  className={`pl-10 ${
-                    errors.firstName ? "border-red-500" : ""
-                  }`}
-                  required
-                />
-              </div>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => handleChange("firstName", e.target.value)}
+                placeholder="Nombre del proveedor"
+                className={errors.firstName ? "border-red-500" : ""}
+              />
               {errors.firstName && (
-                <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
+                <p className="text-sm text-red-500">{errors.firstName}</p>
               )}
             </div>
 
-            {/* Last Name */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="lastName">Apellido *</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
-                  placeholder="Apellido del proveedor"
-                  className={`pl-10 ${errors.lastName ? "border-red-500" : ""}`}
-                  required
-                />
-              </div>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => handleChange("lastName", e.target.value)}
+                placeholder="Apellido del proveedor"
+                className={errors.lastName ? "border-red-500" : ""}
+              />
               {errors.lastName && (
-                <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>
+                <p className="text-sm text-red-500">{errors.lastName}</p>
               )}
             </div>
 
-            {/* Phone */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phone">Teléfono</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="Ej: +591 12345678"
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="Ej: +591 2 1234567"
+              />
             </div>
 
-            {/* Email */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="proveedor@ejemplo.com"
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="proveedor@ejemplo.com"
+              />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                <p className="text-sm text-red-500">{errors.email}</p>
               )}
             </div>
+          </div>
+        </CardContent>
+      </Card>
 
-            {/* City */}
-            <div>
+      {/* Location Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Información de Ubicación</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="address">Dirección</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              placeholder="Dirección completa"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="city">Ciudad</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleChange("city", e.target.value)}
-                  placeholder="Ciudad"
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleChange("city", e.target.value)}
+                placeholder="Ej: La Paz"
+              />
             </div>
 
-            {/* Department */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="department">Departamento</Label>
               <Input
                 id="department"
@@ -209,61 +227,86 @@ export function SupplierForm({
               />
             </div>
 
-            {/* Country */}
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="country">País</Label>
-              <div className="relative">
-                <Globe className="absolute left-3 top-3 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="country"
-                  value={formData.country}
-                  onChange={(e) => handleChange("country", e.target.value)}
-                  placeholder="Ej: Bolivia"
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="md:col-span-2">
-              <Label htmlFor="address">Dirección</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
-                  placeholder="Dirección completa"
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div className="md:col-span-2">
-              <Label htmlFor="notes">Notas</Label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-3 text-muted-foreground h-4 w-4" />
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => handleChange("notes", e.target.value)}
-                  placeholder="Notas adicionales sobre el proveedor..."
-                  className="pl-10 min-h-[80px]"
-                />
-              </div>
+              <Select
+                value={formData.country}
+                onValueChange={(value) => handleChange("country", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bolivia">Bolivia</SelectItem>
+                  <SelectItem value="Perú">Perú</SelectItem>
+                  <SelectItem value="Chile">Chile</SelectItem>
+                  <SelectItem value="Argentina">Argentina</SelectItem>
+                  <SelectItem value="Brasil">Brasil</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading
-              ? "Guardando..."
-              : mode === "create"
-              ? "Crear Proveedor"
-              : "Guardar Cambios"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      {/* Additional Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Información Adicional</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notas</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleChange("notes", e.target.value)}
+              placeholder="Notas adicionales sobre el proveedor..."
+              className="min-h-[80px]"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Audit Information */}
+      {mode === "edit" && supplierInfo && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Información del Sistema</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium">ID:</span> {supplierInfo.id}
+              </div>
+              <div>
+                <span className="font-medium">Creado:</span>{" "}
+                {new Date(supplierInfo.createdAt).toLocaleDateString("es-ES")}
+              </div>
+              {supplierInfo.updatedAt && (
+                <div className="col-span-2">
+                  <span className="font-medium">Última modificación:</span>{" "}
+                  {new Date(supplierInfo.updatedAt).toLocaleDateString("es-ES")}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline">
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+            ? "Crear Proveedor"
+            : "Guardar Cambios"}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -2,71 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { useCompany } from "@/services/admin/company";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useCompany } from "@/services/admin/company/hooks/useCompany";
-import { Eye, EyeOff, Mail, Lock, User, Building, X } from "lucide-react";
-
-interface SubmitData {
-  firstName: string;
-  lastName: string;
-  ci: string;
-  phone: string;
-  email: string;
-  password: string;
-  salary?: number;
-  branchIds: number[];
-  contributionType: "none" | "contributes" | "paid";
-  hireDate?: Date;
-}
-
-interface ManagerFormData extends SubmitData {
-  confirmPassword: string;
-}
-
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  ci?: string;
-  phone?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  salary?: string;
-  branchIds?: string;
-  contributionType?: string;
-  hireDate?: string;
-  general?: string;
-}
-
-interface ManagerFormProps {
-  tenantId: string;
-  initialData?: {
-    firstName: string;
-    lastName: string;
-    ci: string;
-    phone: string;
-    email: string;
-    salary?: number;
-    branchIds: number[];
-    contributionType?: "none" | "contributes" | "paid";
-    hireDate?: Date;
-  };
-  branches: { id: number; name: string }[];
-  onSubmit: (data: SubmitData) => void;
-  isLoading?: boolean;
-  mode?: "create" | "edit";
-}
+  PersonalInfoSection,
+  ContactInfoSection,
+  EmploymentInfoSection,
+} from "./components";
+import { ManagerFormProps, FormErrors, SubmitData } from "./types";
+import { useManagerFormValidation } from "./hooks/useManagerFormValidation";
+import { useManagerFormState } from "./hooks/useManagerFormState";
+import { Users } from "lucide-react";
 
 export function ManagerForm({
   tenantId,
@@ -77,24 +22,16 @@ export function ManagerForm({
   mode = "create",
 }: ManagerFormProps) {
   const { company } = useCompany(tenantId);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { validateField } = useManagerFormValidation();
+  const {
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    formData,
+    setFormData,
+  } = useManagerFormState({ initialData, mode });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<ManagerFormData>({
-    firstName: initialData?.firstName || "",
-    lastName: initialData?.lastName || "",
-    ci: initialData?.ci || "",
-    phone: initialData?.phone || "",
-    email: initialData?.email || "",
-    password: "",
-    confirmPassword: "",
-    salary: initialData?.salary,
-    branchIds: initialData?.branchIds || [],
-    contributionType:
-      initialData?.contributionType ||
-      (!initialData?.salary || initialData.salary === 0 ? "none" : "paid"),
-    hireDate: initialData?.hireDate || new Date(),
-  });
 
   // Update email domain when company loads in create mode
   useEffect(() => {
@@ -104,503 +41,145 @@ export function ManagerForm({
         email: `@${company.slug}.com`,
       }));
     }
-  }, [company, mode]); // Removed formData.email to avoid dependency array size changes
+  }, [company, mode]);
 
-  const validateField = (
-    field: keyof ManagerFormData,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
-  ): string | undefined => {
-    switch (field) {
-      case "firstName":
-        if (!value?.trim()) return "El nombre es requerido";
-        if (value.length < 2)
-          return "El nombre debe tener al menos 2 caracteres";
-        break;
-      case "lastName":
-        if (!value?.trim()) return "El apellido es requerido";
-        if (value.length < 2)
-          return "El apellido debe tener al menos 2 caracteres";
-        break;
-      case "ci":
-        if (!value?.trim()) return "La cédula es requerida";
-        if (!/^\d{6,10}$/.test(value))
-          return "La cédula debe contener solo números (6-10 dígitos)";
-        break;
-      case "email":
-        if (!value?.trim()) return "El correo electrónico es requerido";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          return "Formato de correo inválido";
-        if (company?.slug && !value.endsWith(`@${company.slug}.com`)) {
-          return `El correo debe terminar en @${company.slug}.com`;
-        }
-        break;
-      case "password":
-        if (mode === "create") {
-          if (!value?.trim()) return "La contraseña es requerida";
-          if (value.length < 8)
-            return "La contraseña debe tener al menos 8 caracteres";
-          if (!/[A-Z]/.test(value))
-            return "La contraseña debe contener al menos una mayúscula";
-        }
-        break;
-      case "confirmPassword":
-        if (mode === "create") {
-          if (!value?.trim())
-            return "La confirmación de contraseña es requerida";
-          if (value !== formData.password)
-            return "Las contraseñas no coinciden";
-        }
-        break;
-      case "salary":
-        if (value !== undefined && value !== null && value !== "") {
-          const numValue = parseFloat(value);
-          if (isNaN(numValue) || numValue < 0)
-            return "El salario debe ser un número positivo";
-        }
-        break;
-      case "contributionType":
-        if (!value) return "Debe seleccionar el tipo de contribución";
-        break;
-      case "hireDate":
-        if (!value) return "La fecha de contratación es requerida";
-        const date = new Date(value);
-        if (isNaN(date.getTime())) return "Fecha inválida";
-        if (date > new Date()) return "La fecha no puede ser futura";
-        break;
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error for this field
+    if (errors[field as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-    return undefined;
-  };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    let isValid = true;
-
-    // Validate all fields
-    Object.keys(formData).forEach((key) => {
-      const field = key as keyof ManagerFormData;
-      const error = validateField(field, formData[field]);
-      if (error) {
-        newErrors[field] = error;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
+    // Validate field
+    const error = validateField(field, value, formData);
+    if (error) {
+      setErrors((prev) => ({ ...prev, [field]: error }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("🔍 ManagerForm handleSubmit called, mode:", mode);
+    console.log("📋 Form data:", formData);
 
-    if (!validateForm()) {
-      return;
-    }
-
-    const { confirmPassword, ...submitData } = formData; // eslint-disable-line @typescript-eslint/no-unused-vars
-    onSubmit(submitData as SubmitData);
-  };
-
-  const handleChange = (
-    field: keyof ManagerFormData,
-    value: string | number | null | undefined
-  ) => {
-    let processedValue: string | number | null | undefined | Date = value;
-
-    // Convertir hireDate de string a Date
-    if (field === "hireDate" && typeof value === "string") {
-      processedValue = value ? new Date(value) : undefined;
-    }
-
-    setFormData((prev) => {
-      const newData = { ...prev, [field]: processedValue };
-
-      // Si cambia el tipo de contribución, ajustar el salario automáticamente
-      if (field === "contributionType") {
-        if (value === "none") {
-          newData.salary = 0;
-        } else if (
-          value === "contributes" &&
-          (!prev.salary || prev.salary === 0)
-        ) {
-          newData.salary = undefined; // Permitir que ingrese un valor
-        } else if (value === "paid" && (!prev.salary || prev.salary === 0)) {
-          newData.salary = undefined; // Permitir que ingrese un valor
-        }
+    // Validate all fields
+    const newErrors: FormErrors = {};
+    Object.keys(formData).forEach((key) => {
+      const field = key as string;
+      const error = validateField(
+        field,
+        formData[field as keyof typeof formData],
+        formData,
+        mode
+      );
+      if (error) {
+        newErrors[field as keyof FormErrors] = error;
       }
-
-      return newData;
     });
 
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      const submitData: SubmitData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        ci: formData.ci,
+        phone: formData.phone,
+        email: formData.email,
+        password: formData.password,
+        salary: formData.salary,
+        branchIds: formData.branchIds || [],
+        contributionType: formData.contributionType,
+        hireDate: formData.hireDate,
+      };
+      onSubmit(submitData);
     }
-
-    // Special validation for confirmPassword when password changes
-    if (field === "password" && formData.confirmPassword) {
-      const confirmError = validateField(
-        "confirmPassword",
-        formData.confirmPassword
-      );
-      setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
-    }
   };
-
-  const handleBranchToggle = (branchId: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      branchIds: prev.branchIds.includes(branchId)
-        ? prev.branchIds.filter((id) => id !== branchId)
-        : [...prev.branchIds, branchId],
-    }));
-  };
-
-  const removeBranch = (branchId: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      branchIds: prev.branchIds.filter((id) => id !== branchId),
-    }));
-  };
-
-  const selectedBranches = branches.filter((branch) =>
-    formData.branchIds.includes(branch.id)
-  );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {mode === "create" ? "Crear Encargado" : "Editar Encargado"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">Nombres *</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
-                  placeholder="Ej: Juan Carlos"
-                  className="pl-10"
-                  required
-                />
-              </div>
-              {errors.firstName && (
-                <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
-              )}
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-purple-100 rounded-lg">
+          <Users className="h-5 w-5 text-purple-600" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">
+            {mode === "create" ? "Crear Gerente" : "Editar Gerente"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {mode === "create"
+              ? "Agrega un nuevo gerente a tu equipo administrativo"
+              : "Modifica la información del gerente"}
+          </p>
+        </div>
+      </div>
 
-            <div>
-              <Label htmlFor="lastName">Apellidos *</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
-                  placeholder="Ej: Pérez López"
-                  className="pl-10"
-                  required
-                />
-              </div>
-              {errors.lastName && (
-                <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
-              )}
-            </div>
+      <PersonalInfoSection
+        firstName={formData.firstName}
+        lastName={formData.lastName}
+        ci={formData.ci}
+        errors={{
+          firstName: errors.firstName,
+          lastName: errors.lastName,
+          ci: errors.ci,
+        }}
+        onChange={handleFieldChange}
+      />
 
-            <div>
-              <Label htmlFor="ci">CI *</Label>
-              <Input
-                id="ci"
-                value={formData.ci}
-                onChange={(e) => handleChange("ci", e.target.value)}
-                placeholder="Ej: 12345678"
-                required
-              />
-              {errors.ci && (
-                <p className="text-sm text-red-600 mt-1">{errors.ci}</p>
-              )}
-            </div>
+      <ContactInfoSection
+        phone={formData.phone}
+        email={formData.email}
+        password={formData.password}
+        confirmPassword={formData.confirmPassword}
+        showPassword={showPassword}
+        showConfirmPassword={showConfirmPassword}
+        errors={{
+          phone: errors.phone,
+          email: errors.email,
+          password: errors.password,
+          confirmPassword: errors.confirmPassword,
+        }}
+        mode={mode}
+        onChange={handleFieldChange}
+        onTogglePassword={() => setShowPassword(!showPassword)}
+        onToggleConfirmPassword={() =>
+          setShowConfirmPassword(!showConfirmPassword)
+        }
+      />
 
-            <div>
-              <Label htmlFor="hireDate">Fecha de Contratación *</Label>
-              <Input
-                id="hireDate"
-                type="date"
-                value={
-                  formData.hireDate
-                    ? formData.hireDate.toISOString().split("T")[0]
-                    : ""
-                }
-                onChange={(e) => handleChange("hireDate", e.target.value)}
-                required
-              />
-              {errors.hireDate && (
-                <p className="text-sm text-red-600 mt-1">{errors.hireDate}</p>
-              )}
-            </div>
+      <EmploymentInfoSection
+        salary={formData.salary}
+        contributionType={formData.contributionType}
+        hireDate={formData.hireDate || new Date()}
+        errors={{
+          salary: errors.salary,
+          contributionType: errors.contributionType,
+          hireDate: errors.hireDate,
+        }}
+        onChange={handleFieldChange}
+      />
 
-            <div>
-              <Label htmlFor="phone">Teléfono</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="Ej: +591 76543210"
-              />
-              {errors.phone && (
-                <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
-              )}
-            </div>
+      {errors.general && (
+        <div className="text-center">
+          <p className="text-sm text-red-500">{errors.general}</p>
+        </div>
+      )}
 
-            <div className="md:col-span-2">
-              <Label htmlFor="email">Correo Electrónico *</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <div className="flex">
-                  <Input
-                    id="email"
-                    type="text"
-                    value={formData.email.replace(`@${company?.slug}.com`, "")}
-                    onChange={(e) => {
-                      const username = e.target.value;
-                      const domain = company ? `@${company.slug}.com` : "";
-                      handleChange("email", username + domain);
-                    }}
-                    placeholder="usuario"
-                    className="pl-10 rounded-r-none border-r-0"
-                    required
-                  />
-                  <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-gray-600 text-sm">
-                    {company ? `@${company.slug}.com` : ""}
-                  </div>
-                </div>
-              </div>
-              {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
-              )}
-            </div>
-
-            {mode === "create" && (
-              <>
-                <div>
-                  <Label htmlFor="password">Contraseña *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) => handleChange("password", e.target.value)}
-                      placeholder="Mínimo 8 caracteres, 1 mayúscula"
-                      className="pl-10 pr-10"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {errors.password}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="confirmPassword">
-                    Confirmar Contraseña *
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleChange("confirmPassword", e.target.value)
-                      }
-                      placeholder="Repite la contraseña"
-                      className="pl-10 pr-10"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {errors.confirmPassword}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            <div className="md:col-span-2">
-              <Label htmlFor="contributionType">
-                Tipo de Contribución Financiera *
-              </Label>
-              <Select
-                value={formData.contributionType}
-                onValueChange={(value: "none" | "contributes" | "paid") =>
-                  handleChange("contributionType", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo de contribución" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No recibe compensación</SelectItem>
-                  <SelectItem value="contributes">
-                    Aporta a la empresa
-                  </SelectItem>
-                  <SelectItem value="paid">Empresa le paga</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.contributionType && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.contributionType}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="salary">
-                Salario (BOB)
-                {formData.contributionType === "none" && " - No aplica"}
-                {formData.contributionType === "contributes" &&
-                  " - Monto que aporta"}
-                {formData.contributionType === "paid" && " - Monto que recibe"}
-              </Label>
-              <Input
-                id="salary"
-                type="number"
-                value={formData.salary || ""}
-                onChange={(e) =>
-                  handleChange(
-                    "salary",
-                    e.target.value ? parseFloat(e.target.value) : undefined
-                  )
-                }
-                placeholder={
-                  formData.contributionType === "none"
-                    ? "0"
-                    : formData.contributionType === "contributes"
-                    ? "Ej: 1000"
-                    : "Ej: 5000"
-                }
-                min="0"
-                step="0.01"
-                disabled={formData.contributionType === "none"}
-              />
-              {errors.salary && (
-                <p className="text-sm text-red-600 mt-1">{errors.salary}</p>
-              )}
-            </div>
-
-            <div className="md:col-span-2">
-              <Label>Sucursales</Label>
-              <div className="space-y-3">
-                {/* Sucursales seleccionadas */}
-                {selectedBranches.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedBranches.map((branch) => (
-                      <Badge
-                        key={branch.id}
-                        variant="secondary"
-                        className="flex items-center gap-1"
-                      >
-                        <Building className="h-3 w-3" />
-                        {branch.name} (Tienda)
-                        <button
-                          type="button"
-                          onClick={() => removeBranch(branch.id)}
-                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-
-                {/* Lista de sucursales disponibles */}
-                <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Seleccionar sucursales:
-                  </div>
-                  <div className="space-y-2">
-                    {branches.map((branch) => {
-                      const isSelected = formData.branchIds.includes(branch.id);
-                      return (
-                        <div
-                          key={branch.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={`branch-${branch.id}`}
-                            checked={isSelected}
-                            onCheckedChange={() =>
-                              handleBranchToggle(branch.id)
-                            }
-                          />
-                          <Label
-                            htmlFor={`branch-${branch.id}`}
-                            className="text-sm cursor-pointer flex items-center gap-2"
-                          >
-                            <Building className="h-3 w-3" />
-                            {branch.name} (Tienda)
-                          </Label>
-                        </div>
-                      );
-                    })}
-                    {branches.length === 0 && (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                        No hay sucursales disponibles
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              {errors.branchIds && (
-                <p className="text-sm text-red-600 mt-1">{errors.branchIds}</p>
-              )}
-            </div>
-          </div>
-
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading
-              ? "Guardando..."
-              : mode === "create"
-              ? "Crear Encargado"
-              : "Guardar Cambios"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      {/* Actions */}
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline">
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+            ? "Crear Gerente"
+            : "Guardar Cambios"}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -1,13 +1,13 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/Button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/Input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/Input";
 
 export function LoginForm({
   className,
@@ -61,5 +61,5 @@ export function LoginForm({
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }

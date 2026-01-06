@@ -1,11 +1,11 @@
 export interface Warehouse {
   id: number;
   name: string;
-  phone: string | null;
+  phone?: string;
   address: string;
   city: string;
-  department: string | null;
-  country: string | null;
+  department?: string;
+  country?: string;
   managers: {
     id: number;
     name: string;
@@ -14,6 +14,7 @@ export interface Warehouse {
   branches: {
     id: number;
     name: string;
+    address: string;
     isPrimary: boolean;
   }[];
   createdAt: Date;

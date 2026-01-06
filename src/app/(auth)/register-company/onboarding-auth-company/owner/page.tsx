@@ -1,4 +1,4 @@
-import { OwnerForm } from "@/components/auth/company/onboarding/OwnerForm";
+import { OwnerForm } from "@/components/auth/company/forms/onboarding/owner";
 
 export default function OwnerPage() {
   return (

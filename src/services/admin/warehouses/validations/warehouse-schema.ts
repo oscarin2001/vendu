@@ -4,10 +4,19 @@ import { z } from "zod";
  * Schema for creating a new warehouse
  */
 export const createWarehouseSchema = z.object({
-  name: z.string().min(1, "Warehouse name is required").max(100, "Name must be less than 100 characters"),
+  name: z
+    .string()
+    .min(1, "Warehouse name is required")
+    .max(100, "Name must be less than 100 characters"),
   phone: z.string().optional(),
-  address: z.string().min(1, "Address is required").max(255, "Address must be less than 255 characters"),
-  city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
+  address: z
+    .string()
+    .min(1, "Address is required")
+    .max(255, "Address must be less than 255 characters"),
+  city: z
+    .string()
+    .min(1, "City is required")
+    .max(100, "City must be less than 100 characters"),
   department: z.string().optional(),
   country: z.string().optional(),
 });

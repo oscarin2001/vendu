@@ -1,44 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { CountrySelect } from "@/components/ui/country-select";
 import { PhoneInput } from "@/components/ui/phone-input";
-
-const countries = [
-  "Bolivia",
-  "Argentina",
-  "Chile",
-  "Perú",
-  "Colombia",
-  "Ecuador",
-  "Venezuela",
-  "Uruguay",
-  "Paraguay",
-  "Brasil",
-  "México",
-  "Estados Unidos",
-  "España",
-  "Otro",
-];
+import { saveCompanyData } from "@/services/auth/company-registration/onboarding/actions";
 
 interface CompanyNameFormProps {
   initialData?: { name: string; country: string; phone: string };
-  onComplete?: (data: { name: string; country: string; phone: string }) => void;
   onDataChange?: (data: {
     name: string;
     country: string;
     phone: string;
   }) => void;
+  onNext?: () => void;
 }
 
 export function CompanyNameForm({
   initialData = { name: "", country: "", phone: "" },
-  onComplete = () => {},
   onDataChange,
+  onNext = () => {},
 }: CompanyNameFormProps) {
+  const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(initialData.name || "");
   const [country, setCountry] = useState(initialData.country || "");
   const [phone, setPhone] = useState(initialData.phone || "");
@@ -53,7 +39,7 @@ export function CompanyNameForm({
     if (onDataChange) {
       onDataChange({ name, country, phone });
     }
-  }, [name, country, phone]); // Removed onDataChange from dependencies
+  }, [name, country, phone, onDataChange]);
 
   const validateForm = () => {
     const newErrors: { name?: string; country?: string; phone?: string } = {};
@@ -78,14 +64,27 @@ export function CompanyNameForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    onComplete({ name, country, phone });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("country", country);
+    formData.append("phone", phone);
+
+    startTransition(async () => {
+      const result = await saveCompanyData(formData);
+      if (!result.success) {
+        setErrors({ name: result.error });
+        (await import("sonner")).toast.error(result.error);
+        return;
+      }
+      onNext?.();
+    });
   };
 
   return (
@@ -117,7 +116,7 @@ export function CompanyNameForm({
         <FieldLabel htmlFor="phone">Celular</FieldLabel>
         <PhoneInput
           value={phone}
-          onChange={(val, valid) => setPhone(val)}
+          onChange={(val) => setPhone(val)}
           placeholder="59112345678"
           required
         />
@@ -126,7 +125,9 @@ export function CompanyNameForm({
         )}
       </Field>
       <div className="flex justify-end">
-        <Button type="submit">Siguiente</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Guardando..." : "Siguiente"}
+        </Button>
       </div>
     </form>
   );

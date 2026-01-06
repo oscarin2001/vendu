@@ -15,13 +15,18 @@ import {
   X,
   CheckCircle,
   AlertCircle,
+  User,
+  Users,
 } from "lucide-react";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 import { useState, useEffect } from "react";
-import { getBranchesByCompany } from "@/services/admin/branches/branch-service";
+import { getBranchesByCompany } from "@/services/admin/branches";
+import { getManagersByCompany } from "@/services/admin/managers";
 import {
   assignWarehouseToBranch,
   removeWarehouseFromBranch,
+  assignManagerToWarehouse,
+  removeManagerFromWarehouse,
 } from "@/services/admin/warehouses";
 import { toast } from "sonner";
 
@@ -48,12 +53,15 @@ export function WarehouseServiceConfigModal({
   onSuccess,
 }: WarehouseServiceConfigModalProps) {
   const [availableBranches, setAvailableBranches] = useState<Branch[]>([]);
+  const [availableManagers, setAvailableManagers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingManagers, setIsLoadingManagers] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
   useEffect(() => {
     if (isOpen && warehouse) {
       loadBranches();
+      loadManagers();
     }
   }, [isOpen, warehouse]);
 
@@ -77,10 +85,32 @@ export function WarehouseServiceConfigModal({
 
       setAvailableBranches(branchesWithAssignment);
     } catch (error) {
-      console.error("Error loading branches:", error);
+      console.error("Error al cargar sucursales:", error);
       toast.error("Error al cargar sucursales");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadManagers = async () => {
+    if (!warehouse) return;
+
+    setIsLoadingManagers(true);
+    try {
+      const managers = await getManagersByCompany(tenantId);
+
+      // Filtrar managers que no están asignados a esta bodega
+      const available = managers.filter(
+        (manager: any) =>
+          !warehouse.managers?.some((wm) => wm.id === manager.id)
+      );
+
+      setAvailableManagers(available);
+    } catch (error) {
+      console.error("Error al cargar gerentes:", error);
+      toast.error("Error al cargar gerentes");
+    } finally {
+      setIsLoadingManagers(false);
     }
   };
 
@@ -103,7 +133,7 @@ export function WarehouseServiceConfigModal({
       await loadBranches();
       onSuccess?.();
     } catch (error) {
-      console.error("Error assigning branch:", error);
+      console.error("Error al asignar sucursal:", error);
       toast.error("Error al asignar sucursal");
     } finally {
       setIsAssigning(false);
@@ -120,8 +150,42 @@ export function WarehouseServiceConfigModal({
       await loadBranches();
       onSuccess?.();
     } catch (error) {
-      console.error("Error removing branch:", error);
+      console.error("Error al remover sucursal:", error);
       toast.error("Error al remover el servicio de distribución");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  const handleAssignManager = async (managerId: number) => {
+    if (!warehouse) return;
+
+    setIsAssigning(true);
+    try {
+      await assignManagerToWarehouse(tenantId, warehouse.id, managerId);
+      toast.success("Gerente asignado exitosamente a la bodega");
+      await loadManagers();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Error al asignar gerente:", error);
+      toast.error("Error al asignar gerente");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  const handleRemoveManager = async (managerId: number) => {
+    if (!warehouse) return;
+
+    setIsAssigning(true);
+    try {
+      await removeManagerFromWarehouse(tenantId, warehouse.id, managerId);
+      toast.success("Gerente removido exitosamente de la bodega");
+      await loadManagers();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Error al remover gerente:", error);
+      toast.error("Error al remover gerente");
     } finally {
       setIsAssigning(false);
     }
@@ -140,12 +204,12 @@ export function WarehouseServiceConfigModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <Building2 className="h-6 w-6 text-blue-600" />
-            Configurar Servicio de Distribución
+            <Users className="h-6 w-6 text-blue-600" />
+            Gestionar Bodega
           </DialogTitle>
           <div className="text-sm text-gray-600 mt-2">
-            <strong>{warehouse?.name}</strong> - Gestiona las sucursales que
-            atenderá esta bodega
+            <strong>{warehouse?.name}</strong> - Gestiona los gerentes y
+            sucursales asignados a esta bodega
           </div>
         </DialogHeader>
 
@@ -167,6 +231,50 @@ export function WarehouseServiceConfigModal({
               </Badge>
             </div>
           </div>
+
+          {/* Current Manager Assignments */}
+          {warehouse?.managers && warehouse.managers.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Gerentes Asignados
+              </h4>
+              <div className="grid gap-3">
+                {warehouse.managers.map((manager) => (
+                  <div
+                    key={manager.id}
+                    className="flex items-center justify-between p-4 border rounded-lg bg-blue-50 border-blue-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-full">
+                        <User className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {manager.name}
+                        </p>
+                        {manager.email && (
+                          <p className="text-sm text-gray-600">
+                            {manager.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRemoveManager(manager.id)}
+                      disabled={isAssigning}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Remover
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Current Service Assignments */}
           {assignedBranches.length > 0 && (
@@ -222,6 +330,56 @@ export function WarehouseServiceConfigModal({
                     </Button>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Available Managers */}
+          {availableManagers.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+                Gerentes Disponibles
+              </h4>
+              <div className="grid gap-3">
+                {availableManagers.slice(0, 5).map((manager) => (
+                  <div
+                    key={manager.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gray-100 rounded-full">
+                        <User className="h-4 w-4 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {manager.fullName}
+                        </p>
+                        {manager.email && (
+                          <p className="text-sm text-gray-600">
+                            {manager.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAssignManager(manager.id)}
+                      disabled={isAssigning}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Asignar
+                    </Button>
+                  </div>
+                ))}
+                {availableManagers.length > 5 && (
+                  <p className="text-xs text-gray-500 text-center py-2">
+                    +{availableManagers.length - 5} gerentes adicionales
+                    disponibles
+                  </p>
+                )}
               </div>
             </div>
           )}
