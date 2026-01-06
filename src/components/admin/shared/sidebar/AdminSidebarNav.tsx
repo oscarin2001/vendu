@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Truck,
   Warehouse,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -33,7 +34,8 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   const pathname = usePathname();
   const { setTitle, setBreadcrumbs } = useSidebarToolbar();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    Personal: true, // Default open
+    Operaciones: true, // Default open
+    "Recursos Humanos": false,
   });
 
   const navigationGroups = [
@@ -41,40 +43,38 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       title: "Principal",
       items: [
         {
-          title: "Dashboard",
+          title: "Panel de Control",
           url: tenantId ? `/vendu/dashboard/${tenantId}/admin` : "/admin",
           icon: LayoutDashboard,
         },
       ],
     },
     {
-      title: "Gestión",
+      title: "Operaciones",
+      collapsible: true,
       items: [
         {
           title: "Empresa",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/company`
             : "/admin/company",
-          icon: Building2,
         },
         {
           title: "Sucursales",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/branches`
             : "/admin/branches",
-          icon: MapPin,
         },
         {
           title: "Bodegas",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/warehouses`
             : "/admin/warehouses",
-          icon: Warehouse,
         },
       ],
     },
     {
-      title: "Equipo",
+      title: "Recursos Humanos",
       collapsible: true,
       items: [
         {
@@ -82,33 +82,30 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/managers`
             : "/admin/managers",
-          icon: Users,
         },
         {
           title: "Proveedores",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/suppliers`
             : "/admin/suppliers",
-          icon: Truck,
         },
       ],
     },
     {
       title: "Sistema",
+      collapsible: true,
       items: [
         {
           title: "Configuración",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/settings`
             : "/admin/settings",
-          icon: Settings,
         },
         {
           title: "Reportes",
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/reports`
             : "/admin/reports",
-          icon: BarChart3,
         },
       ],
     },
@@ -140,8 +137,8 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
     }
     // Default fallback
     return {
-      title: "Dashboard",
-      breadcrumbs: ["Dashboard"],
+      title: "Panel de Control",
+      breadcrumbs: ["Panel de Control"],
     };
   };
 
@@ -166,7 +163,8 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {!group.collapsible &&
+              {group.title === "Principal" || group.title === "Sistema" ? (
+                // Principal and Sistema groups - direct items without collapsible
                 group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -177,22 +175,22 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                           : pathname.startsWith(item.url)
                       }
                       onClick={() => {
-                        const crumbs =
-                          group.title === "Principal"
-                            ? [item.title]
-                            : [group.title, item.title];
+                        const crumbs = group.title === "Principal" ? [item.title] : [group.title, item.title];
                         setBreadcrumbs(crumbs);
                         setTitle(item.title);
                       }}
                     >
                       <Link href={item.url}>
-                        <item.icon className="h-4 w-4" />
+                        {group.title === "Principal" && item.icon && <item.icon className="h-4 w-4" />}
+                        {group.title === "Sistema" && item.title === "Configuración" && <Settings className="h-4 w-4" />}
+                        {group.title === "Sistema" && item.title === "Reportes" && <BarChart3 className="h-4 w-4" />}
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
-              {group.collapsible && (
+                ))
+              ) : (
+                // Operaciones and Recursos Humanos groups are collapsible
                 <>
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -200,7 +198,8 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                       className="w-full justify-between"
                     >
                       <span className="flex items-center">
-                        <Users className="h-4 w-4 mr-2" />
+                        {group.title === "Operaciones" && <Briefcase className="h-4 w-4 mr-2" />}
+                        {group.title === "Recursos Humanos" && <Users className="h-4 w-4 mr-2" />}
                         {group.title}
                       </span>
                       <ChevronDown
