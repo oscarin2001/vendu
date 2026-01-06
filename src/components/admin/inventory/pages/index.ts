@@ -1,0 +1,1 @@
+export { InventoryPageContent } from "./InventoryPageContent";

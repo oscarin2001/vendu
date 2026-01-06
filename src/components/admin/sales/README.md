@@ -32,6 +32,7 @@ src/services/admin/sales/
 ## 📊 Funcionalidades Implementadas
 
 ### ✅ Completado
+
 - **Estructura base** de carpetas y archivos
 - **Navegación integrada** en el sidebar
 - **Página principal** con tabs organizados
@@ -41,6 +42,7 @@ src/services/admin/sales/
 - **Hooks de datos** preparados para API
 
 ### 🚧 Próximamente
+
 - **API integration** con las tablas mencionadas
 - **Gráficos interactivos** para análisis visual
 - **Filtros avanzados** por fecha, sucursal, empleado
@@ -51,32 +53,35 @@ src/services/admin/sales/
 ## 🗂️ Tablas de Base de Datos
 
 ### Ventas Generales
+
 - `tborders` - Órdenes principales
 - `tborderitems` - Items de cada orden
 - `tbemployee_profiles` - Perfiles de empleados
 - `tbbranches` - Información de sucursales
 
 ### Ingresos y Egresos
+
 - `tbcash_flows` - Flujo de caja
 - `tbexpenses` - Gastos registrados
 - `tbcash_sessions` - Sesiones de caja
 
 ### Pagos y Estado Financiero
+
 - `tbpayments` - Pagos realizados
 - `tborders` - Referencia a órdenes
 
 ## 🎯 Estados de Implementación
 
-| Módulo | Estado | Prioridad |
-|--------|--------|-----------|
-| Estructura Base | ✅ Completo | Alta |
-| Navegación | ✅ Completo | Alta |
-| Métricas Básicas | ✅ Completo | Alta |
-| Tabla de Ventas | ✅ Completo | Alta |
-| API Integration | 🚧 Pendiente | Alta |
-| Gráficos | 📋 Planeado | Media |
-| Filtros Avanzados | 📋 Planeado | Media |
-| Dashboard Financiero | 📋 Planeado | Media |
+| Módulo               | Estado       | Prioridad |
+| -------------------- | ------------ | --------- |
+| Estructura Base      | ✅ Completo  | Alta      |
+| Navegación           | ✅ Completo  | Alta      |
+| Métricas Básicas     | ✅ Completo  | Alta      |
+| Tabla de Ventas      | ✅ Completo  | Alta      |
+| API Integration      | 🚧 Pendiente | Alta      |
+| Gráficos             | 📋 Planeado  | Media     |
+| Filtros Avanzados    | 📋 Planeado  | Media     |
+| Dashboard Financiero | 📋 Planeado  | Media     |
 
 ## 🔧 Próximos Pasos
 

@@ -1,0 +1,1 @@
+export { useInventoryDataLoader } from "./inventory/use-inventory-data-loader";

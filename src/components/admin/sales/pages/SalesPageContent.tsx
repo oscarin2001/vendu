@@ -2,7 +2,13 @@
 
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SalesMetricsCards } from "../metrics/SalesMetricsCards";
 import { SalesTable } from "../tables/SalesTable";
 import { useSales } from "@/services/admin/sales";
@@ -17,7 +23,9 @@ export function SalesPageContent() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Ventas y Finanzas</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Ventas y Finanzas
+          </h1>
           <p className="text-muted-foreground">
             Gestiona las ventas, ingresos y estado financiero de tu empresa
           </p>

@@ -1,7 +1,17 @@
 export interface FinancialData {
   id: string;
   branchId: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
+  amount: number;
+  description: string;
+  date: Date;
+  category: string;
+}
+
+export interface CashFlowData {
+  id: string;
+  branchId: string;
+  type: "income" | "expense";
   amount: number;
   description: string;
   date: Date;
@@ -12,8 +22,8 @@ export interface PaymentData {
   id: string;
   orderId: string;
   amount: number;
-  method: 'cash' | 'card' | 'transfer' | 'digital';
-  status: 'completed' | 'pending' | 'failed';
+  method: "cash" | "card" | "transfer" | "digital";
+  status: "completed" | "pending" | "failed";
   date: Date;
 }
 

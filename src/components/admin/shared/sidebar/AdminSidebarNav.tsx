@@ -121,6 +121,17 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
         },
       ],
     },
+    {
+      title: "Inventario",
+      items: [
+        {
+          title: "Panel de Inventario",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/inventory`
+            : "/admin/inventory",
+        },
+      ],
+    },
   ];
 
   // Function to get breadcrumbs based on current pathname
@@ -187,16 +198,32 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                           : pathname.startsWith(item.url)
                       }
                       onClick={() => {
-                        const crumbs = group.title === "Principal" ? [item.title] : [group.title, item.title];
+                        const crumbs =
+                          group.title === "Principal"
+                            ? [item.title]
+                            : [group.title, item.title];
                         setBreadcrumbs(crumbs);
                         setTitle(item.title);
                       }}
                     >
                       <Link href={item.url}>
-                        {group.title === "Principal" && item.icon && <item.icon className="h-4 w-4" />}
-                        {group.title === "Sistema" && item.title === "Configuración" && <Settings className="h-4 w-4" />}
-                        {group.title === "Sistema" && item.title === "Reportes" && <BarChart3 className="h-4 w-4" />}
-                        {group.title === "Ventas" && <BarChart3 className="h-4 w-4" />}
+                        {group.title === "Principal" && 'icon' in item && item.icon && (
+                          <item.icon className="h-4 w-4" />
+                        )}
+                        {group.title === "Sistema" &&
+                          item.title === "Configuración" && (
+                            <Settings className="h-4 w-4" />
+                          )}
+                        {group.title === "Sistema" &&
+                          item.title === "Reportes" && (
+                            <BarChart3 className="h-4 w-4" />
+                          )}
+                        {group.title === "Ventas" && (
+                          <BarChart3 className="h-4 w-4" />
+                        )}
+                        {group.title === "Inventario" && (
+                          <Package className="h-4 w-4" />
+                        )}
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -211,8 +238,12 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                       className="w-full justify-between"
                     >
                       <span className="flex items-center">
-                        {group.title === "Operaciones" && <Briefcase className="h-4 w-4 mr-2" />}
-                        {group.title === "Recursos Humanos" && <Users className="h-4 w-4 mr-2" />}
+                        {group.title === "Operaciones" && (
+                          <Briefcase className="h-4 w-4 mr-2" />
+                        )}
+                        {group.title === "Recursos Humanos" && (
+                          <Users className="h-4 w-4 mr-2" />
+                        )}
                         {group.title}
                       </span>
                       <ChevronDown

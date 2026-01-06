@@ -1,15 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingCart, TrendingUp, Users } from "lucide-react";
-import type { SalesMetrics } from "@/services/admin/sales";
+import { Package, Warehouse, TrendingUp, AlertTriangle } from "lucide-react";
+import type { InventoryMetrics } from "@/services/admin/inventory";
 
-interface SalesMetricsProps {
-  metrics: SalesMetrics | null;
+interface InventoryMetricsCardsProps {
+  metrics: InventoryMetrics | null;
   isLoading: boolean;
 }
 
-export function SalesMetricsCards({ metrics, isLoading }: SalesMetricsProps) {
+export function InventoryMetricsCards({ metrics, isLoading }: InventoryMetricsCardsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -31,28 +31,28 @@ export function SalesMetricsCards({ metrics, isLoading }: SalesMetricsProps) {
 
   const cards = [
     {
-      title: "Total Ventas",
-      value: `$${metrics.totalSales.toLocaleString()}`,
-      icon: DollarSign,
-      description: "Ingresos totales",
+      title: "Total de Prendas",
+      value: metrics.totalItems.toLocaleString(),
+      icon: Package,
+      description: "En inventario",
     },
     {
-      title: "Total Órdenes",
-      value: metrics.totalOrders.toString(),
-      icon: ShoppingCart,
-      description: "Órdenes completadas",
-    },
-    {
-      title: "Valor Promedio",
-      value: `$${metrics.averageOrderValue.toFixed(2)}`,
+      title: "Valor Total",
+      value: `$${metrics.totalValue.toLocaleString()}`,
       icon: TrendingUp,
-      description: "Por orden",
+      description: "Valor del stock",
     },
     {
-      title: "Clientes Activos",
-      value: "0", // TODO: Implement customer count
-      icon: Users,
-      description: "Este mes",
+      title: "Sucursales",
+      value: metrics.stockByBranch.length.toString(),
+      icon: Warehouse,
+      description: "Con inventario",
+    },
+    {
+      title: "Estado Excelente",
+      value: `${metrics.stockByCondition.excellent}%`,
+      icon: AlertTriangle,
+      description: "Calidad premium",
     },
   ];
 

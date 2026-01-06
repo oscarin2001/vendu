@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { SalesData, SalesMetrics } from "../../types";
+import type { SalesData, SalesMetrics } from "../../../types";
 
 export function useSalesDataLoader(tenantId: string) {
   const [salesData, setSalesData] = useState<SalesData[]>([]);
