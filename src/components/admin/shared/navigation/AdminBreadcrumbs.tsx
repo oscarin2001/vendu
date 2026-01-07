@@ -13,16 +13,18 @@ import { useSidebarToolbar } from "../sidebar/SidebarToolbarContext";
 export function AdminBreadcrumbs() {
   const { breadcrumbs } = useSidebarToolbar();
 
-  if (!breadcrumbs || breadcrumbs.length === 0) return null;
+  // If no breadcrumbs, show default
+  const displayBreadcrumbs =
+    breadcrumbs && breadcrumbs.length > 0 ? breadcrumbs : ["Panel de Control"];
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {breadcrumbs.map((crumb, index) => {
-          const isLast = index === breadcrumbs.length - 1;
+        {displayBreadcrumbs.map((crumb, index) => {
+          const isLast = index === displayBreadcrumbs.length - 1;
 
           return (
-            <div key={crumb} className="flex items-center">
+            <div key={`${crumb}-${index}`} className="flex items-center">
               <BreadcrumbItem>
                 {isLast ? (
                   <BreadcrumbPage>{crumb}</BreadcrumbPage>

@@ -16,7 +16,10 @@ interface InventoryTableProps {
   isLoading: boolean;
 }
 
-export function InventoryTable({ inventoryData, isLoading }: InventoryTableProps) {
+export function InventoryTable({
+  inventoryData,
+  isLoading,
+}: InventoryTableProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -42,7 +45,9 @@ export function InventoryTable({ inventoryData, isLoading }: InventoryTableProps
     };
 
     return (
-      <Badge variant={variants[condition as keyof typeof variants] || "secondary"}>
+      <Badge
+        variant={variants[condition as keyof typeof variants] || "secondary"}
+      >
         {labels[condition as keyof typeof labels] || condition}
       </Badge>
     );
@@ -64,14 +69,19 @@ export function InventoryTable({ inventoryData, isLoading }: InventoryTableProps
         <TableBody>
           {inventoryData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="text-center py-8 text-muted-foreground"
+              >
                 No hay datos de inventario disponibles
               </TableCell>
             </TableRow>
           ) : (
             inventoryData.map((item) => (
               <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.productVariantId}</TableCell>
+                <TableCell className="font-medium">
+                  {item.productVariantId}
+                </TableCell>
                 <TableCell>{item.branchId}</TableCell>
                 <TableCell>{item.warehouseId || "N/A"}</TableCell>
                 <TableCell className="text-right font-medium">

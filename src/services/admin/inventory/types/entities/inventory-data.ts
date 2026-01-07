@@ -4,7 +4,7 @@ export interface InventoryData {
   branchId: string;
   warehouseId?: string;
   quantity: number;
-  condition: 'excellent' | 'good' | 'acceptable' | 'damaged';
+  condition: "excellent" | "good" | "acceptable" | "damaged";
   lastUpdated: Date;
 }
 
@@ -25,18 +25,34 @@ export interface Product {
   description?: string;
 }
 
+export interface ProductCondition {
+  condition: "excellent" | "good" | "acceptable" | "damaged";
+  totalItems: number;
+  percentage: number;
+  totalValue: number;
+}
+
 export interface InventoryMetrics {
   totalItems: number;
   totalValue: number;
+  activeBranches: number;
+  activeWarehouses: number;
   stockByBranch: Array<{
+    branchId: string;
     branchName: string;
+    totalItems: number;
     itemCount: number;
     value: number;
   }>;
   stockByWarehouse: Array<{
+    warehouseId: string;
     warehouseName: string;
+    totalItems: number;
     itemCount: number;
     value: number;
+    occupancyRate: number;
+    location: string;
+    capacity: number;
   }>;
   stockByCondition: {
     excellent: number;
@@ -55,4 +71,6 @@ export interface ProductPerformance {
   stockLevel: number;
   turnoverRate: number; // veces que rota por período
   lastSoldDate?: Date;
+  imageUrl?: string;
+  sku?: string;
 }

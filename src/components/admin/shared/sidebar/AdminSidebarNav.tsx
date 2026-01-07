@@ -15,6 +15,8 @@ import {
   Truck,
   Warehouse,
   Briefcase,
+  Package,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +37,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   const { setTitle, setBreadcrumbs } = useSidebarToolbar();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Operaciones: true, // Default open
+    Logística: false,
     "Recursos Humanos": false,
     Sistema: false,
   });
@@ -51,8 +54,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
       ],
     },
     {
-      title: "Operaciones",
-      collapsible: true,
+      title: "Estratégico",
       items: [
         {
           title: "Empresa",
@@ -60,6 +62,36 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
             ? `/vendu/dashboard/${tenantId}/admin/company`
             : "/admin/company",
         },
+        {
+          title: "Inventario Estratégico",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/inventory`
+            : "/admin/inventory",
+        },
+      ],
+    },
+    {
+      title: "Operaciones",
+      collapsible: true,
+      items: [
+        {
+          title: "Ventas",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/sales`
+            : "/admin/sales",
+        },
+        {
+          title: "Clientes",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/customers`
+            : "/admin/customers",
+        },
+      ],
+    },
+    {
+      title: "Logística",
+      collapsible: true,
+      items: [
         {
           title: "Sucursales",
           url: tenantId
@@ -71,6 +103,12 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/warehouses`
             : "/admin/warehouses",
+        },
+        {
+          title: "Movimientos Logísticos",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/warehouses-logistics`
+            : "/admin/warehouses-logistics",
         },
       ],
     },
@@ -107,28 +145,6 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           url: tenantId
             ? `/vendu/dashboard/${tenantId}/admin/reports`
             : "/admin/reports",
-        },
-      ],
-    },
-    {
-      title: "Ventas",
-      items: [
-        {
-          title: "Panel de Ventas",
-          url: tenantId
-            ? `/vendu/dashboard/${tenantId}/admin/sales`
-            : "/admin/sales",
-        },
-      ],
-    },
-    {
-      title: "Inventario",
-      items: [
-        {
-          title: "Panel de Inventario",
-          url: tenantId
-            ? `/vendu/dashboard/${tenantId}/admin/inventory`
-            : "/admin/inventory",
         },
       ],
     },
@@ -170,7 +186,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
     const { title, breadcrumbs } = getBreadcrumbsForPath(pathname);
     setTitle(title);
     setBreadcrumbs(breadcrumbs);
-  }, [pathname, tenantId, setTitle, setBreadcrumbs]);
+  }, [pathname, tenantId]);
 
   const toggleGroup = (title: string) => {
     setOpenGroups((prev) => ({
@@ -186,7 +202,7 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
           <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {group.title === "Principal" || group.title === "Ventas" ? (
+              {group.title === "Principal" || group.title === "Estratégico" ? (
                 // Principal and Ventas groups - direct items without collapsible
                 group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
@@ -207,9 +223,17 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                       }}
                     >
                       <Link href={item.url}>
-                        {group.title === "Principal" && 'icon' in item && item.icon && (
-                          <item.icon className="h-4 w-4" />
-                        )}
+                        {group.title === "Principal" &&
+                          "icon" in item &&
+                          item.icon && <item.icon className="h-4 w-4" />}
+                        {group.title === "Estratégico" &&
+                          item.title === "Empresa" && (
+                            <Building2 className="h-4 w-4" />
+                          )}
+                        {group.title === "Estratégico" &&
+                          item.title === "Inventario Estratégico" && (
+                            <Package className="h-4 w-4" />
+                          )}
                         {group.title === "Sistema" &&
                           item.title === "Configuración" && (
                             <Settings className="h-4 w-4" />
@@ -218,11 +242,11 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                           item.title === "Reportes" && (
                             <BarChart3 className="h-4 w-4" />
                           )}
-                        {group.title === "Ventas" && (
-                          <BarChart3 className="h-4 w-4" />
+                        {group.title === "Operaciones" && (
+                          <TrendingUp className="h-4 w-4" />
                         )}
-                        {group.title === "Inventario" && (
-                          <Package className="h-4 w-4" />
+                        {group.title === "Logística" && (
+                          <Truck className="h-4 w-4" />
                         )}
                         <span>{item.title}</span>
                       </Link>
@@ -239,7 +263,10 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                     >
                       <span className="flex items-center">
                         {group.title === "Operaciones" && (
-                          <Briefcase className="h-4 w-4 mr-2" />
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                        )}
+                        {group.title === "Logística" && (
+                          <Truck className="h-4 w-4 mr-2" />
                         )}
                         {group.title === "Recursos Humanos" && (
                           <Users className="h-4 w-4 mr-2" />

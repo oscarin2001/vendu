@@ -19,9 +19,7 @@ export function SidebarToolbarProvider({
   defaultTitle?: string;
 }) {
   const [title, setTitle] = React.useState(defaultTitle);
-  const [breadcrumbs, setBreadcrumbs] = React.useState<string[]>([
-    defaultTitle,
-  ]);
+  const [breadcrumbs, setBreadcrumbs] = React.useState<string[]>([]);
 
   const value = React.useMemo(
     () => ({ title, breadcrumbs, setTitle, setBreadcrumbs }),
