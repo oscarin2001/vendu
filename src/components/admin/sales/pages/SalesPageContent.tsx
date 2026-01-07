@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { SalesMetricsCards } from "../metrics/SalesMetricsCards";
 import { SalesTable } from "../tables/SalesTable";
-import { useSales } from "@/services/admin/sales";
+import { useSales } from "@/services/admin/sales/hooks/main";
 
 export function SalesPageContent() {
   const params = useParams();

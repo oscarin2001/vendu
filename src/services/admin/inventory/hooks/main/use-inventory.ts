@@ -1,6 +1,6 @@
 "use client";
 
-import { useInventoryDataLoader } from "./data";
+import { useInventoryDataLoader } from "../data";
 
 export function useInventory(tenantId: string) {
   const {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { InventoryData, InventoryMetrics, ProductPerformance } from "../../types";
+import type { InventoryData, InventoryMetrics, ProductPerformance } from "../../../types";
 
 export function useInventoryDataLoader(tenantId: string) {
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);

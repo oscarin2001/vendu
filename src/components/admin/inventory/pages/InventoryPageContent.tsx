@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { InventoryMetricsCards } from "../metrics/InventoryMetricsCards";
 import { InventoryTable } from "../tables/InventoryTable";
 import { ProductPerformanceTable } from "../tables/ProductPerformanceTable";
-import { useInventory } from "@/services/admin/inventory";
+import { useInventory } from "@/services/admin/inventory/hooks/main";
 
 export function InventoryPageContent() {
   const params = useParams();
@@ -67,7 +67,7 @@ export function InventoryPageContent() {
                   <p className="text-muted-foreground">No hay datos disponibles</p>
                 ) : (
                   <div className="space-y-2">
-                    {metrics?.stockByBranch.slice(0, 5).map((branch) => (
+                    {metrics?.stockByBranch.slice(0, 5).map((branch: { branchName: string; itemCount: number; value: number }) => (
                       <div key={branch.branchName} className="flex justify-between">
                         <span>{branch.branchName}</span>
                         <span className="font-medium">{branch.itemCount} items</span>
