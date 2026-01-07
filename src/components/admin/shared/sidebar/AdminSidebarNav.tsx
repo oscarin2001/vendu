@@ -86,6 +86,12 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
             ? `/vendu/dashboard/${tenantId}/admin/customers`
             : "/admin/customers",
         },
+        {
+          title: "CRM",
+          url: tenantId
+            ? `/vendu/dashboard/${tenantId}/admin/crm`
+            : "/admin/crm",
+        },
       ],
     },
     {
