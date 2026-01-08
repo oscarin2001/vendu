@@ -1,7 +1,7 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { TermsContent } from "./TermsContent";
+import { AUPContent } from "./AUPContent";
 
 export function TermsModal({
   open,
@@ -18,33 +18,7 @@ export function TermsModal({
   const [aup, setAup] = useState<string>("");
   const [ack, setAck] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    fetch("/api/legal/terms")
-      .then((r) => r.json())
-      .then((d) => {
-        let content = d.content || "";
-        if (companyName) {
-          content = content.replace(
-            /\[NOMBRE_DE_LA_EMPRESA\]|\[EMPRESA\]/g,
-            companyName
-          );
-        }
-        setTerms(content);
-      });
-    fetch("/api/legal/aup")
-      .then((r) => r.json())
-      .then((d) => {
-        let content = d.content || "";
-        if (companyName) {
-          content = content.replace(
-            /\[NOMBRE_DE_LA_EMPRESA\]|\[EMPRESA\]/g,
-            companyName
-          );
-        }
-        setAup(content);
-      });
-  }, [open, companyName]);
+  // No need for useEffect since we're using components
 
   if (!open) return null;
 
@@ -53,19 +27,15 @@ export function TermsModal({
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative z-10 w-full max-w-3xl bg-white rounded-md shadow-lg p-6 overflow-auto max-h-[80vh]">
         <h3 className="text-lg font-bold mb-4">Términos de Uso</h3>
-        <div className="prose mb-6">
-          <div
-            dangerouslySetInnerHTML={{ __html: terms.replace(/\n/g, "<br/>") }}
-          />
+        <div className="prose mb-6 max-h-60 overflow-y-auto">
+          <TermsContent companyName={companyName} />
         </div>
 
         <h4 className="text-md font-semibold mt-4">
           Política de Uso Aceptable (AUP)
         </h4>
-        <div className="prose mb-6">
-          <div
-            dangerouslySetInnerHTML={{ __html: aup.replace(/\n/g, "<br/>") }}
-          />
+        <div className="prose mb-6 max-h-60 overflow-y-auto">
+          <AUPContent companyName={companyName} />
         </div>
 
         <label className="flex items-center gap-3">
