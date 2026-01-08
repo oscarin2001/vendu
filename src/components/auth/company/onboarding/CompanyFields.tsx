@@ -122,18 +122,6 @@ export function CompanyFields({
           )}
         </Field>
 
-        {countryConfig && (
-          <Field>
-            <FieldLabel>Moneda del País</FieldLabel>
-            <div className="flex items-center space-x-2 p-3 bg-muted rounded-md">
-              <span className="text-lg font-semibold">{countryConfig.currency.symbol}</span>
-              <span className="text-sm text-muted-foreground">
-                {countryConfig.currency.code} - {countryConfig.currency.locale}
-              </span>
-            </div>
-          </Field>
-        )}
-
         <Field>
           <FieldLabel htmlFor="phone">Celular</FieldLabel>
           <PhoneInput

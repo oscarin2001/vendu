@@ -95,6 +95,7 @@ export function OnboardingFlow({
               vision: onboardingData.companyName.vision,
               mission: onboardingData.companyName.mission,
             }}
+            companyCountry={onboardingData.companyName.country}
             onBack={onStepBack}
             onDataChange={(data) =>
               onDataChange?.({

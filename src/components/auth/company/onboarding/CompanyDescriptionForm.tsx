@@ -7,6 +7,7 @@ import {
   saveOnboardingData,
   getOnboardingData,
 } from "@/services/auth/company-registration/onboarding/session";
+import { getCountryConfigByName } from "@/services/admin/config/countries";
 
 interface CompanyDescriptionFormProps {
   initialData?: {
@@ -14,6 +15,7 @@ interface CompanyDescriptionFormProps {
     vision?: string;
     mission?: string;
   };
+  companyCountry?: string;
   onDataChange?: (data: {
     description?: string;
     vision?: string;
@@ -25,6 +27,7 @@ interface CompanyDescriptionFormProps {
 
 export function CompanyDescriptionForm({
   initialData = {},
+  companyCountry,
   onDataChange,
   onNext = () => {},
   onBack = () => {},
@@ -33,6 +36,8 @@ export function CompanyDescriptionForm({
   const [description, setDescription] = useState(initialData.description || "");
   const [vision, setVision] = useState(initialData.vision || "");
   const [mission, setMission] = useState(initialData.mission || "");
+
+  const countryConfig = getCountryConfigByName(companyCountry);
 
   useEffect(() => {
     const payload = { description, vision, mission };
@@ -56,6 +61,18 @@ export function CompanyDescriptionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {countryConfig && (
+        <Field>
+          <FieldLabel>Moneda del País</FieldLabel>
+          <div className="flex items-center space-x-2 p-3 bg-muted rounded-md">
+            <span className="text-lg font-semibold">{countryConfig.currency.symbol}</span>
+            <span className="text-sm text-muted-foreground">
+              {countryConfig.currency.code} - {countryConfig.currency.locale}
+            </span>
+          </div>
+        </Field>
+      )}
+
       <Field>
         <FieldLabel htmlFor="description">
           Descripción breve del comercio
@@ -96,7 +113,7 @@ export function CompanyDescriptionForm({
 
       <div className="flex justify-between">
         <Button variant="outline" type="button" onClick={() => onBack?.()}>
-          Volver
+          Atrás
         </Button>
         <Button type="submit" disabled={isPending}>
           {isPending ? "Guardando..." : "Siguiente"}
