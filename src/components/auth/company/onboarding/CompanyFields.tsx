@@ -12,14 +12,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
-import { cn } from "@/lib/utils";
+import { cn, formatPhonePattern } from "@/lib/utils";
 import type { CompanyFormErrors } from "@/components/auth/company/hooks/useCompanyForm";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { parseISOToLocalDate } from "@/lib/utils";
 
 interface CompanyFieldsProps {
@@ -81,7 +85,7 @@ export function CompanyFields({
           .toLowerCase()
     );
     if (found) {
-      setPhonePlaceholder?.(`${found.code}${"7".repeat(found.local)}`);
+      setPhonePlaceholder?.(formatPhonePattern(found.local));
       if (!phone) setPhone(found.code);
     }
   };
@@ -101,7 +105,9 @@ export function CompanyFields({
             onChange={(e) => setName(e.target.value)}
             placeholder="Rous Boutique"
           />
-          {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+          )}
         </Field>
 
         <Field>
@@ -111,7 +117,9 @@ export function CompanyFields({
             onChange={(val) => handleCountryChange(val ?? "")}
             placeholder="Bolivia"
           />
-          {errors.country && <p className="text-sm text-red-600 mt-1">{errors.country}</p>}
+          {errors.country && (
+            <p className="text-sm text-red-600 mt-1">{errors.country}</p>
+          )}
         </Field>
 
         <Field>
@@ -122,14 +130,22 @@ export function CompanyFields({
               setPhone(val);
               setPhoneValid?.(valid);
             }}
-            placeholder={countryConfig?.phone.example ?? phonePlaceholder}
+            placeholder={
+              countryConfig
+                ? countryConfig.phone.format ??
+                  formatPhonePattern(countryConfig.phone.local)
+                : phonePlaceholder
+            }
             required
             showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect={!!countryConfig}
+            showFormatHint={!countryConfig}
           />
-          {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
+          {errors.phone && (
+            <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+          )}
         </Field>
 
         {departments.length > 0 && (
@@ -146,7 +162,10 @@ export function CompanyFields({
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-full">
                 {departments.map((d) => (
-                  <DropdownMenuItem key={d} onSelect={() => handleDepartmentSelect(d)}>
+                  <DropdownMenuItem
+                    key={d}
+                    onSelect={() => handleDepartmentSelect(d)}
+                  >
                     {d}
                   </DropdownMenuItem>
                 ))}
@@ -157,45 +176,51 @@ export function CompanyFields({
 
         <Field>
           <FieldLabel htmlFor="openedAt">Fecha de apertura física</FieldLabel>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={cn(
-                "w-full justify-start text-left font-normal rounded-md border px-3 py-2",
-                !openedAt && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {openedAt
-                ? format(parseISOToLocalDate(openedAt) as Date, "dd/MM/yyyy", {
-                    locale: es,
-                  })
-                : "Selecciona la fecha"}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              captionLayout="dropdown"
-              selected={
-                openedAt
-                  ? parseISOToLocalDate(openedAt)
-                  : new Date(new Date().getFullYear(), new Date().getMonth(), 18)
-              }
-              onSelect={(date) =>
-                setOpenedAt?.(
-                  date ? format(date, "yyyy-MM-dd") : ""
-                )
-              }
-              locale={es}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-        {errors.openedAt && (
-          <p className="text-sm text-red-600 mt-1">{errors.openedAt}</p>
-        )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "w-full justify-start text-left font-normal rounded-md border px-3 py-2",
+                  !openedAt && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {openedAt
+                  ? format(
+                      parseISOToLocalDate(openedAt) as Date,
+                      "dd/MM/yyyy",
+                      {
+                        locale: es,
+                      }
+                    )
+                  : "Selecciona la fecha"}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                captionLayout="dropdown"
+                selected={
+                  openedAt
+                    ? parseISOToLocalDate(openedAt)
+                    : new Date(
+                        new Date().getFullYear(),
+                        new Date().getMonth(),
+                        18
+                      )
+                }
+                onSelect={(date) =>
+                  setOpenedAt?.(date ? format(date, "yyyy-MM-dd") : "")
+                }
+                locale={es}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {errors.openedAt && (
+            <p className="text-sm text-red-600 mt-1">{errors.openedAt}</p>
+          )}
         </Field>
 
         <Field>
@@ -211,7 +236,10 @@ export function CompanyFields({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-full">
               {COMMERCE_TYPES.map((option) => (
-                <DropdownMenuItem key={option} onSelect={() => setCommerceType?.(option)}>
+                <DropdownMenuItem
+                  key={option}
+                  onSelect={() => setCommerceType?.(option)}
+                >
                   {option}
                 </DropdownMenuItem>
               ))}

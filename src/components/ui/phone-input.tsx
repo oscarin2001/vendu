@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Label } from "./label";
 import { Button } from "./Button";
 import {
   DropdownMenu,
@@ -9,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./dropdown-menu";
+import { buildPhoneGroups, formatPhonePattern } from "@/lib/utils";
 
 export type PhoneInputProps = {
   value?: string; // full value like "59112345678"
@@ -134,7 +134,10 @@ export function PhoneInput({
     const maybeCountry = COUNTRIES.find((c) => digits.startsWith(c.code));
     if (maybeCountry && digits.length > maybeCountry.local) {
       // switch country and set local to the following digits
-      const newLocal = digits.slice(maybeCountry.code.length, maybeCountry.code.length + maybeCountry.local);
+      const newLocal = digits.slice(
+        maybeCountry.code.length,
+        maybeCountry.code.length + maybeCountry.local
+      );
       setCountry(maybeCountry.code);
       setLocalMax(maybeCountry.local);
       setLocal(newLocal);
@@ -162,48 +165,9 @@ export function PhoneInput({
   const currentCountry =
     COUNTRIES.find((c) => c.code === country) ?? COUNTRIES[0];
 
-  const formatLocalPattern = (len: number) => {
-    // Basic grouping heuristics to display a readable pattern using X placeholders
-    let groups: number[] = [];
-    if (len === 8) groups = [4, 4];
-    else if (len === 9) groups = [3, 3, 3];
-    else if (len === 10) groups = [3, 3, 4];
-    else if (len === 7) groups = [3, 4];
-    else {
-      let remaining = len;
-      while (remaining > 0) {
-        if (remaining > 4) {
-          groups.push(3);
-          remaining -= 3;
-        } else {
-          groups.push(remaining);
-          remaining = 0;
-        }
-      }
-    }
-    return groups.map((g) => "X".repeat(g)).join(" ");
-  };
-
   const formatLocalForDisplay = (digits: string, len: number) => {
     const cleaned = digits.replace(/\D/g, "").slice(0, len);
-    // group according to same heuristics
-    const groups: number[] = [];
-    if (len === 8) groups.push(4, 4);
-    else if (len === 9) groups.push(3, 3, 3);
-    else if (len === 10) groups.push(3, 3, 4);
-    else if (len === 7) groups.push(3, 4);
-    else {
-      let remaining = len;
-      while (remaining > 0) {
-        if (remaining > 4) {
-          groups.push(3);
-          remaining -= 3;
-        } else {
-          groups.push(remaining);
-          remaining = 0;
-        }
-      }
-    }
+    const groups = buildPhoneGroups(len);
     const parts: string[] = [];
     let idx = 0;
     for (const g of groups) {
@@ -215,11 +179,16 @@ export function PhoneInput({
     return parts.join(" ");
   };
 
-  const isInvalid = showValidation && local.length > 0 && local.length !== localMax;
+  const isInvalid =
+    showValidation && local.length > 0 && local.length !== localMax;
 
   return (
     <div className={`flex flex-col w-full ${className}`}>
-      <div className={`flex items-center rounded-md px-1 py-1 min-w-0 w-full ${isInvalid ? "border-red-600" : "border"}`}>
+      <div
+        className={`flex items-center rounded-md px-1 py-1 min-w-0 w-full ${
+          isInvalid ? "border-red-600" : "border"
+        }`}
+      >
         {!hideCountrySelect ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -259,11 +228,10 @@ export function PhoneInput({
           value={formatLocalForDisplay(local, localMax)}
           onChange={(e) => handleLocal(e.target.value)}
           placeholder={
-            placeholder ??
-            `Ej. ${formatLocalPattern(currentCountry.local)}`
+            placeholder ?? `Ej. ${formatPhonePattern(currentCountry.local)}`
           }
           inputMode="numeric"
-          maxLength={formatLocalPattern(currentCountry.local).replace(/\s/g, "").length}
+          maxLength={formatPhonePattern(currentCountry.local).replace(/\s/g, "").length}
           required={required}
         />
       </div>
@@ -276,7 +244,13 @@ export function PhoneInput({
 
       {/* Format hint (per-country) */}
       {showFormatHint && (
-        <p className="mt-1 text-sm text-muted-foreground">{`+${currentCountry.code} ${formatLocalPattern(currentCountry.local)}`}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {hideCountrySelect || fixedCountryCode
+            ? formatPhonePattern(currentCountry.local)
+            : `+${currentCountry.code} ${formatPhonePattern(
+                currentCountry.local
+              )}`}
+        </p>
       )}
     </div>
   );

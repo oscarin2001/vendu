@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/phone-input";
 import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
-import { parseISOToLocalDate } from "@/lib/utils";
+import { parseISOToLocalDate, formatPhonePattern } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface CompanyDetailsCardProps {
@@ -98,7 +98,7 @@ export default function CompanyDetailsCard({
           .toLowerCase()
     );
     if (found) {
-      setPhonePlaceholder(`${found.code}${"7".repeat(found.local)}`);
+      setPhonePlaceholder(formatPhonePattern(found.local));
       if (!phone) setPhone(found.code);
     }
   };
@@ -139,13 +139,17 @@ export default function CompanyDetailsCard({
               setPhoneValid(valid);
             }}
             placeholder={
-              countryConfig?.phone.example ?? phonePlaceholder ?? "59112345678"
+              countryConfig
+                ? countryConfig.phone.format ??
+                  formatPhonePattern(countryConfig.phone.local)
+                : phonePlaceholder ?? formatPhonePattern(8)
             }
             required
             showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect={!!countryConfig}
+            showFormatHint={!countryConfig}
           />
         </Field>
 
@@ -220,19 +224,19 @@ export default function CompanyDetailsCard({
                 type="button"
                 className="w-full justify-between"
               >
-              {commerceType || "Selecciona el tipo"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
-            {COMMERCE_TYPES.map((option) => (
-              <DropdownMenuItem
-                key={option}
-                onSelect={() => setCommerceType(option)}
-              >
-                {option}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
+                {commerceType || "Selecciona el tipo"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full">
+              {COMMERCE_TYPES.map((option) => (
+                <DropdownMenuItem
+                  key={option}
+                  onSelect={() => setCommerceType(option)}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
           </DropdownMenu>
         </Field>
       </div>
