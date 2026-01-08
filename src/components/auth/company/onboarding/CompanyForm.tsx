@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
-import CompanyDetailsCard from "./CompanyDetailsCard";
+import { CompanyFields } from "./CompanyFields";
+import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
+import { CompanyActions } from "./CompanyActions";
 
 interface CompanyFormProps {
   initialData?: {
@@ -37,37 +38,28 @@ export function CompanyForm({
   onNext = () => {},
 }: CompanyFormProps) {
   const [isPending, setIsPending] = useState(false);
-  const [name, setName] = useState(initialData.name || "");
-  const [country, setCountry] = useState(initialData.country || "");
-  const [phone, setPhone] = useState(initialData.phone || "");
-  const [department, setDepartment] = useState<string | undefined>(
-    initialData.department || ""
-  );
-  const [commerceType, setCommerceType] = useState<string | undefined>(
-    initialData.commerceType || "Ropa usada"
-  );
-  const [description, setDescription] = useState<string | undefined>(
-    initialData.description || ""
-  );
-  const [vision, setVision] = useState<string | undefined>(
-    initialData.vision || ""
-  );
-  const [mission, setMission] = useState<string | undefined>(
-    initialData.mission || ""
-  );
-  const [openedAt, setOpenedAt] = useState<string | undefined>(
-    initialData.openedAt || ""
-  );
+  const {
+    name,
+    country,
+    phone,
+    department,
+    commerceType,
+    openedAt,
+    errors: formErrors,
+    setName,
+    setCountry,
+    setPhone,
+    setDepartment,
+    setCommerceType,
+    setOpenedAt,
+    validateForm,
+  } = useCompanyForm(initialData);
+
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [phonePlaceholder, setPhonePlaceholder] =
     useState<string>("59112345678");
 
-  const [errors, setErrors] = useState<{
-    name?: string;
-    country?: string;
-    phone?: string;
-    openedAt?: string;
-  }>({});
+  const [errors, setErrors] = useState(formErrors || {});
 
   useEffect(() => {
     if (onDataChange) {
@@ -77,9 +69,6 @@ export function CompanyForm({
         phone,
         department,
         commerceType,
-        description,
-        vision,
-        mission,
         openedAt,
       });
     }
@@ -90,55 +79,42 @@ export function CompanyForm({
         phone,
         department,
         commerceType,
-        description,
-        vision,
-        mission,
         openedAt,
       },
     });
+    setErrors(formErrors || {});
   }, [
     name,
     country,
     phone,
     department,
     commerceType,
-    description,
-    vision,
-    mission,
     openedAt,
     onDataChange,
+    formErrors,
   ]);
-
-  const validateForm = () => {
-    const newErrors: {
-      name?: string;
-      country?: string;
-      phone?: string;
-      openedAt?: string;
-    } = {};
-
-    if (!name.trim()) newErrors.name = "El nombre de la empresa es requerido";
-    else if (name.trim().length < 2)
-      newErrors.name = "El nombre debe tener al menos 2 caracteres";
-
-    if (!country) newErrors.country = "Debe seleccionar un país";
-
-    if (!phone.trim()) newErrors.phone = "El celular es requerido";
-    else if (phoneValid === false)
-      newErrors.phone =
-        "El celular tiene formato inválido para el país seleccionado";
-    else if (!phoneValid && phone.replace(/\D/g, "").length < 8)
-      newErrors.phone = "El celular debe tener al menos 8 dígitos";
-
-    if (!openedAt) newErrors.openedAt = "Indica la fecha de apertura física";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    // Use validation from the hook
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    // extra phone validation from PhoneInput
+    if (phoneValid === false) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "El celular tiene formato inválido para el país seleccionado",
+      }));
+      return;
+    } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "El celular debe tener al menos 8 dígitos",
+      }));
+      return;
+    }
 
     setIsPending(true);
     onNext?.();
@@ -147,7 +123,7 @@ export function CompanyForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <CompanyDetailsCard
+      <CompanyFields
         name={name}
         setName={setName}
         country={country}
@@ -162,22 +138,12 @@ export function CompanyForm({
         setPhonePlaceholder={setPhonePlaceholder}
         commerceType={commerceType}
         setCommerceType={setCommerceType}
-        description={description}
-        setDescription={setDescription}
-        vision={vision}
-        setVision={setVision}
-        mission={mission}
-        setMission={setMission}
         openedAt={openedAt}
         setOpenedAt={setOpenedAt}
-        openedAtError={errors.openedAt}
+        errors={errors}
       />
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Guardando..." : "Siguiente"}
-        </Button>
-      </div>
+      <CompanyActions onBack={() => {}} isPending={isPending} />
     </form>
   );
 }

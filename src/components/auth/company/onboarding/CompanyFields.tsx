@@ -13,6 +13,7 @@ import {
 import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
+import type { CompanyFormErrors } from "@/components/auth/company/hooks/useCompanyForm";
 
 interface CompanyFieldsProps {
   name: string;
@@ -31,7 +32,7 @@ interface CompanyFieldsProps {
   setCommerceType?: (v: string) => void;
   openedAt?: string;
   setOpenedAt?: (v: string) => void;
-  errors?: Record<string, string | undefined>;
+  errors?: CompanyFormErrors;
 }
 
 export function CompanyFields({
