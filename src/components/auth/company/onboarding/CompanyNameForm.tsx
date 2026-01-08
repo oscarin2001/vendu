@@ -122,47 +122,25 @@ export function CompanyNameForm({
     formErrors,
   ]);
 
-  const validateForm = () => {
-    const newErrors: {
-      name?: string;
-      country?: string;
-      phone?: string;
-      openedAt?: string;
-    } = {};
-
-    if (!name.trim()) {
-      newErrors.name = "El nombre de la empresa es requerido";
-    } else if (name.trim().length < 2) {
-      newErrors.name = "El nombre debe tener al menos 2 caracteres";
-    }
-
-    if (!country) {
-      newErrors.country = "Debe seleccionar un país";
-    }
-
-    if (!phone.trim()) {
-      newErrors.phone = "El celular es requerido";
-    } else if (phoneValid === false) {
-      // if we know the phone is invalid from PhoneInput, show message
-      newErrors.phone =
-        "El celular tiene formato inválido para el país seleccionado";
-    } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
-      // fallback
-      newErrors.phone = "El celular debe tener al menos 8 dígitos";
-    }
-
-    if (!openedAt) {
-      newErrors.openedAt = "Indica la fecha de apertura física";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    // Use hook validation
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    // Extra phone validity checks based on PhoneInput
+    if (phoneValid === false) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "El celular tiene formato inválido para el país seleccionado",
+      }));
+      return;
+    } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "El celular debe tener al menos 8 dígitos",
+      }));
       return;
     }
 
