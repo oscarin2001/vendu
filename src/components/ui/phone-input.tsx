@@ -233,7 +233,7 @@ export function PhoneInput({
           }
           inputMode="numeric"
           maxLength={
-            formatPhonePattern(currentCountry.local).replace(/\s/g, "").length
+            formatPhonePattern(currentCountry.local).length
           }
           required={required}
         />
