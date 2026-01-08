@@ -26,5 +26,5 @@ export function buildPhoneGroups(len: number): number[] {
 // Format phone pattern with X's
 export function formatPhonePattern(len: number): string {
   const groups = buildPhoneGroups(len);
-  return groups.map(g => 'X'.repeat(g)).join(' ');
+  return groups.map((g) => "X".repeat(g)).join(" ");
 }

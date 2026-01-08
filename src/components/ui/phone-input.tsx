@@ -232,9 +232,7 @@ export function PhoneInput({
             placeholder ?? `Ej. ${formatPhonePattern(currentCountry.local)}`
           }
           inputMode="numeric"
-          maxLength={
-            formatPhonePattern(currentCountry.local).length
-          }
+          maxLength={formatPhonePattern(currentCountry.local).length}
           required={required}
         />
       </div>

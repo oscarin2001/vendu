@@ -13,7 +13,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "AR",
     name: "Argentina",
     currency: { code: "ARS", symbol: "$", locale: "es-AR" },
-    phone: { prefix: "54", local: 9, example: "54123456789", format: "XXX XXX XXX" },
+    phone: {
+      prefix: "54",
+      local: 9,
+      example: "54123456789",
+      format: "XXX XXX XXX",
+    },
     locale: "es-AR",
     tax: null,
     departments: [
@@ -70,7 +75,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "CL",
     name: "Chile",
     currency: { code: "CLP", symbol: "$", locale: "es-CL" },
-    phone: { prefix: "56", local: 9, example: "56123456789", format: "XXX XXX XXX" },
+    phone: {
+      prefix: "56",
+      local: 9,
+      example: "56123456789",
+      format: "XXX XXX XXX",
+    },
     locale: "es-CL",
     tax: null,
     departments: [
@@ -96,7 +106,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "CO",
     name: "Colombia",
     currency: { code: "COP", symbol: "$", locale: "es-CO" },
-    phone: { prefix: "57", local: 10, example: "571234567890", format: "XXX XXX XXXX" },
+    phone: {
+      prefix: "57",
+      local: 10,
+      example: "571234567890",
+      format: "XXX XXX XXXX",
+    },
     locale: "es-CO",
     tax: null,
     departments: [
@@ -138,7 +153,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "CR",
     name: "Costa Rica",
     currency: { code: "CRC", symbol: "₡", locale: "es-CR" },
-    phone: { prefix: "506", local: 8, example: "50612345678", format: "XXXX XXXX" },
+    phone: {
+      prefix: "506",
+      local: 8,
+      example: "50612345678",
+      format: "XXXX XXXX",
+    },
     locale: "es-CR",
     tax: null,
     departments: [
@@ -155,7 +175,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "CU",
     name: "Cuba",
     currency: { code: "CUP", symbol: "$", locale: "es-CU" },
-    phone: { prefix: "53", local: 8, example: "5312345678", format: "XXXX XXXX" },
+    phone: {
+      prefix: "53",
+      local: 8,
+      example: "5312345678",
+      format: "XXXX XXXX",
+    },
     locale: "es-CU",
     tax: null,
     departments: [
@@ -181,7 +206,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "SV",
     name: "El Salvador",
     currency: { code: "USD", symbol: "$", locale: "es-SV" },
-    phone: { prefix: "503", local: 8, example: "50312345678", format: "XXXX XXXX" },
+    phone: {
+      prefix: "503",
+      local: 8,
+      example: "50312345678",
+      format: "XXXX XXXX",
+    },
     locale: "es-SV",
     tax: null,
     departments: [
@@ -305,7 +335,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "MX",
     name: "México",
     currency: { code: "MXN", symbol: "$", locale: "es-MX" },
-    phone: { prefix: "52", local: 10, example: "521234567890", format: "XXX XXX XXXX" },
+    phone: {
+      prefix: "52",
+      local: 10,
+      example: "521234567890",
+      format: "XXX XXX XXXX",
+    },
     locale: "es-MX",
     tax: null,
     departments: [
@@ -347,7 +382,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "PA",
     name: "Panamá",
     currency: { code: "USD", symbol: "$", locale: "es-PA" },
-    phone: { prefix: "507", local: 8, example: "50712345678", format: "XXXX XXXX" },
+    phone: {
+      prefix: "507",
+      local: 8,
+      example: "50712345678",
+      format: "XXXX XXXX",
+    },
     locale: "es-PA",
     tax: null,
     departments: [
@@ -367,7 +407,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "PY",
     name: "Paraguay",
     currency: { code: "PYG", symbol: "₲", locale: "es-PY" },
-    phone: { prefix: "595", local: 9, example: "595123456789", format: "XXX XXX XXX" },
+    phone: {
+      prefix: "595",
+      local: 9,
+      example: "595123456789",
+      format: "XXX XXX XXX",
+    },
     locale: "es-PY",
     tax: null,
     departments: [
@@ -395,7 +440,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "PR",
     name: "Puerto Rico",
     currency: { code: "USD", symbol: "$", locale: "es-PR" },
-    phone: { prefix: "1", local: 10, example: "11234567890", format: "XXX XXX XXXX" },
+    phone: {
+      prefix: "1",
+      local: 10,
+      example: "11234567890",
+      format: "XXX XXX XXXX",
+    },
     locale: "es-PR",
     tax: null,
     departments: [
@@ -483,7 +533,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "PE",
     name: "Perú",
     currency: { code: "PEN", symbol: "S/", locale: "es-PE" },
-    phone: { prefix: "51", local: 9, example: "51123456789", format: "XXX XXX XXX" },
+    phone: {
+      prefix: "51",
+      local: 9,
+      example: "51123456789",
+      format: "XXX XXX XXX",
+    },
     locale: "es-PE",
     tax: null,
     departments: [
@@ -518,7 +573,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "EC",
     name: "Ecuador",
     currency: { code: "USD", symbol: "$", locale: "es-EC" },
-    phone: { prefix: "593", local: 9, example: "593912345678", format: "XXX XXX XXX" },
+    phone: {
+      prefix: "593",
+      local: 9,
+      example: "593912345678",
+      format: "XXX XXX XXX",
+    },
     locale: "es-EC",
     tax: null,
     departments: [
@@ -551,7 +611,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "UY",
     name: "Uruguay",
     currency: { code: "UYU", symbol: "$", locale: "es-UY" },
-    phone: { prefix: "598", local: 8, example: "59812345678", format: "XXXX XXXX" },
+    phone: {
+      prefix: "598",
+      local: 8,
+      example: "59812345678",
+      format: "XXXX XXXX",
+    },
     locale: "es-UY",
     tax: null,
     departments: [
@@ -580,7 +645,12 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
     code: "VE",
     name: "Venezuela",
     currency: { code: "VES", symbol: "Bs.", locale: "es-VE" },
-    phone: { prefix: "58", local: 10, example: "581234567890", format: "XXX XXX XXXX" },
+    phone: {
+      prefix: "58",
+      local: 10,
+      example: "581234567890",
+      format: "XXX XXX XXXX",
+    },
     locale: "es-VE",
     tax: null,
     departments: [
@@ -610,7 +680,6 @@ export const COUNTRY_CONFIGS: Record<string, CountryConfig> = {
       "Zulia",
     ],
   },
-
 };
 
 export function getCountryConfigByName(name?: string) {
