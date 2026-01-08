@@ -77,6 +77,7 @@ export default function CompanyContactFields({
           fixedCountryCode={getCountryConfigByName(country)?.phone.prefix}
           fixedLocalMax={getCountryConfigByName(country)?.phone.local}
           hideCountrySelect={!!getCountryConfigByName(country)}
+          showFormatHint={!!getCountryConfigByName(country)}
         />
       </Field>
 

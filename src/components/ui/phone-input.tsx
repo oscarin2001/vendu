@@ -21,6 +21,8 @@ export type PhoneInputProps = {
   fixedCountryCode?: string; // e.g. "591"
   fixedLocalMax?: number; // e.g. 8
   hideCountrySelect?: boolean; // hide the dropdown and show prefix as static
+  // Show the format hint (e.g. "+591 XXXX XXXX") below the input
+  showFormatHint?: boolean;
 };
 
 export const COUNTRIES = [
@@ -54,6 +56,7 @@ export function PhoneInput({
   fixedCountryCode,
   fixedLocalMax,
   hideCountrySelect = false,
+  showFormatHint = true,
 }: PhoneInputProps) {
   const initialCountry = fixedCountryCode || COUNTRIES[0].code;
   const initialLocalMax =
@@ -135,6 +138,28 @@ export function PhoneInput({
   const currentCountry =
     COUNTRIES.find((c) => c.code === country) ?? COUNTRIES[0];
 
+  const formatLocalPattern = (len: number) => {
+    // Basic grouping heuristics to display a readable pattern using X placeholders
+    let groups: number[] = [];
+    if (len === 8) groups = [4, 4];
+    else if (len === 9) groups = [3, 3, 3];
+    else if (len === 10) groups = [3, 3, 4];
+    else if (len === 7) groups = [3, 4];
+    else {
+      let remaining = len;
+      while (remaining > 0) {
+        if (remaining > 4) {
+          groups.push(3);
+          remaining -= 3;
+        } else {
+          groups.push(remaining);
+          remaining = 0;
+        }
+      }
+    }
+    return groups.map((g) => "X".repeat(g)).join(" ");
+  };
+
   return (
     <div className={`flex flex-col w-full ${className}`}>
       <div className="flex items-center rounded-md border px-1 py-1 min-w-0 w-full">
@@ -189,6 +214,11 @@ export function PhoneInput({
         <p className="mt-1 text-xs text-red-600">{`Faltan ${
           localMax - local.length
         } dígitos`}</p>
+      )}
+
+      {/* Format hint (per-country) */}
+      {showFormatHint && (
+        <p className="mt-1 text-sm text-muted-foreground">{`+${currentCountry.code} ${formatLocalPattern(currentCountry.local)}`}</p>
       )}
     </div>
   );
