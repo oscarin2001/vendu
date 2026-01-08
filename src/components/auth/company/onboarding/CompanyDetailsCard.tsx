@@ -24,6 +24,7 @@ import {
   COUNTRIES as PHONE_COUNTRIES,
 } from "@/components/ui/phone-input";
 import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 import { cn } from "@/lib/utils";
 
 interface CompanyDetailsCardProps {
@@ -218,24 +219,19 @@ export default function CompanyDetailsCard({
                 type="button"
                 className="w-full justify-between"
               >
-                {commerceType || "Ropa usada"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full">
-              {[
-                "Ropa usada",
-                "Accesorios",
-                "Calzado",
-                "Otro (requiere aprobación)",
-              ].map((option) => (
-                <DropdownMenuItem
-                  key={option}
-                  onSelect={() => setCommerceType(option)}
-                >
-                  {option}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
+              {commerceType || "Selecciona el tipo"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-full">
+            {COMMERCE_TYPES.map((option) => (
+              <DropdownMenuItem
+                key={option}
+                onSelect={() => setCommerceType(option)}
+              >
+                {option}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
           </DropdownMenu>
         </Field>
       </div>

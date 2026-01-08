@@ -18,3 +18,14 @@ export const COUNTRIES = [
   "Perú",
   "Ecuador",
 ];
+
+// Commerce types used by onboarding company form
+export const COMMERCE_TYPES = [
+  "Moda",
+  "Repuestos",
+  "Electrónica de celulares",
+  "Repuestos de autos",
+  "Accesorios",
+  "Calzado",
+  "Otro (requiere aprobación)",
+];

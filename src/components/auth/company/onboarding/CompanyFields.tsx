@@ -14,6 +14,7 @@ import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
 import type { CompanyFormErrors } from "@/components/auth/company/hooks/useCompanyForm";
+import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 
 interface CompanyFieldsProps {
   name: string;
@@ -57,6 +58,8 @@ export function CompanyFields({
   const countryConfig = getCountryConfigByName(country);
   const departments = countryConfig?.departments ?? [];
 
+  // default commerce types fallback to COMMERCE_TYPES
+  const commerceOptions = COMMERCE_TYPES;
   const handleCountryChange = (val: string | null) => {
     const next = val || "";
     setCountry(next);
@@ -173,7 +176,7 @@ export function CompanyFields({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-full">
-              {["Ropa usada", "Accesorios", "Calzado", "Otro (requiere aprobación)"].map((option) => (
+              {COMMERCE_TYPES.map((option) => (
                 <DropdownMenuItem key={option} onSelect={() => setCommerceType?.(option)}>
                   {option}
                 </DropdownMenuItem>
