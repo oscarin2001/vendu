@@ -26,6 +26,6 @@ export const COMMERCE_TYPES = [
   "Electrónica de celulares",
   "Repuestos de autos",
   "Accesorios",
-  "Calzado",
+  "Alimentos",
   "Otro (requiere aprobación)",
 ];

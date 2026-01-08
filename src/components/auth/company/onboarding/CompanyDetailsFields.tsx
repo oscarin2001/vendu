@@ -85,12 +85,7 @@ export default function CompanyDetailsFields({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-full">
-            {[
-              "Ropa usada",
-              "Accesorios",
-              "Calzado",
-              "Otro (requiere aprobación)",
-            ].map((option) => (
+            {COMMERCE_TYPES.map((option) => (
               <DropdownMenuItem
                 key={option}
                 onSelect={() => setCommerceType(option)}
