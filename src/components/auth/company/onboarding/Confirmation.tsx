@@ -83,7 +83,7 @@ export function Confirmation({
               >
                 <div>
                   <p className="font-medium text-sm">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.value}</p>
+                  <p className="text-sm text-muted-foreground">{item.value}</p>
                 </div>
                 <CheckCircle
                   className={`w-5 h-5 ${

@@ -49,7 +49,7 @@ export function Stepper({ currentStep }: { currentStep?: string }) {
                   <Icon size={20} />
                 </div>
                 <span
-                  className={`text-xs mt-2 font-medium transition-colors duration-300 ${
+                  className={`text-sm mt-2 font-medium transition-colors duration-300 ${
                     isCompleted || isCurrent
                       ? "text-foreground"
                       : "text-muted-foreground"

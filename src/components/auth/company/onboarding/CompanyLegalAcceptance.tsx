@@ -43,7 +43,7 @@ export default function CompanyLegalAcceptance({
               </button>
               .
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               Debes <strong>abrir y marcar como leído</strong> los documentos
               antes de poder aceptar. Declaro que mi comercio no comercializa
               bienes ilegales o robados y entiendo que la plataforma podrá

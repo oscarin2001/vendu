@@ -199,7 +199,7 @@ export default function RegisterCompanyForm() {
           </a>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center">
-          <div className="w-full max-w-xs space-y-6">
+          <div className="w-full max-w-xs space-y-6 text-sm">
             {showOnboarding ? (
               <>
                 <Stepper currentStep={currentStep} />
