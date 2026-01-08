@@ -13,3 +13,18 @@ export function parseISOToLocalDate(iso?: string) {
   const [y, m, d] = parts;
   return new Date(y, m - 1, d);
 }
+
+// Build phone number groups for formatting
+export function buildPhoneGroups(len: number): number[] {
+  if (len === 8) return [4, 4];
+  if (len === 9) return [3, 3, 3];
+  if (len === 10) return [3, 3, 4];
+  // Default fallback
+  return [len];
+}
+
+// Format phone pattern with X's
+export function formatPhonePattern(len: number): string {
+  const groups = buildPhoneGroups(len);
+  return groups.map(g => 'X'.repeat(g)).join(' ');
+}
