@@ -2,7 +2,7 @@ export type CountryConfig = {
   code: string; // ISO code
   name: string;
   currency: { code: string; symbol: string; locale: string };
-  phone: { prefix: string; local: number; example: string };
+  phone: { prefix: string; local: number; example: string; format?: string };
   locale: string;
   tax?: null | number;
   departments?: string[];

@@ -41,20 +41,12 @@ export default function CompanyContactFields({
           value={country}
           onChange={(val) => {
             setCountry(val || "");
-            const found = PHONE_COUNTRIES.find(
-              (c) =>
-                c.name
-                  .normalize("NFD")
-                  .replace(/\p{Diacritic}/gu, "")
-                  .toLowerCase() ===
-                (val || "")
-                  .normalize("NFD")
-                  .replace(/\p{Diacritic}/gu, "")
-                  .toLowerCase()
-            );
-            if (found) {
-              setPhonePlaceholder(`${found.code}${"7".repeat(found.local)}`);
-              if (!phone) setPhone(found.code);
+            const cfg = getCountryConfigByName(val || "");
+            if (cfg) {
+              // prefer explicit format if present, otherwise build a simple placeholder
+              const format = cfg.phone.format ?? `${"7".repeat(Math.max(3, cfg.phone.local - 1))}`;
+              setPhonePlaceholder(format);
+              if (!phone) setPhone(cfg.phone.prefix);
             }
           }}
           placeholder="Selecciona un país"
@@ -70,7 +62,8 @@ export default function CompanyContactFields({
             setPhoneValid(valid);
           }}
           placeholder={
-            getCountryConfigByName(country)?.phone.example ?? phonePlaceholder
+            // show local-only format when country is selected to avoid confusion
+            getCountryConfigByName(country)?.phone.format ?? phonePlaceholder
           }
           required
           showValidation

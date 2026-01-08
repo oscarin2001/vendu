@@ -127,7 +127,31 @@ export function PhoneInput({
   };
 
   const handleLocal = (v: string) => {
-    const cleaned = v.replace(/\D/g, "").slice(0, localMax);
+    let digits = v.replace(/\D/g, "");
+
+    // If user pasted or typed a full number starting with a known country code,
+    // detect and extract country + local portion.
+    const maybeCountry = COUNTRIES.find((c) => digits.startsWith(c.code));
+    if (maybeCountry && digits.length > maybeCountry.local) {
+      // switch country and set local to the following digits
+      const newLocal = digits.slice(maybeCountry.code.length, maybeCountry.code.length + maybeCountry.local);
+      setCountry(maybeCountry.code);
+      setLocalMax(maybeCountry.local);
+      setLocal(newLocal);
+      const combined = `${maybeCountry.code}${newLocal}`;
+      const valid = newLocal.length === maybeCountry.local;
+      onChange?.(combined, valid);
+      lastNotifiedRef.current = combined;
+      return;
+    }
+
+    // If user accidentally typed the country prefix into the local input, strip it
+    if (digits.startsWith(country)) {
+      digits = digits.slice(country.length);
+    }
+
+    // enforce maxlength
+    const cleaned = digits.slice(0, localMax);
     setLocal(cleaned);
     const combined = `${country}${cleaned}`;
     const valid = cleaned.length === localMax;
@@ -160,9 +184,42 @@ export function PhoneInput({
     return groups.map((g) => "X".repeat(g)).join(" ");
   };
 
+  const formatLocalForDisplay = (digits: string, len: number) => {
+    const cleaned = digits.replace(/\D/g, "").slice(0, len);
+    // group according to same heuristics
+    const groups: number[] = [];
+    if (len === 8) groups.push(4, 4);
+    else if (len === 9) groups.push(3, 3, 3);
+    else if (len === 10) groups.push(3, 3, 4);
+    else if (len === 7) groups.push(3, 4);
+    else {
+      let remaining = len;
+      while (remaining > 0) {
+        if (remaining > 4) {
+          groups.push(3);
+          remaining -= 3;
+        } else {
+          groups.push(remaining);
+          remaining = 0;
+        }
+      }
+    }
+    const parts: string[] = [];
+    let idx = 0;
+    for (const g of groups) {
+      const part = cleaned.slice(idx, idx + g);
+      if (!part) break;
+      parts.push(part);
+      idx += g;
+    }
+    return parts.join(" ");
+  };
+
+  const isInvalid = showValidation && local.length > 0 && local.length !== localMax;
+
   return (
     <div className={`flex flex-col w-full ${className}`}>
-      <div className="flex items-center rounded-md border px-1 py-1 min-w-0 w-full">
+      <div className={`flex items-center rounded-md px-1 py-1 min-w-0 w-full ${isInvalid ? "border-red-600" : "border"}`}>
         {!hideCountrySelect ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -198,14 +255,15 @@ export function PhoneInput({
 
         <input
           aria-label="número local"
-          className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none truncate"
-          value={local}
+          className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none"
+          value={formatLocalForDisplay(local, localMax)}
           onChange={(e) => handleLocal(e.target.value)}
           placeholder={
             placeholder ??
-            `Ej. ${"7".repeat(Math.max(3, currentCountry.local - 1))}`
+            `Ej. ${formatLocalPattern(currentCountry.local)}`
           }
           inputMode="numeric"
+          maxLength={formatLocalPattern(currentCountry.local).replace(/\s/g, "").length}
           required={required}
         />
       </div>
