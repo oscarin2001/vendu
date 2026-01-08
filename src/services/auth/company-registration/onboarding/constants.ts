@@ -7,13 +7,13 @@ export const ONBOARDING_STEPS = [
   "confirmation",
 ] as const;
 
-export type OnboardingStep = typeof ONBOARDING_STEPS[number];
+export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 export const COUNTRIES = [
   "Bolivia",
-  "Argentina",
-  "Chile",
+  "Honduras",
+  "Guatemala",
+  "Nicaragua",
   "Perú",
-  "Colombia",
-  // Add more as needed
+  "Ecuador",
 ];

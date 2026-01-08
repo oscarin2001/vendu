@@ -790,6 +790,21 @@ model tbcompanies {
   slug       String @unique
   taxId      String? // NIT/CUIT/CI del contribuyente
   country    String? // País de operación
+  department String? // Departamento o región
+  commerceType String? // Tipo de comercio (Ropa usada, Accesorios, etc.)
+  description String? // Descripción breve del comercio
+  vision     String? // Visión del negocio
+  mission    String? // Misión del negocio
+  openedAt   DateTime? // Fecha de apertura física de la empresa
+
+  // Términos y aceptación legal
+  tosRead     Boolean  @default(false)
+  tosReadAt   DateTime?
+  tosAccepted Boolean  @default(false)
+  tosAcceptedAt DateTime?
+  tosAcceptedIp String?
+  tosAcceptedUa String?
+
   createdAt  DateTime @default(now())
   FK_createdBy Int? // Usuario que creó la empresa
 
@@ -805,6 +820,8 @@ model tbcompanies {
 
   // Relación de auditoría
   createdBy tbemployee_profiles? @relation("CompanyCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+
+  @@unique([name])
 }
 
 // Suscripciones y planes por compañía

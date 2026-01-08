@@ -5,5 +5,6 @@ import { clearAuthCookie } from "../adapters";
 
 export async function logoutAction() {
   await clearAuthCookie();
-  redirect("/");
+  // Redirect user to login/register page after logout
+  redirect("/register-company?mode=login");
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -169,19 +170,22 @@ export default function AuthForm({
             {mode === "login" ? (
               <>
                 ¿No tienes cuenta?{" "}
-                <a
-                  href="?mode=register"
+                <Link
+                  href="/register-company?mode=register"
                   className="underline underline-offset-4"
                 >
                   Regístrate
-                </a>
+                </Link>
               </>
             ) : (
               <>
                 ¿Ya tienes cuenta?{" "}
-                <a href="?mode=login" className="underline underline-offset-4">
+                <Link
+                  href="/register-company?mode=login"
+                  className="underline underline-offset-4"
+                >
                   Inicia sesión
-                </a>
+                </Link>
               </>
             )}
           </FieldDescription>

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { prisma } from "../../lib/prisma";
 
 export interface UserWithCompany {
@@ -11,16 +10,19 @@ export interface UserWithCompany {
   } | null;
 }
 
-export function handlePostLoginRedirect(user: UserWithCompany) {
+export function getPostLoginRedirect(user: UserWithCompany): string {
   if (!user.company) {
-    // No company, redirect to onboarding
-    redirect("/register-company");
+    return "/register-company?mode=register";
   }
 
-  // Assume onboarding completed if company exists
-  // In future, check user.company.onboardingCompleted
   const slug = user.company.slug || "default";
-  redirect(`/vendu/dashboard/${slug}/admin`);
+  const onboardingCompleted = !!user.company.onboardingCompleted;
+
+  if (!onboardingCompleted) {
+    return `/register-company?mode=register${slug ? `&tenantId=${slug}` : ""}`;
+  }
+
+  return `/vendu/dashboard/${slug}/admin`;
 }
 
 export function generateSlug(companyName: string): string {

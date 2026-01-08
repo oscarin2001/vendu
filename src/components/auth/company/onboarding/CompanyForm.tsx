@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 import CompanyDetailsCard from "./CompanyDetailsCard";
 
-interface CompanyNameFormProps {
+interface CompanyFormProps {
   initialData?: {
     name: string;
     country: string;
@@ -31,11 +31,11 @@ interface CompanyNameFormProps {
   onNext?: () => void;
 }
 
-export function CompanyNameForm({
+export function CompanyForm({
   initialData = { name: "", country: "", phone: "" },
   onDataChange,
   onNext = () => {},
-}: CompanyNameFormProps) {
+}: CompanyFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [name, setName] = useState(initialData.name || "");
   const [country, setCountry] = useState(initialData.country || "");
@@ -44,7 +44,7 @@ export function CompanyNameForm({
     initialData.department || ""
   );
   const [commerceType, setCommerceType] = useState<string | undefined>(
-    initialData.commerceType || ""
+    initialData.commerceType || "Ropa usada"
   );
   const [description, setDescription] = useState<string | undefined>(
     initialData.description || ""
@@ -62,7 +62,6 @@ export function CompanyNameForm({
   const [phonePlaceholder, setPhonePlaceholder] =
     useState<string>("59112345678");
 
-  // smaller render by delegating to subcomponents
   const [errors, setErrors] = useState<{
     name?: string;
     country?: string;
@@ -70,7 +69,6 @@ export function CompanyNameForm({
     openedAt?: string;
   }>({});
 
-  // Save data whenever it changes (persist onboarding session)
   useEffect(() => {
     if (onDataChange) {
       onDataChange({
@@ -119,41 +117,28 @@ export function CompanyNameForm({
       openedAt?: string;
     } = {};
 
-    if (!name.trim()) {
-      newErrors.name = "El nombre de la empresa es requerido";
-    } else if (name.trim().length < 2) {
+    if (!name.trim()) newErrors.name = "El nombre de la empresa es requerido";
+    else if (name.trim().length < 2)
       newErrors.name = "El nombre debe tener al menos 2 caracteres";
-    }
 
-    if (!country) {
-      newErrors.country = "Debe seleccionar un país";
-    }
+    if (!country) newErrors.country = "Debe seleccionar un país";
 
-    if (!phone.trim()) {
-      newErrors.phone = "El celular es requerido";
-    } else if (phoneValid === false) {
-      // if we know the phone is invalid from PhoneInput, show message
+    if (!phone.trim()) newErrors.phone = "El celular es requerido";
+    else if (phoneValid === false)
       newErrors.phone =
         "El celular tiene formato inválido para el país seleccionado";
-    } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
-      // fallback
+    else if (!phoneValid && phone.replace(/\D/g, "").length < 8)
       newErrors.phone = "El celular debe tener al menos 8 dígitos";
-    }
 
-    if (!openedAt) {
-      newErrors.openedAt = "Indica la fecha de apertura física";
-    }
+    if (!openedAt) newErrors.openedAt = "Indica la fecha de apertura física";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsPending(true);
     onNext?.();
@@ -161,7 +146,7 @@ export function CompanyNameForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <CompanyDetailsCard
         name={name}
         setName={setName}

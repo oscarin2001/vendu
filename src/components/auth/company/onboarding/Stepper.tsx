@@ -1,11 +1,19 @@
 "use client";
 
-import { Building2, User, FileText, CheckCircle } from "lucide-react";
+import {
+  Building2,
+  User,
+  FileText,
+  ShieldCheck,
+  CheckCircle,
+  FileSignature,
+} from "lucide-react";
 
 const steps = [
   { name: "Empresa", path: "company-name", icon: Building2 },
   { name: "Responsable", path: "owner", icon: User },
   { name: "Fiscal", path: "fiscal", icon: FileText },
+  { name: "Términos", path: "legal", icon: ShieldCheck },
   { name: "Confirmación", path: "confirmation", icon: CheckCircle },
 ];
 

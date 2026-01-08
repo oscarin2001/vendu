@@ -4,22 +4,42 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../lib/prisma";
 import { setAuthCookie } from "../adapters";
-import { handlePostLoginRedirect } from "../redirection-handler";
 
-export async function loginAction(prevState: any, formData: FormData) {
+type LoginSuccess = {
+  ok: true;
+  slug: string;
+  onboardingCompleted: boolean;
+  redirectTo: string;
+};
+
+type LoginOnboardingPending = {
+  onboardingRequired: true;
+  redirectTo: string;
+};
+
+type LoginError = {
+  error: string;
+};
+
+export type LoginResult = LoginSuccess | LoginOnboardingPending | LoginError;
+
+export async function loginAction(
+  prevState: unknown,
+  formData: FormData
+): Promise<LoginResult> {
   const username = String(formData.get("username") || "")
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") || "");
 
   if (!username || !password) {
-    return { error: "Usuario o contraseña incorrectos" };
+    return { error: "Usuario y/o contraseña incorrectos" };
   }
 
   // Validate email/username format (basic)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
-    return { error: "Usuario o contraseña incorrectos" };
+    return { error: "Usuario y/o contraseña incorrectos" };
   }
 
   try {
@@ -33,24 +53,36 @@ export async function loginAction(prevState: any, formData: FormData) {
     });
 
     if (!user) {
-      return { error: "Usuario o contraseña incorrectos" };
+      return { error: "Usuario y/o contraseña incorrectos" };
     }
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return { error: "Usuario o contraseña incorrectos" };
+      return { error: "Usuario y/o contraseña incorrectos" };
     }
 
     // Check if user is active
     if (!user.isActive) {
-      return { error: "Usuario o contraseña incorrectos" };
+      return { error: "Usuario y/o contraseña incorrectos" };
     }
 
-    // Get tenantId from company slug
     const tenantId = user.company?.slug;
+    const onboardingCompleted = Boolean(
+      (user.company as { onboardingCompleted?: boolean } | null)
+        ?.onboardingCompleted
+    );
+
+    const onboardingRedirect = tenantId
+      ? `/register-company/onboarding-auth-company/company-name?tenantId=${tenantId}`
+      : "/register-company/onboarding-auth-company/company-name";
+
+    // If company/slug is missing, we can't issue auth cookie; force onboarding route
     if (!tenantId) {
-      return { error: "Usuario o contraseña incorrectos" };
+      return {
+        onboardingRequired: true,
+        redirectTo: onboardingRedirect,
+      };
     }
 
     // Set authentication cookie
@@ -61,13 +93,29 @@ export async function loginAction(prevState: any, formData: FormData) {
       privilege: user.privilege.privilegeCode,
     });
 
-    // Handle post-login redirect
-    handlePostLoginRedirect(user);
+    const redirectTo = onboardingCompleted
+      ? `/vendu/dashboard/${tenantId}/admin`
+      : onboardingRedirect;
+
+    return {
+      ok: true,
+      slug: tenantId,
+      onboardingCompleted,
+      redirectTo,
+    };
   } catch (err: any) {
-    return { error: "Usuario o contraseña incorrectos" };
+    return { error: "Usuario y/o contraseña incorrectos" };
   }
 }
 
+import { getAuthCookie } from "@/services/auth/adapters";
+
 export async function checkAuthAndRedirect() {
+  const auth = await getAuthCookie();
+  if (auth) {
+    // Already authenticated - redirect to tenant dashboard
+    redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
+  }
+  // Not authenticated - go to login/register page
   redirect("/register-company?mode=login");
 }

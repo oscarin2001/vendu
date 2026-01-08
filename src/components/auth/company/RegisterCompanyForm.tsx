@@ -6,16 +6,26 @@ import { useSearchParams } from "next/navigation";
 import AuthForm from "@/components/auth/company/auth-form";
 import { OnboardingFlow } from "@/components/auth/company/OnboardingFlow";
 import { Stepper } from "@/components/auth/company/onboarding/Stepper";
-import { loginAction } from "@/services/auth/login/actions";
+import { loginAction, type LoginResult } from "@/services/auth/login/actions";
 import { registerAction } from "@/services/auth/register/actions";
 
 export default function RegisterCompanyForm() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState<
-    "company-name" | "owner" | "fiscal" | "confirmation"
+    "company-name" | "owner" | "fiscal" | "legal" | "confirmation"
   >("company-name");
   const [onboardingData, setOnboardingData] = useState({
-    companyName: { name: "", country: "", phone: "" },
+    companyName: {
+      name: "",
+      country: "",
+      phone: "",
+      department: "",
+      commerceType: "",
+      description: "",
+      vision: "",
+      mission: "",
+      openedAt: "",
+    },
     owner: {
       firstName: "",
       lastName: "",
@@ -24,6 +34,7 @@ export default function RegisterCompanyForm() {
       gender: "",
     },
     fiscal: { taxId: "", businessName: "", fiscalAddress: "" },
+    legal: { tosAccepted: false, tosRead: false },
   });
 
   const searchParams = useSearchParams();
@@ -32,8 +43,19 @@ export default function RegisterCompanyForm() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Persistencia del progreso
+  // Persistencia del progreso: limpiar si se solicita login
   useEffect(() => {
+    if (mode === "login") {
+      try {
+        localStorage.removeItem("onboarding-progress");
+        localStorage.removeItem("onboarding-data");
+      } catch (e) {
+        // noop
+      }
+      setShowOnboarding(false);
+      return;
+    }
+
     const savedProgress = localStorage.getItem("onboarding-progress");
     if (savedProgress) {
       try {
@@ -46,7 +68,7 @@ export default function RegisterCompanyForm() {
         console.error("Error loading onboarding progress:", error);
       }
     }
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     if (showOnboarding) {
@@ -56,7 +78,7 @@ export default function RegisterCompanyForm() {
   }, [currentStep, onboardingData, showOnboarding]);
 
   const handleStepBack = () => {
-    const steps = ["company-name", "owner", "fiscal", "confirmation"];
+    const steps = ["company-name", "owner", "fiscal", "legal", "confirmation"];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1] as any);
@@ -76,8 +98,30 @@ export default function RegisterCompanyForm() {
         const formData = new FormData();
         formData.append("username", credentials.email);
         formData.append("password", credentials.password);
-        await loginAction(null, formData);
-        // Redirection handled by server action
+        const result: LoginResult = await loginAction(null, formData);
+
+        if (!result || "error" in result) {
+          setAuthError("Usuario y/o contraseña incorrectos");
+          return;
+        }
+
+        // Si el onboarding está pendiente (o se requiere), mostramos el flujo en la misma página
+        if ("onboardingRequired" in result || !result.onboardingCompleted) {
+          try {
+            const { toast } = await import("sonner");
+            toast.info("Debes completar tu onboarding para continuar");
+          } catch (_) {
+            // Si sonner no carga, seguimos sin interrumpir el flujo
+          }
+          setShowOnboarding(true);
+          return;
+        }
+
+        const destination = result.redirectTo
+          ? result.redirectTo
+          : `/vendu/dashboard/${result.slug}/admin`;
+
+        window.location.href = destination;
         return;
       }
 
@@ -89,16 +133,11 @@ export default function RegisterCompanyForm() {
       const result = await registerAction(null, formData);
       if (result.error) {
         setAuthError(result.error);
-        (await import("sonner")).toast.error(result.error);
         return;
       }
-      (await import("sonner")).toast.success("Usuario creado correctamente");
       setShowOnboarding(true);
     } catch (err: any) {
       setAuthError(err?.message || "Error al realizar la operación");
-      (await import("sonner")).toast.error(
-        err?.message || "Error al realizar la operación"
-      );
     } finally {
       setIsSubmitting(false);
     }
@@ -110,7 +149,7 @@ export default function RegisterCompanyForm() {
       [step]: data,
     }));
 
-    const steps = ["company-name", "owner", "fiscal", "confirmation"];
+    const steps = ["company-name", "owner", "fiscal", "legal", "confirmation"];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1] as any);

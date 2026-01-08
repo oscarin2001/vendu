@@ -4,9 +4,22 @@ import { redirect } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { generateUniqueSlug } from "../../redirection-handler";
 
-export async function saveCompanyData(formData: FormData) {
+export async function saveCompanyData(
+  formData: FormData,
+  clientMeta?: { ip?: string; ua?: string }
+) {
   const name = String(formData.get("name") || "").trim();
   const country = String(formData.get("country") || "").trim();
+  const department =
+    String(formData.get("department") || "").trim() || undefined;
+  const commerceType =
+    String(formData.get("commerceType") || "").trim() || undefined;
+  const description =
+    String(formData.get("description") || "").trim() || undefined;
+  const vision = String(formData.get("vision") || "").trim() || undefined;
+  const mission = String(formData.get("mission") || "").trim() || undefined;
+  const tosAccepted = String(formData.get("tosAccepted") || "") === "true";
+  const tosRead = String(formData.get("tosRead") || "") === "true";
 
   if (!name || !country) {
     return { success: false, error: "Datos incompletos" };
@@ -27,11 +40,23 @@ export async function saveCompanyData(formData: FormData) {
 
     // Create company
     const company = await prisma.tbcompanies.create({
+      // casting to any because Prisma client may need regeneration after schema change
       data: {
         name,
         country,
+        department,
+        commerceType,
+        description,
+        vision,
+        mission,
+        tosRead: tosRead,
+        tosReadAt: tosRead ? new Date() : undefined,
+        tosAccepted: tosAccepted,
+        tosAcceptedAt: tosAccepted ? new Date() : undefined,
+        tosAcceptedIp: clientMeta?.ip || undefined,
+        tosAcceptedUa: clientMeta?.ua || undefined,
         slug,
-      },
+      } as any,
     });
 
     return { success: true, company };

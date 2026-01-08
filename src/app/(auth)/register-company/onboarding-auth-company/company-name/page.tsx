@@ -5,7 +5,8 @@ export default function CompanyNamePage() {
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-4">Identidad de la Empresa</h2>
       <p className="text-muted-foreground mb-6">
-        ¿Cómo se llama tu empresa u organización?
+        ¿Cómo se llama tu empresa u organización? Indica también el tipo de
+        comercio y una breve descripción.
       </p>
       <CompanyNameForm />
     </div>

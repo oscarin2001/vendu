@@ -17,6 +17,10 @@ export type PhoneInputProps = {
   required?: boolean;
   className?: string;
   showValidation?: boolean;
+  // If provided, lock the country prefix (non-editable) and force local length
+  fixedCountryCode?: string; // e.g. "591"
+  fixedLocalMax?: number; // e.g. 8
+  hideCountrySelect?: boolean; // hide the dropdown and show prefix as static
 };
 
 export const COUNTRIES = [
@@ -47,13 +51,31 @@ export function PhoneInput({
   required,
   className = "",
   showValidation = false,
+  fixedCountryCode,
+  fixedLocalMax,
+  hideCountrySelect = false,
 }: PhoneInputProps) {
-  const [country, setCountry] = useState<string>(COUNTRIES[0].code);
+  const initialCountry = fixedCountryCode || COUNTRIES[0].code;
+  const initialLocalMax =
+    fixedLocalMax ??
+    COUNTRIES.find((c) => c.code === initialCountry)?.local ??
+    COUNTRIES[0].local;
+  const [country, setCountry] = useState<string>(initialCountry);
   const [local, setLocal] = useState<string>("");
-  const [localMax, setLocalMax] = useState<number>(COUNTRIES[0].local);
+  const [localMax, setLocalMax] = useState<number>(initialLocalMax);
   const lastPropRef = useRef<string | null>(null);
   // keep track of last value we notified the parent about to avoid cycles
   const lastNotifiedRef = useRef<string | null>(null);
+
+  // When fixed props change, update internal state
+  useEffect(() => {
+    if (fixedCountryCode) {
+      setCountry(fixedCountryCode);
+    }
+    if (typeof fixedLocalMax === "number") {
+      setLocalMax(fixedLocalMax);
+    }
+  }, [fixedCountryCode, fixedLocalMax]);
 
   useEffect(() => {
     const digits = (value || "").replace(/\D/g, "");
@@ -116,31 +138,38 @@ export function PhoneInput({
   return (
     <div className={`flex flex-col w-full ${className}`}>
       <div className="flex items-center rounded-md border px-1 py-1 min-w-0 w-full">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-36 justify-start rounded-l-md px-3 py-2 border-none min-w-0 flex-shrink-0"
-            >
-              <span className="mr-2">{currentCountry.flag}</span>
-              <span className="font-medium">+{currentCountry.code}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {COUNTRIES.map((c) => (
-              <DropdownMenuItem
-                key={c.code}
-                onClick={() => handleCountry(c.code)}
+        {!hideCountrySelect ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-36 justify-start rounded-l-md px-3 py-2 border-none min-w-0 flex-shrink-0"
               >
-                <span className="mr-2">{c.flag}</span>
-                <span className="font-medium">+{c.code}</span>
-                <span className="ml-2 text-sm text-muted-foreground">
-                  {c.name}
-                </span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <span className="mr-2">{currentCountry.flag}</span>
+                <span className="font-medium">+{currentCountry.code}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {COUNTRIES.map((c) => (
+                <DropdownMenuItem
+                  key={c.code}
+                  onClick={() => handleCountry(c.code)}
+                >
+                  <span className="mr-2">{c.flag}</span>
+                  <span className="font-medium">+{c.code}</span>
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {c.name}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="w-36 px-3 py-2 flex items-center rounded-l-md bg-muted text-sm">
+            <span className="mr-2">{currentCountry.flag}</span>
+            <span className="font-medium">+{currentCountry.code}</span>
+          </div>
+        )}
 
         <input
           aria-label="número local"
@@ -156,13 +185,11 @@ export function PhoneInput({
         />
       </div>
 
-      {showValidation &&
-        local.length > 0 &&
-        local.length !== currentCountry.local && (
-          <p className="mt-1 text-xs text-red-600">{`Faltan ${
-            currentCountry.local - local.length
-          } dígitos`}</p>
-        )}
+      {showValidation && local.length > 0 && local.length !== localMax && (
+        <p className="mt-1 text-xs text-red-600">{`Faltan ${
+          localMax - local.length
+        } dígitos`}</p>
+      )}
     </div>
   );
 }

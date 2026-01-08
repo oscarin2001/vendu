@@ -9,4 +9,3 @@ Recommendations:
 
 - Add structured `Logger` with configurable levels and context (requestId, tenantId).
 - Add `DomainError` subclasses (e.g., `NotFoundError`, `ValidationError`) with `status` and `code` fields so HTTP layers can map errors to proper HTTP responses.
-- Add unit tests and a short example of how to initialize/inject usage (e.g., `getAuditService(prisma)` pattern used for audit).

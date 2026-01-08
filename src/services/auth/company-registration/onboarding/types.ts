@@ -2,6 +2,16 @@ export interface CompanyData {
   name: string;
   country: string;
   phone: string;
+  department?: string;
+  commerceType?: string;
+  description?: string;
+  vision?: string;
+  mission?: string;
+  openedAt?: string;
+  tosAccepted?: boolean;
+  tosAcceptedAt?: string; // ISO timestamp
+  tosRead?: boolean;
+  tosReadAt?: string;
 }
 
 export interface OwnerData {
