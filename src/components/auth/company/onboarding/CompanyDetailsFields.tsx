@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 import { cn } from "@/lib/utils";
 
 export default function CompanyDetailsFields({
