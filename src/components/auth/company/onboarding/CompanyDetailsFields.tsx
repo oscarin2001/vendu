@@ -3,6 +3,7 @@
 import React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseISOToLocalDate } from "@/lib/utils";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/Button";
@@ -34,7 +35,7 @@ export default function CompanyDetailsFields({
   setOpenedAt,
   openedAtError,
 }: any) {
-  const parsedOpenedAt = openedAt ? new Date(openedAt) : undefined;
+  const parsedOpenedAt = openedAt ? parseISOToLocalDate(openedAt) : undefined;
 
   return (
     <>
@@ -59,7 +60,12 @@ export default function CompanyDetailsFields({
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
-              selected={parsedOpenedAt}
+              captionLayout="dropdown"
+              selected={
+                parsedOpenedAt
+                  ? parsedOpenedAt
+                  : new Date(new Date().getFullYear(), new Date().getMonth(), 18)
+              }
               onSelect={(date) =>
                 setOpenedAt(date ? format(date, "yyyy-MM-dd") : "")
               }

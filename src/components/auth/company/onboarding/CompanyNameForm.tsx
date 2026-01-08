@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
+import { CompanyActions } from "./CompanyActions";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";

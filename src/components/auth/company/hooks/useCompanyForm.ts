@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { parseISO, isValid as isValidDate } from "date-fns";
 
 export interface CompanyFormData {
   name: string;
@@ -43,7 +44,20 @@ export function useCompanyForm(
     else if (phone.replace(/\D/g, "").length < 8)
       newErrors.phone = "El celular debe tener al menos 8 dígitos";
 
-    if (!openedAt) newErrors.openedAt = "Indica la fecha de apertura física";
+    if (!openedAt) {
+      newErrors.openedAt = "Indica la fecha de apertura física";
+    } else {
+      // Expect ISO date yyyy-MM-dd and check validity
+      const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!isoRegex.test(openedAt)) {
+        newErrors.openedAt = "Formato inválido (usar YYYY-MM-DD)";
+      } else {
+        const parsed = parseISO(openedAt);
+        if (!isValidDate(parsed)) {
+          newErrors.openedAt = "Fecha inválida";
+        }
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

@@ -30,12 +30,14 @@ interface CompanyFormProps {
     openedAt?: string;
   }) => void;
   onNext?: () => void;
+  onBack?: () => void;
 }
 
 export function CompanyForm({
   initialData = { name: "", country: "", phone: "" },
   onDataChange,
   onNext = () => {},
+  onBack = () => {},
 }: CompanyFormProps) {
   const [isPending, setIsPending] = useState(false);
   const {
@@ -143,7 +145,7 @@ export function CompanyForm({
         errors={errors}
       />
 
-      <CompanyActions onBack={() => {}} isPending={isPending} />
+      <CompanyActions onBack={onBack} isPending={isPending} />
     </form>
   );
 }

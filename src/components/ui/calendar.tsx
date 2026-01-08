@@ -7,6 +7,12 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
   DayPicker,
   getDefaultClassNames,
   type DayButton,
@@ -131,6 +137,8 @@ function Calendar({
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
       }}
+      // build custom caption component via any to avoid type issues from react-day-picker types
+      {...(components as any)}
       components={{
         Root: ({ className, rootRef, ...props }) => {
           return (
@@ -142,6 +150,53 @@ function Calendar({
             />
           );
         },
+        Caption: (({ date, onMonthChange }: any) => {
+          const currentYear = date.getFullYear();
+          const months = Array.from({ length: 12 }, (_, i) => ({
+            index: i,
+            label: new Date(2000, i, 1).toLocaleString("default", { month: "short" }),
+          }));
+
+          const startYear = currentYear - 50;
+          const endYear = currentYear + 1;
+          const years = [] as number[];
+          for (let y = startYear; y <= endYear; y++) years.push(y);
+
+          return (
+            <div className="flex items-center justify-center gap-2 px-2 py-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-md border px-3 py-1 text-sm">
+                    {date.toLocaleString("default", { month: "short" })}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {months.map((m) => (
+                    <DropdownMenuItem
+                      key={m.index}
+                      onSelect={() => onMonthChange?.(new Date(date.getFullYear(), m.index, 1))}
+                    >
+                      {m.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-md border px-3 py-1 text-sm">{currentYear}</button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {years.map((y) => (
+                    <DropdownMenuItem key={y} onSelect={() => onMonthChange?.(new Date(y, date.getMonth(), 1))}>
+                      {y}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        }) as any,
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (

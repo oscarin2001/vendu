@@ -15,6 +15,12 @@ import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
 import type { CompanyFormErrors } from "@/components/auth/company/hooks/useCompanyForm";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { parseISOToLocalDate } from "@/lib/utils";
 
 interface CompanyFieldsProps {
   name: string;
@@ -151,17 +157,45 @@ export function CompanyFields({
 
         <Field>
           <FieldLabel htmlFor="openedAt">Fecha de apertura física</FieldLabel>
-          {/* The calendar popover is re-used from the old component */}
-          <div className="flex">
-            <input
-              id="openedAt"
-              value={openedAt ?? ""}
-              onChange={(e) => setOpenedAt?.(e.target.value)}
-              placeholder="yyyy-mm-dd"
-              className="w-full h-12 rounded-md border px-3"
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "w-full justify-start text-left font-normal rounded-md border px-3 py-2",
+                !openedAt && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {openedAt
+                ? format(parseISOToLocalDate(openedAt) as Date, "dd/MM/yyyy", {
+                    locale: es,
+                  })
+                : "Selecciona la fecha"}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              captionLayout="dropdown"
+              selected={
+                openedAt
+                  ? parseISOToLocalDate(openedAt)
+                  : new Date(new Date().getFullYear(), new Date().getMonth(), 18)
+              }
+              onSelect={(date) =>
+                setOpenedAt?.(
+                  date ? format(date, "yyyy-MM-dd") : ""
+                )
+              }
+              locale={es}
+              initialFocus
             />
-          </div>
-          {errors.openedAt && <p className="text-sm text-red-600 mt-1">{errors.openedAt}</p>}
+          </PopoverContent>
+        </Popover>
+        {errors.openedAt && (
+          <p className="text-sm text-red-600 mt-1">{errors.openedAt}</p>
+        )}
         </Field>
 
         <Field>

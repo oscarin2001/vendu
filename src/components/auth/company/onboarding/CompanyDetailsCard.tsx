@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/phone-input";
 import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
+import { parseISOToLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface CompanyDetailsCardProps {
@@ -78,7 +79,7 @@ export default function CompanyDetailsCard({
   setOpenedAt,
   openedAtError,
 }: CompanyDetailsCardProps) {
-  const parsedOpenedAt = openedAt ? new Date(openedAt) : undefined;
+  const parsedOpenedAt = openedAt ? parseISOToLocalDate(openedAt) : undefined;
   const countryConfig = getCountryConfigByName(country);
   const departments = countryConfig?.departments ?? [];
 
