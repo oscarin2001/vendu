@@ -22,6 +22,7 @@ export type PhoneInputProps = {
   fixedLocalMax?: number; // e.g. 8
   hideCountrySelect?: boolean; // hide the dropdown and show prefix as static
   // Show the format hint (e.g. "+591 XXXX XXXX") below the input
+  // The hint is hidden when a placeholder is provided to avoid duplicated guidance
   showFormatHint?: boolean;
 };
 
@@ -231,7 +232,9 @@ export function PhoneInput({
             placeholder ?? `Ej. ${formatPhonePattern(currentCountry.local)}`
           }
           inputMode="numeric"
-          maxLength={formatPhonePattern(currentCountry.local).replace(/\s/g, "").length}
+          maxLength={
+            formatPhonePattern(currentCountry.local).replace(/\s/g, "").length
+          }
           required={required}
         />
       </div>
@@ -243,7 +246,7 @@ export function PhoneInput({
       )}
 
       {/* Format hint (per-country) */}
-      {showFormatHint && (
+      {showFormatHint && !placeholder && (
         <p className="mt-1 text-sm text-muted-foreground">
           {hideCountrySelect || fixedCountryCode
             ? formatPhonePattern(currentCountry.local)

@@ -64,7 +64,11 @@ export default function CompanyDetailsFields({
               selected={
                 parsedOpenedAt
                   ? parsedOpenedAt
-                  : new Date(new Date().getFullYear(), new Date().getMonth(), 18)
+                  : new Date(
+                      new Date().getFullYear(),
+                      new Date().getMonth(),
+                      18
+                    )
               }
               onSelect={(date) =>
                 setOpenedAt(date ? format(date, "yyyy-MM-dd") : "")

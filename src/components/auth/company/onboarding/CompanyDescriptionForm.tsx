@@ -3,7 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { saveOnboardingData, getOnboardingData } from "@/services/auth/company-registration/onboarding/session";
+import {
+  saveOnboardingData,
+  getOnboardingData,
+} from "@/services/auth/company-registration/onboarding/session";
 
 interface CompanyDescriptionFormProps {
   initialData?: {
@@ -36,7 +39,9 @@ export function CompanyDescriptionForm({
     onDataChange?.(payload);
     // merge into existing company data in session
     const existing = getOnboardingData();
-    saveOnboardingData({ company: { ...(existing.company || {}), ...payload } as any });
+    saveOnboardingData({
+      company: { ...(existing.company || {}), ...payload } as any,
+    });
   }, [description, vision, mission, onDataChange]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +57,9 @@ export function CompanyDescriptionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field>
-        <FieldLabel htmlFor="description">Descripción breve del comercio</FieldLabel>
+        <FieldLabel htmlFor="description">
+          Descripción breve del comercio
+        </FieldLabel>
         <textarea
           id="description"
           value={description}

@@ -7,7 +7,10 @@ interface CompanyActionsProps {
   isPending?: boolean;
 }
 
-export function CompanyActions({ onBack, isPending = false }: CompanyActionsProps) {
+export function CompanyActions({
+  onBack,
+  isPending = false,
+}: CompanyActionsProps) {
   return (
     <div className="flex space-x-4">
       <Button

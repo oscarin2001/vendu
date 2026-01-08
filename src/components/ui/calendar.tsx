@@ -154,7 +154,9 @@ function Calendar({
           const currentYear = date.getFullYear();
           const months = Array.from({ length: 12 }, (_, i) => ({
             index: i,
-            label: new Date(2000, i, 1).toLocaleString("default", { month: "short" }),
+            label: new Date(2000, i, 1).toLocaleString("default", {
+              month: "short",
+            }),
           }));
 
           const startYear = currentYear - 50;
@@ -174,7 +176,11 @@ function Calendar({
                   {months.map((m) => (
                     <DropdownMenuItem
                       key={m.index}
-                      onSelect={() => onMonthChange?.(new Date(date.getFullYear(), m.index, 1))}
+                      onSelect={() =>
+                        onMonthChange?.(
+                          new Date(date.getFullYear(), m.index, 1)
+                        )
+                      }
                     >
                       {m.label}
                     </DropdownMenuItem>
@@ -184,11 +190,18 @@ function Calendar({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="rounded-md border px-3 py-1 text-sm">{currentYear}</button>
+                  <button className="rounded-md border px-3 py-1 text-sm">
+                    {currentYear}
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {years.map((y) => (
-                    <DropdownMenuItem key={y} onSelect={() => onMonthChange?.(new Date(y, date.getMonth(), 1))}>
+                    <DropdownMenuItem
+                      key={y}
+                      onSelect={() =>
+                        onMonthChange?.(new Date(y, date.getMonth(), 1))
+                      }
+                    >
                       {y}
                     </DropdownMenuItem>
                   ))}

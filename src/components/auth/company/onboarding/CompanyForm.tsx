@@ -5,7 +5,6 @@ import { saveOnboardingData } from "@/services/auth/company-registration/onboard
 import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { CompanyActions } from "./CompanyActions";
-import { formatPhonePattern } from "@/lib/utils";
 
 interface CompanyFormProps {
   initialData?: {
@@ -60,7 +59,7 @@ export function CompanyForm({
 
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [phonePlaceholder, setPhonePlaceholder] =
-    useState<string>(formatPhonePattern(8));
+    useState<string>("59112345678");
 
   const [errors, setErrors] = useState(formErrors || {});
 

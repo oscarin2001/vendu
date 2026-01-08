@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/phone-input";
 import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
-import { parseISOToLocalDate, formatPhonePattern } from "@/lib/utils";
+import { parseISOToLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface CompanyDetailsCardProps {
@@ -98,7 +98,7 @@ export default function CompanyDetailsCard({
           .toLowerCase()
     );
     if (found) {
-      setPhonePlaceholder(formatPhonePattern(found.local));
+      setPhonePlaceholder(`${found.code}${"7".repeat(found.local)}`);
       if (!phone) setPhone(found.code);
     }
   };
@@ -139,17 +139,13 @@ export default function CompanyDetailsCard({
               setPhoneValid(valid);
             }}
             placeholder={
-              countryConfig
-                ? countryConfig.phone.format ??
-                  formatPhonePattern(countryConfig.phone.local)
-                : phonePlaceholder ?? formatPhonePattern(8)
+              countryConfig?.phone.example ?? phonePlaceholder ?? "59112345678"
             }
             required
             showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect={!!countryConfig}
-            showFormatHint={!countryConfig}
           />
         </Field>
 

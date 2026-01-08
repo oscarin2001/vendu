@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import {
@@ -68,6 +68,14 @@ export default function AuthForm({
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    setFormData({
+      email: "",
+      password: "",
+    });
+    setShowPassword(false);
+  }, [mode]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.(formData);
@@ -125,6 +133,7 @@ export default function AuthForm({
               type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={(e) => handleChange("password", e.target.value)}
+              placeholder="********"
               required
             />
             <button

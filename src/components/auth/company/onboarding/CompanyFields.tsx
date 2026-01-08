@@ -103,7 +103,7 @@ export function CompanyFields({
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Rous Boutique"
+            placeholder="Mi empresa S.R.L."
           />
           {errors.name && (
             <p className="text-sm text-red-600 mt-1">{errors.name}</p>
@@ -140,7 +140,7 @@ export function CompanyFields({
             showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
-            hideCountrySelect={!!countryConfig}
+            hideCountrySelect
             showFormatHint={!countryConfig}
           />
           {errors.phone && (
@@ -181,11 +181,11 @@ export function CompanyFields({
               <button
                 type="button"
                 className={cn(
-                  "w-full justify-start text-left font-normal rounded-md border px-3 py-2",
+                  "flex w-full items-center gap-2 justify-start text-left font-normal rounded-md border px-3 py-2",
                   !openedAt && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="h-4 w-4" />
                 {openedAt
                   ? format(
                       parseISOToLocalDate(openedAt) as Date,

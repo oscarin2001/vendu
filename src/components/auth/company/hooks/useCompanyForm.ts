@@ -77,7 +77,16 @@ export function useCompanyForm(
 
   React.useEffect(() => {
     if (onDataChange) onDataChange(getFormData());
-  }, [name, country, phone, department, commerceType, openedAt, onDataChange, getFormData]);
+  }, [
+    name,
+    country,
+    phone,
+    department,
+    commerceType,
+    openedAt,
+    onDataChange,
+    getFormData,
+  ]);
 
   return {
     name,

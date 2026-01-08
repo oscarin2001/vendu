@@ -44,7 +44,9 @@ export default function CompanyContactFields({
             const cfg = getCountryConfigByName(val || "");
             if (cfg) {
               // prefer explicit format if present, otherwise build a simple placeholder
-              const format = cfg.phone.format ?? `${"7".repeat(Math.max(3, cfg.phone.local - 1))}`;
+              const format =
+                cfg.phone.format ??
+                `${"7".repeat(Math.max(3, cfg.phone.local - 1))}`;
               setPhonePlaceholder(format);
               if (!phone) setPhone(cfg.phone.prefix);
             }

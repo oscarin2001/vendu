@@ -11,7 +11,13 @@ import { Confirmation } from "./onboarding/Confirmation";
 import { LegalStep } from "./onboarding/LegalStep";
 
 interface OnboardingFlowProps {
-  currentStep: "company-name" | "company-details" | "owner" | "fiscal" | "legal" | "confirmation";
+  currentStep:
+    | "company-name"
+    | "company-details"
+    | "owner"
+    | "fiscal"
+    | "legal"
+    | "confirmation";
   onboardingData: {
     companyName: {
       name: string;
@@ -61,7 +67,6 @@ export function OnboardingFlow({
   const handleStepNext = (step: keyof typeof stepPayloads) => {
     onStepComplete(step, stepPayloads[step]);
   };
-
 
   return (
     <>
