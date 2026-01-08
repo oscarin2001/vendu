@@ -11,6 +11,7 @@ interface OwnerFormProps {
   onBack?: () => void;
   onDataChange?: (data: OwnerFormData) => void;
   onNext?: () => void;
+  companyCountry?: string;
 }
 
 export function OwnerForm({
@@ -24,6 +25,7 @@ export function OwnerForm({
   onBack = () => {},
   onDataChange,
   onNext = () => {},
+  companyCountry,
 }: OwnerFormProps) {
   const [isPending, startTransition] = useTransition();
   const {
@@ -75,6 +77,7 @@ export function OwnerForm({
         onPhoneChange={setPhone}
         onCiChange={setCi}
         onGenderChange={setGender}
+        companyCountry={companyCountry}
       />
 
       <OwnerActions onBack={onBack} isPending={isPending} />

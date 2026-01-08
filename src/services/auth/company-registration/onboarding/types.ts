@@ -19,6 +19,7 @@ export interface OwnerData {
   lastName: string;
   phone: string;
   ci?: string;
+  country: string;
 }
 
 export interface BranchData {

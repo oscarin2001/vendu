@@ -26,7 +26,11 @@ export function CompanyActions({
           Atrás
         </Button>
       )}
-      <Button type="submit" className={showBackButton ? "flex-1" : "w-full"} disabled={isPending}>
+      <Button
+        type="submit"
+        className={showBackButton ? "flex-1" : "w-full"}
+        disabled={isPending}
+      >
         {isPending ? "Guardando..." : "Siguiente"}
       </Button>
     </div>

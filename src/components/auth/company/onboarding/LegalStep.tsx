@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import CompanyLegalAcceptance from "./CompanyLegalAcceptance";
+import { toast } from "sonner";
 
 interface LegalStepProps {
   companyData: {
@@ -87,6 +88,7 @@ export function LegalStep({
         return;
       }
 
+      toast.success("¡Empresa registrada exitosamente!");
       onNext?.({ tosAccepted, tosRead });
     } finally {
       setIsPending(false);
@@ -100,6 +102,7 @@ export function LegalStep({
         setTosAccepted={setTosAccepted}
         tosRead={tosRead}
         setTosRead={setTosRead}
+        companyName={companyData.name}
       />
 
       {error && <p className="text-sm text-red-500">{error}</p>}

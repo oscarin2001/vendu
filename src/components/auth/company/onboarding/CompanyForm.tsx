@@ -145,7 +145,11 @@ export function CompanyForm({
         errors={errors}
       />
 
-      <CompanyActions onBack={onBack} isPending={isPending} showBackButton={false} />
+      <CompanyActions
+        onBack={onBack}
+        isPending={isPending}
+        showBackButton={false}
+      />
     </form>
   );
 }

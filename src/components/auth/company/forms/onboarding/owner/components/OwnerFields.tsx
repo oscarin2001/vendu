@@ -2,7 +2,7 @@
 
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/Input";
-import { PhoneInput } from "@/components/ui/phone-input";
+import { PhoneInput, COUNTRIES } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -24,6 +24,7 @@ interface OwnerFieldsProps {
   onPhoneChange: (value: string) => void;
   onCiChange: (value: string) => void;
   onGenderChange: (value: string) => void;
+  companyCountry?: string;
 }
 
 export function OwnerFields({
@@ -38,7 +39,35 @@ export function OwnerFields({
   onPhoneChange,
   onCiChange,
   onGenderChange,
+  companyCountry,
 }: OwnerFieldsProps) {
+  const fixedCountryCode = companyCountry
+    ? COUNTRIES.find(
+        (c) =>
+          c.name
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase() ===
+          companyCountry
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase()
+      )?.code
+    : undefined;
+
+  const fixedLocalMax = companyCountry
+    ? COUNTRIES.find(
+        (c) =>
+          c.name
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase() ===
+          companyCountry
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase()
+      )?.local
+    : undefined;
   return (
     <>
       <Field>
@@ -88,6 +117,9 @@ export function OwnerFields({
           onChange={(val) => onPhoneChange(val)}
           placeholder="59112345678"
           required
+          fixedCountryCode={fixedCountryCode}
+          fixedLocalMax={fixedLocalMax}
+          hideCountrySelect={true}
         />
         {errors.phone && (
           <p className="text-sm text-red-600 mt-1">{errors.phone}</p>

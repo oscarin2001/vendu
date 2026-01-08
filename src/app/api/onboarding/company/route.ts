@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
-import { generateUniqueSlug } from "@/services/auth/redirection-handler";
+import { createCompany } from "@/services/auth/company-registration/onboarding";
 
 export async function POST(req: Request) {
   try {
@@ -19,30 +18,6 @@ export async function POST(req: Request) {
     const tosAccepted = !!body.tosAccepted;
     const tosRead = !!body.tosRead;
 
-    if (!name || !country || !openedAt) {
-      return NextResponse.json(
-        { success: false, error: "Datos incompletos" },
-        { status: 400 }
-      );
-    }
-
-    const existingNames = await prisma.tbcompanies.findMany({
-      select: { name: true },
-    });
-    const normalizedName = name.toLocaleLowerCase();
-    const hasInsensitiveMatch = existingNames.some(
-      (item) => item.name.toLocaleLowerCase() === normalizedName
-    );
-
-    if (hasInsensitiveMatch) {
-      return NextResponse.json(
-        { success: false, error: "Ya existe una empresa con ese nombre" },
-        { status: 409 }
-      );
-    }
-
-    const slug = await generateUniqueSlug(name);
-
     const xff = req.headers.get("x-forwarded-for") || "";
     const ip = (xff.split(",")[0] ||
       req.headers.get("x-real-ip") ||
@@ -51,28 +26,37 @@ export async function POST(req: Request) {
       | string
       | undefined;
 
-    const company = await prisma.tbcompanies.create({
-      data: {
-        name,
-        country,
-        department,
-        commerceType,
-        description,
-        vision,
-        mission,
-        openedAt: openedAt ? new Date(openedAt) : undefined,
-        tosRead,
-        tosReadAt: tosRead ? new Date() : undefined,
-        tosAccepted,
-        tosAcceptedAt: tosAccepted ? new Date() : undefined,
-        tosAcceptedIp: ip,
-        tosAcceptedUa: ua,
-        slug,
-      } as any,
+    const company = await createCompany({
+      name,
+      country,
+      department,
+      commerceType,
+      description,
+      vision,
+      mission,
+      openedAt,
+      tosAccepted,
+      tosRead,
+      ip,
+      ua,
     });
 
     return NextResponse.json({ success: true, company });
   } catch (err: any) {
+    if (err.message === "Ya existe una empresa con ese nombre") {
+      return NextResponse.json(
+        { success: false, error: err.message },
+        { status: 409 }
+      );
+    }
+
+    if (err.message === "Datos incompletos") {
+      return NextResponse.json(
+        { success: false, error: err.message },
+        { status: 400 }
+      );
+    }
+
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         return NextResponse.json(

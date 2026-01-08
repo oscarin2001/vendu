@@ -9,6 +9,7 @@ export default function CompanyLegalAcceptance({
   setTosAccepted,
   tosRead,
   setTosRead,
+  companyName,
 }: any) {
   const [showTerms, setShowTerms] = React.useState(false);
 
@@ -66,6 +67,7 @@ export default function CompanyLegalAcceptance({
         open={showTerms}
         onClose={() => setShowTerms(false)}
         onAcknowledge={() => setTosRead(true)}
+        companyName={companyName}
       />
     </>
   );

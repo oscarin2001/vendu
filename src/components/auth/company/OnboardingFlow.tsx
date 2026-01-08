@@ -116,6 +116,7 @@ export function OnboardingFlow({
               onDataChange ? (data) => onDataChange({ owner: data }) : undefined
             }
             onNext={() => handleStepNext("owner")}
+            companyCountry={onboardingData.companyName.country}
           />
         </AnimatedTransition>
       )}

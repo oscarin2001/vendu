@@ -7,10 +7,12 @@ export function TermsModal({
   open,
   onClose,
   onAcknowledge,
+  companyName,
 }: {
   open: boolean;
   onClose: () => void;
   onAcknowledge: () => void;
+  companyName?: string;
 }) {
   const [terms, setTerms] = useState<string>("");
   const [aup, setAup] = useState<string>("");
@@ -20,11 +22,29 @@ export function TermsModal({
     if (!open) return;
     fetch("/api/legal/terms")
       .then((r) => r.json())
-      .then((d) => setTerms(d.content || ""));
+      .then((d) => {
+        let content = d.content || "";
+        if (companyName) {
+          content = content.replace(
+            /\[NOMBRE_DE_LA_EMPRESA\]|\[EMPRESA\]/g,
+            companyName
+          );
+        }
+        setTerms(content);
+      });
     fetch("/api/legal/aup")
       .then((r) => r.json())
-      .then((d) => setAup(d.content || ""));
-  }, [open]);
+      .then((d) => {
+        let content = d.content || "";
+        if (companyName) {
+          content = content.replace(
+            /\[NOMBRE_DE_LA_EMPRESA\]|\[EMPRESA\]/g,
+            companyName
+          );
+        }
+        setAup(content);
+      });
+  }, [open, companyName]);
 
   if (!open) return null;
 

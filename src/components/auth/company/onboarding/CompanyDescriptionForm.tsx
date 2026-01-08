@@ -65,7 +65,9 @@ export function CompanyDescriptionForm({
         <Field>
           <FieldLabel>Moneda del País</FieldLabel>
           <div className="flex items-center space-x-2 p-3 bg-muted rounded-md">
-            <span className="text-lg font-semibold">{countryConfig.currency.symbol}</span>
+            <span className="text-lg font-semibold">
+              {countryConfig.currency.symbol}
+            </span>
             <span className="text-sm text-muted-foreground">
               {countryConfig.currency.code} - {countryConfig.currency.locale}
             </span>
