@@ -11,6 +11,7 @@ import {
 
 const steps = [
   { name: "Empresa", path: "company-name", icon: Building2 },
+  { name: "Detalles", path: "company-details", icon: FileSignature },
   { name: "Responsable", path: "owner", icon: User },
   { name: "Fiscal", path: "fiscal", icon: FileText },
   { name: "Términos", path: "legal", icon: ShieldCheck },

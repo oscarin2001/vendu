@@ -4,13 +4,14 @@ import { AnimatedTransition } from "@/components/ui/animations";
 
 // Onboarding components
 import { CompanyForm } from "./onboarding/CompanyForm";
+import { CompanyDescriptionForm } from "./onboarding/CompanyDescriptionForm";
 import { OwnerForm } from "./forms/onboarding/owner/OwnerForm";
 import { FiscalForm } from "./onboarding/FiscalForm";
 import { Confirmation } from "./onboarding/Confirmation";
 import { LegalStep } from "./onboarding/LegalStep";
 
 interface OnboardingFlowProps {
-  currentStep: "company-name" | "owner" | "fiscal" | "legal" | "confirmation";
+  currentStep: "company-name" | "company-details" | "owner" | "fiscal" | "legal" | "confirmation";
   onboardingData: {
     companyName: {
       name: string;
@@ -51,6 +52,7 @@ export function OnboardingFlow({
 }: OnboardingFlowProps) {
   const stepPayloads = {
     "company-name": onboardingData.companyName,
+    "company-details": onboardingData.companyName,
     owner: onboardingData.owner,
     fiscal: onboardingData.fiscal,
     legal: onboardingData.legal,
@@ -59,6 +61,7 @@ export function OnboardingFlow({
   const handleStepNext = (step: keyof typeof stepPayloads) => {
     onStepComplete(step, stepPayloads[step]);
   };
+
 
   return (
     <>
@@ -71,6 +74,28 @@ export function OnboardingFlow({
             initialData={onboardingData.companyName}
             onDataChange={(data) => onDataChange?.({ companyName: data })}
             onNext={() => handleStepNext("company-name")}
+          />
+        </AnimatedTransition>
+      )}
+
+      {currentStep === "company-details" && (
+        <AnimatedTransition
+          show={currentStep === "company-details"}
+          direction="right"
+        >
+          <CompanyDescriptionForm
+            initialData={{
+              description: onboardingData.companyName.description,
+              vision: onboardingData.companyName.vision,
+              mission: onboardingData.companyName.mission,
+            }}
+            onBack={onStepBack}
+            onDataChange={(data) =>
+              onDataChange?.({
+                companyName: { ...onboardingData.companyName, ...data },
+              })
+            }
+            onNext={() => handleStepNext("company-details")}
           />
         </AnimatedTransition>
       )}

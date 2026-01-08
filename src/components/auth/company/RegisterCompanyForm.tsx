@@ -12,7 +12,7 @@ import { registerAction } from "@/services/auth/register/actions";
 export default function RegisterCompanyForm() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState<
-    "company-name" | "owner" | "fiscal" | "legal" | "confirmation"
+    "company-name" | "company-details" | "owner" | "fiscal" | "legal" | "confirmation"
   >("company-name");
   const [onboardingData, setOnboardingData] = useState({
     companyName: {
@@ -78,7 +78,7 @@ export default function RegisterCompanyForm() {
   }, [currentStep, onboardingData, showOnboarding]);
 
   const handleStepBack = () => {
-    const steps = ["company-name", "owner", "fiscal", "legal", "confirmation"];
+    const steps = ["company-name", "company-details", "owner", "fiscal", "legal", "confirmation"];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1] as any);
@@ -149,7 +149,7 @@ export default function RegisterCompanyForm() {
       [step]: data,
     }));
 
-    const steps = ["company-name", "owner", "fiscal", "legal", "confirmation"];
+    const steps = ["company-name", "company-details", "owner", "fiscal", "legal", "confirmation"];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1] as any);
