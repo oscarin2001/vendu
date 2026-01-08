@@ -110,7 +110,6 @@ export function OnboardingFlow({
         <AnimatedTransition show={currentStep === "owner"} direction="right">
           <OwnerForm
             initialData={onboardingData.owner}
-            companyCountry={onboardingData.companyName.country}
             onBack={onStepBack}
             onDataChange={
               onDataChange ? (data) => onDataChange({ owner: data }) : undefined

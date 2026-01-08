@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { OwnerFormErrors } from "../hooks/useOwnerForm";
 
 interface OwnerFieldsProps {
@@ -19,7 +18,6 @@ interface OwnerFieldsProps {
   phone: string;
   ci: string;
   gender: string;
-  companyCountry?: string;
   errors: OwnerFormErrors;
   onFirstNameChange: (value: string) => void;
   onLastNameChange: (value: string) => void;
@@ -34,7 +32,6 @@ export function OwnerFields({
   phone,
   ci,
   gender,
-  companyCountry,
   errors,
   onFirstNameChange,
   onLastNameChange,
@@ -42,8 +39,6 @@ export function OwnerFields({
   onCiChange,
   onGenderChange,
 }: OwnerFieldsProps) {
-  const countryConfig = getCountryConfigByName(companyCountry);
-
   return (
     <>
       <Field>
@@ -91,36 +86,13 @@ export function OwnerFields({
         <PhoneInput
           value={phone}
           onChange={(val) => onPhoneChange(val)}
-          placeholder={
-            countryConfig
-              ? countryConfig.phone.format ??
-                `+${countryConfig.phone.prefix} ${"X".repeat(
-                  countryConfig.phone.local
-                )}`
-              : "59112345678"
-          }
+          placeholder="59112345678"
           required
-          fixedCountryCode={countryConfig?.phone.prefix}
-          fixedLocalMax={countryConfig?.phone.local}
-          hideCountrySelect
-          showFormatHint={!countryConfig}
         />
         {errors.phone && (
           <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
         )}
       </Field>
-
-      {countryConfig && (
-        <Field>
-          <FieldLabel>Moneda del País</FieldLabel>
-          <div className="flex items-center space-x-2 p-3 bg-muted rounded-md">
-            <span className="text-lg">{countryConfig.currency.symbol}</span>
-            <span className="text-sm text-muted-foreground">
-              {countryConfig.currency.code} - {countryConfig.currency.locale}
-            </span>
-          </div>
-        </Field>
-      )}
 
       <Field>
         <FieldLabel htmlFor="gender">Género</FieldLabel>

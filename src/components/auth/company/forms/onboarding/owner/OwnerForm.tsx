@@ -8,7 +8,6 @@ import { saveOwnerData } from "@/services/auth/company-registration/onboarding/a
 
 interface OwnerFormProps {
   initialData?: Partial<OwnerFormData>;
-  companyCountry?: string;
   onBack?: () => void;
   onDataChange?: (data: OwnerFormData) => void;
   onNext?: () => void;
@@ -22,7 +21,6 @@ export function OwnerForm({
     ci: "",
     gender: "",
   },
-  companyCountry,
   onBack = () => {},
   onDataChange,
   onNext = () => {},
@@ -71,7 +69,6 @@ export function OwnerForm({
         phone={phone}
         ci={ci}
         gender={gender}
-        companyCountry={companyCountry}
         errors={errors}
         onFirstNameChange={setFirstName}
         onLastNameChange={setLastName}
