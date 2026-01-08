@@ -73,6 +73,7 @@ export function OnboardingFlow({
           <CompanyForm
             initialData={onboardingData.companyName}
             onDataChange={(data) => onDataChange?.({ companyName: data })}
+            onBack={onStepBack}
             onNext={() => handleStepNext("company-name")}
           />
         </AnimatedTransition>

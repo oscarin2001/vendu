@@ -81,7 +81,7 @@ export function CompanyFields({
   };
 
   return (
-    <div className="space-y-4 rounded-xl border p-4 shadow-sm bg-card">
+    <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Field>
           <FieldLabel htmlFor="name">Nombre de la empresa</FieldLabel>
@@ -181,6 +181,6 @@ export function CompanyFields({
           </DropdownMenu>
         </Field>
       </div>
-    </div>
+    </>
   );
 }

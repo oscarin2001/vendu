@@ -36,7 +36,8 @@ export function CompanyNameForm({
   initialData = { name: "", country: "", phone: "" },
   onDataChange,
   onNext = () => {},
-}: CompanyNameFormProps) {
+  onBack = () => {},
+}: CompanyNameFormProps & { onBack?: () => void }) {
   const [isPending, setIsPending] = useState(false);
   // use the new hook to manage company fields
   const {
@@ -171,11 +172,7 @@ export function CompanyNameForm({
         errors={errors}
       />
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Guardando..." : "Siguiente"}
-        </Button>
-      </div>
+      <CompanyActions onBack={onBack} isPending={isPending} />
     </form>
   );
 }

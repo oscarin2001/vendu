@@ -51,43 +51,41 @@ export function CompanyDescriptionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-4 rounded-xl border p-4 shadow-sm bg-card">
-        <Field>
-          <FieldLabel htmlFor="description">Descripción breve del comercio</FieldLabel>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 min-h-[80px]"
-            maxLength={250}
-            placeholder="Ej: Venta de ropa vintage y accesorios en mercados locales..."
-          />
-        </Field>
+      <Field>
+        <FieldLabel htmlFor="description">Descripción breve del comercio</FieldLabel>
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full rounded-md border px-3 py-2 min-h-[80px]"
+          maxLength={250}
+          placeholder="Ej: Venta de ropa vintage y accesorios en mercados locales..."
+        />
+      </Field>
 
-        <Field>
-          <FieldLabel htmlFor="vision">Visión (opcional)</FieldLabel>
-          <textarea
-            id="vision"
-            value={vision}
-            onChange={(e) => setVision(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 min-h-[60px]"
-            maxLength={300}
-            placeholder="Ser la plataforma líder regional para revendedores locales..."
-          />
-        </Field>
+      <Field>
+        <FieldLabel htmlFor="vision">Visión (opcional)</FieldLabel>
+        <textarea
+          id="vision"
+          value={vision}
+          onChange={(e) => setVision(e.target.value)}
+          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          maxLength={300}
+          placeholder="Ser la plataforma líder regional para revendedores locales..."
+        />
+      </Field>
 
-        <Field>
-          <FieldLabel htmlFor="mission">Misión (opcional)</FieldLabel>
-          <textarea
-            id="mission"
-            value={mission}
-            onChange={(e) => setMission(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 min-h-[60px]"
-            maxLength={300}
-            placeholder="Facilitar la gestión y venta a comercios informales para incrementar sus ingresos..."
-          />
-        </Field>
-      </div>
+      <Field>
+        <FieldLabel htmlFor="mission">Misión (opcional)</FieldLabel>
+        <textarea
+          id="mission"
+          value={mission}
+          onChange={(e) => setMission(e.target.value)}
+          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          maxLength={300}
+          placeholder="Facilitar la gestión y venta a comercios informales para incrementar sus ingresos..."
+        />
+      </Field>
 
       <div className="flex justify-between">
         <Button variant="outline" type="button" onClick={() => onBack?.()}>
