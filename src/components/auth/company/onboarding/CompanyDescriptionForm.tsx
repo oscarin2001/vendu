@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
+import { saveOnboardingData, getOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 
 interface CompanyDescriptionFormProps {
   initialData?: {
@@ -34,7 +34,9 @@ export function CompanyDescriptionForm({
   useEffect(() => {
     const payload = { description, vision, mission };
     onDataChange?.(payload);
-    saveOnboardingData({ company: payload as any });
+    // merge into existing company data in session
+    const existing = getOnboardingData();
+    saveOnboardingData({ company: { ...(existing.company || {}), ...payload } as any });
   }, [description, vision, mission, onDataChange]);
 
   const handleSubmit = async (e: React.FormEvent) => {

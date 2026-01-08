@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
-import CompanyDetailsCard from "./CompanyDetailsCard";
+import { CompanyFields } from "./CompanyFields";
+import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 
 interface CompanyNameFormProps {
   initialData?: {
@@ -37,15 +38,25 @@ export function CompanyNameForm({
   onNext = () => {},
 }: CompanyNameFormProps) {
   const [isPending, setIsPending] = useState(false);
-  const [name, setName] = useState(initialData.name || "");
-  const [country, setCountry] = useState(initialData.country || "");
-  const [phone, setPhone] = useState(initialData.phone || "");
-  const [department, setDepartment] = useState<string | undefined>(
-    initialData.department || ""
-  );
-  const [commerceType, setCommerceType] = useState<string | undefined>(
-    initialData.commerceType || ""
-  );
+  // use the new hook to manage company fields
+  const {
+    name,
+    country,
+    phone,
+    department,
+    commerceType,
+    openedAt,
+    errors: formErrors,
+    setName,
+    setCountry,
+    setPhone,
+    setDepartment,
+    setCommerceType,
+    setOpenedAt,
+    validateForm,
+    getFormData,
+  } = useCompanyForm(initialData);
+
   const [description, setDescription] = useState<string | undefined>(
     initialData.description || ""
   );
@@ -54,9 +65,6 @@ export function CompanyNameForm({
   );
   const [mission, setMission] = useState<string | undefined>(
     initialData.mission || ""
-  );
-  const [openedAt, setOpenedAt] = useState<string | undefined>(
-    initialData.openedAt || ""
   );
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [phonePlaceholder, setPhonePlaceholder] =
@@ -68,7 +76,7 @@ export function CompanyNameForm({
     country?: string;
     phone?: string;
     openedAt?: string;
-  }>({});
+  }>(formErrors || {});
 
   // Save data whenever it changes (persist onboarding session)
   useEffect(() => {
@@ -98,6 +106,8 @@ export function CompanyNameForm({
         openedAt,
       },
     });
+    // keep local form errors in sync with hook errors
+    setErrors(formErrors || {});
   }, [
     name,
     country,
@@ -109,6 +119,7 @@ export function CompanyNameForm({
     mission,
     openedAt,
     onDataChange,
+    formErrors,
   ]);
 
   const validateForm = () => {
@@ -162,7 +173,7 @@ export function CompanyNameForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <CompanyDetailsCard
+      <CompanyFields
         name={name}
         setName={setName}
         country={country}
@@ -177,15 +188,9 @@ export function CompanyNameForm({
         setPhonePlaceholder={setPhonePlaceholder}
         commerceType={commerceType}
         setCommerceType={setCommerceType}
-        description={description}
-        setDescription={setDescription}
-        vision={vision}
-        setVision={setVision}
-        mission={mission}
-        setMission={setMission}
         openedAt={openedAt}
         setOpenedAt={setOpenedAt}
-        openedAtError={errors.openedAt}
+        errors={errors}
       />
 
       <div className="flex justify-end">
