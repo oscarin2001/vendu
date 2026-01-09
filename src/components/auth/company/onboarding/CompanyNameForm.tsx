@@ -156,7 +156,10 @@ export function CompanyNameForm({
     // Validate company name uniqueness
     setIsPending(true);
     try {
+      console.log("Frontend: Validating company name:", name);
       const result = await validateCompanyNameAction(name);
+      console.log("Frontend: Validation result:", result);
+
       if (!result.success) {
         setErrors((prev) => ({
           ...prev,
@@ -166,6 +169,7 @@ export function CompanyNameForm({
       }
 
       if (!result.isAvailable) {
+        console.log("Frontend: Company name not available, setting error");
         setErrors((prev) => ({
           ...prev,
           name: "Ya existe una empresa con ese nombre",
@@ -173,6 +177,7 @@ export function CompanyNameForm({
         return;
       }
 
+      console.log("Frontend: Company name is available, proceeding");
       onNext?.();
     } finally {
       setIsPending(false);

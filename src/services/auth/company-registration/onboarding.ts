@@ -18,20 +18,33 @@ interface CreateCompanyData {
 }
 
 export async function validateCompanyName(name: string): Promise<boolean> {
+  console.log("validateCompanyName: Called with name:", name);
+
   if (!name || name.trim().length === 0) {
+    console.log("validateCompanyName: Name is empty");
     return false;
   }
 
+  console.log("validateCompanyName: Fetching existing companies");
   const existingNames = await prisma.tbcompanies.findMany({
     select: { name: true },
   });
 
+  console.log("validateCompanyName: Existing companies count:", existingNames.length);
+  console.log("validateCompanyName: Existing company names:", existingNames.map(c => c.name));
+
   const normalizedName = name.toLocaleLowerCase().trim();
+  console.log("validateCompanyName: Normalized input name:", normalizedName);
+
   const hasInsensitiveMatch = existingNames.some(
     (item) => item.name.toLocaleLowerCase() === normalizedName
   );
 
-  return !hasInsensitiveMatch;
+  console.log("validateCompanyName: Has match:", hasInsensitiveMatch);
+  const result = !hasInsensitiveMatch;
+  console.log("validateCompanyName: Returning (isAvailable):", result);
+
+  return result;
 }
 
 export async function createCompany(data: CreateCompanyData) {
