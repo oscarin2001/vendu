@@ -5,6 +5,7 @@ import { OwnerFields } from "./components/OwnerFields";
 import { OwnerActions } from "./components/OwnerActions";
 import { useOwnerForm, OwnerFormData } from "./hooks/useOwnerForm";
 import { saveOwnerData } from "@/services/auth/company-registration/onboarding/actions";
+import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
 
 interface OwnerFormProps {
   initialData?: Partial<OwnerFormData>;
@@ -41,6 +42,7 @@ export function OwnerForm({
     setPhone,
     setCi,
     setGender,
+    setErrors,
     handlePhoneChange,
     validateForm,
     getFormData,
@@ -53,9 +55,20 @@ export function OwnerForm({
     }
 
     // extra phone validation from PhoneInput
+    const phoneMessage = getPhoneMissingDigitsMessage(
+      phone,
+      companyCountry || ""
+    );
+    if (phoneMessage) {
+      setErrors((prev) => ({ ...prev, phone: phoneMessage }));
+      return;
+    }
+
     if (phoneValid === false) {
-      // Set error in the hook's state
-      // This will be handled by the OwnerFields component
+      setErrors((prev) => ({
+        ...prev,
+        phone: "El celular tiene formato inválido para el país seleccionado",
+      }));
       return;
     }
 

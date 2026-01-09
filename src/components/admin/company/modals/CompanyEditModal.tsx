@@ -29,7 +29,11 @@ export function CompanyEditModal({
         name: company.name,
         taxId: company.taxId,
         country: company.country,
-        address: "", // TODO: Add address field to company model if needed
+        department: company.department,
+        commerceType: company.commerceType,
+        description: company.description,
+        vision: company.vision,
+        mission: company.mission,
       }
     : undefined;
 

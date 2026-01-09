@@ -23,7 +23,7 @@ import {
   PhoneInput,
   COUNTRIES as PHONE_COUNTRIES,
 } from "@/components/ui/phone-input";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "@/services/admin/config";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 import { parseISOToLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";

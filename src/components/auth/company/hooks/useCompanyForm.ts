@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { parseISO, isValid as isValidDate } from "date-fns";
-import { getPhoneMissingDigitsMessage } from "../onboarding/phone-validation";
+import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
 
 export interface CompanyFormData {
   name: string;

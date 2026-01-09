@@ -45,9 +45,6 @@ export function useOwnerForm(
 
     if (!phone.trim()) {
       newErrors.phone = "El celular es requerido";
-    } else if (phoneValid === false) {
-      newErrors.phone =
-        "El celular tiene formato inválido para el país seleccionado";
     } else if (phone.replace(/\D/g, "").length < 8) {
       newErrors.phone = "El celular debe tener al menos 8 dígitos";
     }
@@ -109,6 +106,7 @@ export function useOwnerForm(
     setPhone: setPhoneValue,
     setCi,
     setGender,
+    setErrors,
     handlePhoneChange,
     validateForm,
     getFormData,

@@ -6,7 +6,7 @@ import { saveOnboardingData } from "@/services/auth/company-registration/onboard
 import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
-import { getPhoneMissingDigitsMessage } from "./phone-validation";
+import { getPhoneMissingDigitsMessage } from "@/services/admin/config/validations/phone-validation";
 
 interface CompanyNameFormProps {
   initialData?: {

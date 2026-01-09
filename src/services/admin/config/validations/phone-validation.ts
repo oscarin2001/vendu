@@ -1,4 +1,4 @@
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "../types/countries";
 
 export function getPhoneMissingDigitsMessage(
   phone: string,

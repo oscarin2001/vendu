@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "@/services/admin/config";
 import { OwnerFormErrors } from "../hooks/useOwnerForm";
 
 interface OwnerFieldsProps {

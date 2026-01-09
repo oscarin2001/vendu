@@ -10,6 +10,7 @@ import {
   FileText,
   ArrowRight,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 
 interface ConfirmationProps {
@@ -34,6 +35,12 @@ export function Confirmation({
       status: "success",
     },
     {
+      icon: FileText,
+      label: "Detalles",
+      value: data.companyName?.description ? "Completados" : "Pendientes",
+      status: data.companyName?.description ? "success" : "warning",
+    },
+    {
       icon: User,
       label: "Responsable",
       value:
@@ -41,12 +48,17 @@ export function Confirmation({
         "No especificado",
       status: "success",
     },
-
     {
       icon: FileText,
       label: "Datos Fiscales",
       value: data.fiscal?.taxId ? "Configurados" : "Pendientes",
       status: data.fiscal?.taxId ? "success" : "warning",
+    },
+    {
+      icon: ShieldCheck,
+      label: "Términos",
+      value: data.legal?.tosAccepted ? "Aceptados" : "Pendientes",
+      status: data.legal?.tosAccepted ? "success" : "warning",
     },
   ];
 

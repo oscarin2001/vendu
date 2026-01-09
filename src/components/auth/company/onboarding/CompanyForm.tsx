@@ -6,7 +6,7 @@ import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { CompanyActions } from "./CompanyActions";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
-import { getPhoneMissingDigitsMessage } from "./phone-validation";
+import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
 
 interface CompanyFormProps {
   initialData?: {
@@ -101,16 +101,8 @@ export function CompanyForm({
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
-    const message = getPhoneMissingDigitsMessage(value, country);
-    if (forcePhoneValidation) {
-      setErrors((prev) => {
-        if (message) return { ...prev, phone: message };
-        return prev.phone ? { ...prev, phone: undefined } : prev;
-      });
-      setForcePhoneValidation(Boolean(message));
-    } else {
-      setErrors((prev) => (prev.phone ? { ...prev, phone: undefined } : prev));
-    }
+    // Remove any existing phone error when user starts typing
+    setErrors((prev) => (prev.phone ? { ...prev, phone: undefined } : prev));
   };
 
   const handlePhoneValidChange = (valid: boolean) => {

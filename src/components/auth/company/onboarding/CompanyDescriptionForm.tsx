@@ -7,7 +7,7 @@ import {
   saveOnboardingData,
   getOnboardingData,
 } from "@/services/auth/company-registration/onboarding/session";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "@/services/admin/config";
 
 interface CompanyDescriptionFormProps {
   initialData?: {

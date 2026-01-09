@@ -7,7 +7,7 @@ import {
   PhoneInput,
   COUNTRIES as PHONE_COUNTRIES,
 } from "@/components/ui/phone-input";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "@/services/admin/config";
 
 export default function CompanyContactFields({
   name,

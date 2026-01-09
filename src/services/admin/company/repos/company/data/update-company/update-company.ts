@@ -6,6 +6,11 @@ export async function updateCompany(
     name?: string;
     taxId?: string | null;
     country?: string | null;
+    department?: string | null;
+    commerceType?: string | null;
+    description?: string | null;
+    vision?: string | null;
+    mission?: string | null;
   }
 ) {
   return await prisma.tbcompanies.update({

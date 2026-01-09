@@ -36,5 +36,10 @@ export async function updateCompany(tenantId: string, data: UpdateCompanyData) {
     slug: company.slug,
     taxId: company.taxId,
     country: company.country,
+    department: company.department,
+    commerceType: company.commerceType,
+    description: company.description,
+    vision: company.vision,
+    mission: company.mission,
   };
 }

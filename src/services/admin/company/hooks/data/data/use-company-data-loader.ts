@@ -43,8 +43,19 @@ export function useCompanyDataLoader(
         taxId: companyData.taxId || "",
         country: companyData.country || "",
         slug: companyData.slug,
+        department: companyData.department || undefined,
+        commerceType: companyData.commerceType || undefined,
+        description: companyData.description || undefined,
+        vision: companyData.vision || undefined,
+        mission: companyData.mission || undefined,
+        openedAt: companyData.openedAt || undefined,
         createdAt: companyData.createdAt,
-        updatedAt: companyData.createdAt, // TODO: Add updatedAt to service if needed
+        owner: companyData.owner ? {
+          id: companyData.owner.id,
+          firstName: companyData.owner.firstName,
+          lastName: companyData.owner.lastName,
+          phone: companyData.owner.phone || undefined,
+        } : undefined,
       };
 
       setCompany(transformedCompany);

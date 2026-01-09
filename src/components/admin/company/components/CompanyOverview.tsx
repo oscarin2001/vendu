@@ -5,7 +5,10 @@ import { Building2 } from "lucide-react";
 import { CompanyData, SubscriptionData } from "@/services/admin/company";
 import {
   CompanyOverviewHeader,
-  CompanyBasicInfo,
+  CompanyBasicCard,
+  CompanyFiscalCard,
+  CompanyDescriptionCard,
+  CompanyOwnerCard,
   CompanySubscriptionInfo,
   CompanyAuditInfo,
 } from "./components";
@@ -64,17 +67,31 @@ export function CompanyOverview({
   }
 
   return (
-    <Card>
-      <CompanyOverviewHeader onViewDetails={onViewDetails} onEdit={onEdit} />
-      <CardContent className="space-y-6">
-        <CompanyBasicInfo company={company} />
+    <div className="space-y-6">
+      <CompanyBasicCard company={company} />
+      <CompanyFiscalCard company={company} />
+      <CompanyDescriptionCard company={company} />
+      <CompanyOwnerCard company={company} />
 
-        {subscription && (
-          <CompanySubscriptionInfo subscription={subscription} />
-        )}
+      {subscription && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Suscripción</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CompanySubscriptionInfo subscription={subscription} />
+          </CardContent>
+        </Card>
+      )}
 
-        <CompanyAuditInfo company={company} />
-      </CardContent>
-    </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Información de Auditoría</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CompanyAuditInfo company={company} />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

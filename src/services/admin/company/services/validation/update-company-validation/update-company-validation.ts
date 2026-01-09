@@ -7,6 +7,11 @@ export const updateCompanySchema = z.object({
   name: z.string().min(1, "Company name is required"),
   taxId: z.string().optional(),
   country: z.string().optional(),
+  department: z.string().optional(),
+  commerceType: z.string().optional(),
+  description: z.string().optional(),
+  vision: z.string().optional(),
+  mission: z.string().optional(),
 });
 
 /**

@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCountryConfigByName } from "@/services/admin/config/countries";
+import { getCountryConfigByName } from "@/services/admin/config";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
 import { cn, formatPhonePattern } from "@/lib/utils";
 import type { CompanyFormErrors } from "@/components/auth/company/hooks/useCompanyForm";
