@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 import {
   DropdownMenu,
@@ -67,19 +67,29 @@ export function PhoneInput({
   const [country, setCountry] = useState<string>(initialCountry);
   const [local, setLocal] = useState<string>("");
   const [localMax, setLocalMax] = useState<number>(initialLocalMax);
+  const [validationEnabled, setValidationEnabled] = useState<boolean>(true);
   const lastPropRef = useRef<string | null>(null);
   // keep track of last value we notified the parent about to avoid cycles
   const lastNotifiedRef = useRef<string | null>(null);
 
   // When fixed props change, update internal state
-  useEffect(() => {
-    if (fixedCountryCode) {
+  useLayoutEffect(() => {
+    let changed = false;
+    if (fixedCountryCode && fixedCountryCode !== country) {
       setCountry(fixedCountryCode);
+      changed = true;
     }
-    if (typeof fixedLocalMax === "number") {
+    if (typeof fixedLocalMax === "number" && fixedLocalMax !== localMax) {
       setLocalMax(fixedLocalMax);
+      changed = true;
     }
-  }, [fixedCountryCode, fixedLocalMax]);
+    if (changed) {
+      // Temporarily disable validation to prevent flash of error
+      setValidationEnabled(false);
+      const timeout = window.setTimeout(() => setValidationEnabled(true), 100);
+      return () => window.clearTimeout(timeout);
+    }
+  }, [fixedCountryCode, fixedLocalMax, country, localMax]);
 
   useEffect(() => {
     const digits = (value || "").replace(/\D/g, "");
@@ -181,7 +191,10 @@ export function PhoneInput({
   };
 
   const isInvalid =
-    showValidation && local.length > 0 && local.length !== localMax;
+    showValidation &&
+    validationEnabled &&
+    local.length > 0 &&
+    local.length !== localMax;
 
   return (
     <div className={`flex flex-col w-full ${className}`}>
@@ -237,11 +250,14 @@ export function PhoneInput({
         />
       </div>
 
-      {showValidation && local.length > 0 && local.length !== localMax && (
-        <p className="mt-1 text-xs text-red-600">{`Faltan ${
-          localMax - local.length
-        } dígitos`}</p>
-      )}
+      {showValidation &&
+        validationEnabled &&
+        local.length > 0 &&
+        local.length !== localMax && (
+          <p className="mt-1 text-xs text-red-600">{`Faltan ${
+            localMax - local.length
+          } dígitos`}</p>
+        )}
 
       {/* Format hint (per-country) */}
       {showFormatHint && !placeholder && (

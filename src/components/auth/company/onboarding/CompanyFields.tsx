@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/Input";
 import { PhoneInput } from "@/components/ui/phone-input";
@@ -35,6 +36,7 @@ interface CompanyFieldsProps {
   setPhone: (v: string) => void;
   phoneValid?: boolean | null;
   setPhoneValid?: (v: boolean) => void;
+  forcePhoneValidation?: boolean;
   department?: string;
   setDepartment?: (v: string) => void;
   phonePlaceholder?: string;
@@ -55,6 +57,7 @@ export function CompanyFields({
   setPhone,
   phoneValid,
   setPhoneValid,
+  forcePhoneValidation = false,
   department,
   setDepartment,
   phonePlaceholder,
@@ -65,6 +68,7 @@ export function CompanyFields({
   setOpenedAt,
   errors = {},
 }: CompanyFieldsProps) {
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const countryConfig = getCountryConfigByName(country);
   const departments = countryConfig?.departments ?? [];
 
@@ -73,6 +77,7 @@ export function CompanyFields({
   const handleCountryChange = (val: string | null) => {
     const next = val || "";
     setCountry(next);
+    setPhoneTouched(false);
     const found = PHONE_COUNTRIES.find(
       (c) =>
         c.name
@@ -93,6 +98,8 @@ export function CompanyFields({
   const handleDepartmentSelect = (value: string) => {
     setDepartment?.(value);
   };
+
+  const shouldShowValidation = phoneTouched || forcePhoneValidation;
 
   return (
     <>
@@ -129,6 +136,9 @@ export function CompanyFields({
             onChange={(val: string, valid: boolean) => {
               setPhone(val);
               setPhoneValid?.(valid);
+              if (!phoneTouched) {
+                setPhoneTouched(true);
+              }
             }}
             placeholder={
               countryConfig
@@ -141,6 +151,7 @@ export function CompanyFields({
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect
             showFormatHint={!countryConfig}
+            showValidation={shouldShowValidation}
           />
           {errors.phone && (
             <p className="text-sm text-red-600 mt-1">{errors.phone}</p>

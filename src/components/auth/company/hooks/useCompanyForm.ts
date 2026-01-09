@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { parseISO, isValid as isValidDate } from "date-fns";
+import { getPhoneMissingDigitsMessage } from "../onboarding/phone-validation";
 
 export interface CompanyFormData {
   name: string;
@@ -41,8 +42,10 @@ export function useCompanyForm(
     if (!country) newErrors.country = "Debe seleccionar un país";
 
     if (!phone.trim()) newErrors.phone = "El celular es requerido";
-    else if (phone.replace(/\D/g, "").length < 8)
-      newErrors.phone = "El celular debe tener al menos 8 dígitos";
+    else {
+      const message = getPhoneMissingDigitsMessage(phone, country);
+      if (message) newErrors.phone = message;
+    }
 
     if (!openedAt) {
       newErrors.openedAt = "Indica la fecha de apertura física";
@@ -87,6 +90,10 @@ export function useCompanyForm(
     onDataChange,
     getFormData,
   ]);
+
+  React.useEffect(() => {
+    setErrors((prev) => (prev.phone ? { ...prev, phone: undefined } : prev));
+  }, [phone]);
 
   return {
     name,

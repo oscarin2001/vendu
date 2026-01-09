@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getCountryConfigByName } from "@/services/admin/config/countries";
 import { OwnerFormErrors } from "../hooks/useOwnerForm";
 
 interface OwnerFieldsProps {
@@ -22,7 +23,7 @@ interface OwnerFieldsProps {
   errors: OwnerFormErrors;
   onFirstNameChange: (value: string) => void;
   onLastNameChange: (value: string) => void;
-  onPhoneChange: (value: string) => void;
+  onPhoneChange: (value: string, valid?: boolean) => void;
   onCiChange: (value: string) => void;
   onGenderChange: (value: string) => void;
   companyCountry?: string;
@@ -42,50 +43,14 @@ export function OwnerFields({
   onGenderChange,
   companyCountry,
 }: OwnerFieldsProps) {
-  const fixedCountryCode = companyCountry
-    ? COUNTRIES.find(
-        (c) =>
-          c.name
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase() ===
-          companyCountry
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase()
-      )?.code
-    : undefined;
+  const countryConfig = getCountryConfigByName(companyCountry || "");
 
-  const fixedLocalMax = companyCountry
-    ? COUNTRIES.find(
-        (c) =>
-          c.name
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase() ===
-          companyCountry
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase()
-      )?.local
-    : undefined;
+  const fixedCountryCode = countryConfig?.phone?.prefix;
+  const fixedLocalMax = countryConfig?.phone?.local;
 
-  const countryConfig = companyCountry
-    ? COUNTRIES.find(
-        (c) =>
-          c.name
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase() ===
-          companyCountry
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase()
-      )
-    : undefined;
-
-  const phonePlaceholder = countryConfig
-    ? countryConfig.phone?.format || formatPhonePattern(countryConfig.phone.local)
+  const phonePlaceholder = countryConfig?.phone
+    ? countryConfig.phone.format ||
+      formatPhonePattern(countryConfig.phone.local)
     : "59112345678";
   return (
     <>
@@ -133,7 +98,9 @@ export function OwnerFields({
         <FieldLabel htmlFor="phone">Celular</FieldLabel>
         <PhoneInput
           value={phone}
-          onChange={(val) => onPhoneChange(val)}
+          onChange={(val: string, valid: boolean) => {
+            onPhoneChange(val, valid);
+          }}
           placeholder={phonePlaceholder}
           required
           fixedCountryCode={fixedCountryCode}

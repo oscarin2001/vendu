@@ -6,6 +6,7 @@ import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { CompanyActions } from "./CompanyActions";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
+import { getPhoneMissingDigitsMessage } from "./phone-validation";
 
 interface CompanyFormProps {
   initialData?: {
@@ -61,6 +62,7 @@ export function CompanyForm({
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [phonePlaceholder, setPhonePlaceholder] =
     useState<string>("59112345678");
+  const [forcePhoneValidation, setForcePhoneValidation] = useState(false);
 
   const [errors, setErrors] = useState(formErrors || {});
 
@@ -97,6 +99,30 @@ export function CompanyForm({
     formErrors,
   ]);
 
+  const handlePhoneChange = (value: string) => {
+    setPhone(value);
+    const message = getPhoneMissingDigitsMessage(value, country);
+    if (forcePhoneValidation) {
+      setErrors((prev) => {
+        if (message) return { ...prev, phone: message };
+        return prev.phone ? { ...prev, phone: undefined } : prev;
+      });
+      setForcePhoneValidation(Boolean(message));
+    } else {
+      setErrors((prev) => (prev.phone ? { ...prev, phone: undefined } : prev));
+    }
+  };
+
+  const handlePhoneValidChange = (valid: boolean) => {
+    setPhoneValid(valid);
+    if (valid) {
+      setErrors((prev) => (prev.phone ? { ...prev, phone: undefined } : prev));
+      setForcePhoneValidation(false);
+    } else {
+      setForcePhoneValidation(true);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -105,16 +131,18 @@ export function CompanyForm({
     if (!isValid) return;
 
     // extra phone validation from PhoneInput
+    const phoneMessage = getPhoneMissingDigitsMessage(phone, country);
+    if (phoneMessage) {
+      setForcePhoneValidation(true);
+      setErrors((prev) => ({ ...prev, phone: phoneMessage }));
+      return;
+    }
+
     if (phoneValid === false) {
+      setForcePhoneValidation(true);
       setErrors((prev) => ({
         ...prev,
         phone: "El celular tiene formato inválido para el país seleccionado",
-      }));
-      return;
-    } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
-      setErrors((prev) => ({
-        ...prev,
-        phone: "El celular debe tener al menos 8 dígitos",
       }));
       return;
     }
@@ -154,9 +182,10 @@ export function CompanyForm({
         country={country}
         setCountry={setCountry}
         phone={phone}
-        setPhone={setPhone}
+        setPhone={handlePhoneChange}
         phoneValid={phoneValid}
-        setPhoneValid={setPhoneValid}
+        setPhoneValid={handlePhoneValidChange}
+        forcePhoneValidation={forcePhoneValidation}
         department={department}
         setDepartment={setDepartment}
         phonePlaceholder={phonePlaceholder}

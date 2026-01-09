@@ -23,6 +23,7 @@ export function useOwnerForm(
   const [firstName, setFirstName] = useState(initialData.firstName || "");
   const [lastName, setLastName] = useState(initialData.lastName || "");
   const [phone, setPhone] = useState(initialData.phone || "");
+  const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [ci, setCi] = useState(initialData.ci || "");
   const [gender, setGender] = useState(initialData.gender || "");
   const [errors, setErrors] = useState<OwnerFormErrors>({});
@@ -44,6 +45,9 @@ export function useOwnerForm(
 
     if (!phone.trim()) {
       newErrors.phone = "El celular es requerido";
+    } else if (phoneValid === false) {
+      newErrors.phone =
+        "El celular tiene formato inválido para el país seleccionado";
     } else if (phone.replace(/\D/g, "").length < 8) {
       newErrors.phone = "El celular debe tener al menos 8 dígitos";
     }
@@ -80,18 +84,32 @@ export function useOwnerForm(
     }
   }, [firstName, lastName, phone, ci, gender, onDataChange, getFormData]);
 
+  const handlePhoneChange = useCallback((value: string, valid?: boolean) => {
+    setPhone(value);
+    if (valid !== undefined) {
+      setPhoneValid(valid);
+    }
+  }, []);
+
+  const setPhoneValue = useCallback((value: string) => {
+    setPhone(value);
+    setPhoneValid(null); // Reset validation when manually setting
+  }, []);
+
   return {
     firstName,
     lastName,
     phone,
+    phoneValid,
     ci,
     gender,
     errors,
     setFirstName,
     setLastName,
-    setPhone,
+    setPhone: setPhoneValue,
     setCi,
     setGender,
+    handlePhoneChange,
     validateForm,
     getFormData,
   };

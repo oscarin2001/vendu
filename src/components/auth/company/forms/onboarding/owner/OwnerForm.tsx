@@ -32,6 +32,7 @@ export function OwnerForm({
     firstName,
     lastName,
     phone,
+    phoneValid,
     ci,
     gender,
     errors,
@@ -40,6 +41,7 @@ export function OwnerForm({
     setPhone,
     setCi,
     setGender,
+    handlePhoneChange,
     validateForm,
     getFormData,
   } = useOwnerForm(initialData, onDataChange);
@@ -47,6 +49,13 @@ export function OwnerForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
+      return;
+    }
+
+    // extra phone validation from PhoneInput
+    if (phoneValid === false) {
+      // Set error in the hook's state
+      // This will be handled by the OwnerFields component
       return;
     }
 
@@ -74,7 +83,7 @@ export function OwnerForm({
         errors={errors}
         onFirstNameChange={setFirstName}
         onLastNameChange={setLastName}
-        onPhoneChange={setPhone}
+        onPhoneChange={handlePhoneChange}
         onCiChange={setCi}
         onGenderChange={setGender}
         companyCountry={companyCountry}
