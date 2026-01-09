@@ -3,6 +3,7 @@
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/Input";
 import { PhoneInput, COUNTRIES } from "@/components/ui/phone-input";
+import { formatPhonePattern } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -68,6 +69,24 @@ export function OwnerFields({
             .toLowerCase()
       )?.local
     : undefined;
+
+  const countryConfig = companyCountry
+    ? COUNTRIES.find(
+        (c) =>
+          c.name
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase() ===
+          companyCountry
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase()
+      )
+    : undefined;
+
+  const phonePlaceholder = countryConfig
+    ? countryConfig.phone?.format || formatPhonePattern(countryConfig.phone.local)
+    : "59112345678";
   return (
     <>
       <Field>
@@ -115,11 +134,12 @@ export function OwnerFields({
         <PhoneInput
           value={phone}
           onChange={(val) => onPhoneChange(val)}
-          placeholder="59112345678"
+          placeholder={phonePlaceholder}
           required
           fixedCountryCode={fixedCountryCode}
           fixedLocalMax={fixedLocalMax}
           hideCountrySelect={true}
+          showFormatHint={!countryConfig}
         />
         {errors.phone && (
           <p className="text-sm text-red-600 mt-1">{errors.phone}</p>

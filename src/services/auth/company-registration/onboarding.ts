@@ -27,6 +27,7 @@ export async function validateCompanyName(name: string): Promise<boolean> {
   });
 
   const normalizedName = name.toLocaleLowerCase().trim();
+
   const hasInsensitiveMatch = existingNames.some(
     (item) => item.name.toLocaleLowerCase() === normalizedName
   );
@@ -52,6 +53,12 @@ export async function createCompany(data: CreateCompanyData) {
 
   if (!name || !country || !openedAt) {
     throw new Error("Datos incompletos");
+  }
+
+  // Server-side guard to avoid duplicate names in case the UI validation is skipped
+  const isAvailable = await validateCompanyName(name);
+  if (!isAvailable) {
+    throw new Error("Ya existe una empresa con ese nombre");
   }
 
   const slug = await generateUniqueSlug(name);

@@ -258,11 +258,8 @@ export default function RegisterCompanyForm() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src="/placeholder.svg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+        <div className="absolute inset-0 h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,#60a5fa_0,transparent_30%),radial-gradient(circle_at_80%_0%,#a78bfa_0,transparent_25%),radial-gradient(circle_at_50%_80%,#f472b6_0,transparent_30%)]" />
       </div>
     </div>
   );

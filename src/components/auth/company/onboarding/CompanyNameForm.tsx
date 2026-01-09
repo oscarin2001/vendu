@@ -138,25 +138,26 @@ export function CompanyNameForm({
     const isValid = validateForm();
     if (!isValid) return;
 
-    // Extra phone validity checks based on PhoneInput
+    // Extra phone validity checks - don't return, just show error
     if (phoneValid === false) {
       setErrors((prev) => ({
         ...prev,
         phone: "El celular tiene formato inválido para el país seleccionado",
       }));
-      return;
+      // Don't return - allow name validation to proceed
     } else if (!phoneValid && phone.replace(/\D/g, "").length < 8) {
       setErrors((prev) => ({
         ...prev,
         phone: "El celular debe tener al menos 8 dígitos",
       }));
-      return;
+      // Don't return - allow name validation to proceed
     }
 
     // Validate company name uniqueness
     setIsPending(true);
     try {
       const result = await validateCompanyNameAction(name);
+
       if (!result.success) {
         setErrors((prev) => ({
           ...prev,

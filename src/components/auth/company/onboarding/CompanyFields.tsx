@@ -137,7 +137,6 @@ export function CompanyFields({
                 : phonePlaceholder
             }
             required
-            showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect

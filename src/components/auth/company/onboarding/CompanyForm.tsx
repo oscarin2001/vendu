@@ -5,6 +5,7 @@ import { saveOnboardingData } from "@/services/auth/company-registration/onboard
 import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { CompanyActions } from "./CompanyActions";
+import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
 
 interface CompanyFormProps {
   initialData?: {
@@ -96,7 +97,7 @@ export function CompanyForm({
     formErrors,
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Use validation from the hook
@@ -118,9 +119,31 @@ export function CompanyForm({
       return;
     }
 
+    // Validate company name uniqueness
     setIsPending(true);
-    onNext?.();
-    setIsPending(false);
+    try {
+      const result = await validateCompanyNameAction(name);
+
+      if (!result.success) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Error al validar el nombre de la empresa",
+        }));
+        return;
+      }
+
+      if (!result.isAvailable) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Ya existe una empresa con ese nombre",
+        }));
+        return;
+      }
+
+      onNext?.();
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
