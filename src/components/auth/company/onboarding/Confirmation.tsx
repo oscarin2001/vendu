@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,6 +13,8 @@ import {
   Sparkles,
   ShieldCheck,
 } from "lucide-react";
+import { createCompanyFromOnboardingAction } from "@/services/auth/company-registration/onboarding/actions";
+import { toast } from "sonner";
 
 interface ConfirmationProps {
   data?: any;
@@ -26,7 +29,23 @@ export function Confirmation({
   onBack = () => {},
   tenantId = "",
 }: ConfirmationProps) {
-  const router = useRouter();
+  const handleComplete = () => {
+    startTransition(async () => {
+      try {
+        const result = await createCompanyFromOnboardingAction();
+        if (result.success) {
+          toast.success("Empresa creada exitosamente");
+          // Redirect to dashboard with the new tenantId
+          const slug = result.company.slug;
+          router.push(`/vendu/dashboard/${slug}/admin/company`);
+        } else {
+          toast.error(result.error || "Error al crear empresa");
+        }
+      } catch (error) {
+        toast.error("Error inesperado");
+      }
+    });
+  };
   const summaryItems = [
     {
       icon: Building2,
@@ -118,13 +137,11 @@ export function Confirmation({
           Atrás
         </Button>
         <Button
-          onClick={() => {
-            onComplete();
-            // Redirection will be handled by the parent component after registration completes
-          }}
+          onClick={handleComplete}
+          disabled={isPending}
           className="bg-emerald-500 hover:bg-emerald-800 px-8"
         >
-          Comenzar
+          {isPending ? "Creando..." : "Comenzar"}
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>

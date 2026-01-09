@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { generateUniqueSlug } from "../../redirection-handler";
+import { createCompanyFromOnboarding } from "./create-company";
 
 export async function saveCompanyData(
   formData: FormData,
@@ -10,6 +11,7 @@ export async function saveCompanyData(
 ) {
   const name = String(formData.get("name") || "").trim();
   const country = String(formData.get("country") || "").trim();
+  const taxId = String(formData.get("taxId") || "").trim() || undefined;
   const department =
     String(formData.get("department") || "").trim() || undefined;
   const commerceType =
@@ -43,6 +45,7 @@ export async function saveCompanyData(
       // casting to any because Prisma client may need regeneration after schema change
       data: {
         name,
+        taxId,
         country,
         department,
         commerceType,
@@ -89,4 +92,15 @@ export async function finalizeOnboarding() {
   // TODO: Create company, branches, employee, subscription in DB
   // Clear session
   redirect("/(dashboard)/1/admin"); // TODO: Get actual tenantId
+}
+
+export async function createCompanyFromOnboardingAction() {
+  try {
+    const result = await createCompanyFromOnboarding();
+    // Clear session after success
+    // TODO: Clear session
+    return { success: true, company: result.company };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 }
