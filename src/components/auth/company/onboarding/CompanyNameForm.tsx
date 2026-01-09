@@ -108,8 +108,15 @@ export function CompanyNameForm({
         openedAt,
       },
     });
-    // keep local form errors in sync with hook errors
-    setErrors(formErrors || {});
+    // keep local form errors in sync with hook errors, but preserve server validation errors
+    setErrors((prevErrors) => ({
+      ...formErrors,
+      // Preserve server validation errors that aren't in formErrors
+      name: formErrors?.name || prevErrors.name,
+      country: formErrors?.country || prevErrors.country,
+      phone: formErrors?.phone || prevErrors.phone,
+      openedAt: formErrors?.openedAt || prevErrors.openedAt,
+    }));
   }, [
     name,
     country,

@@ -1,6 +1,9 @@
 "use server";
 
-import { createCompany, validateCompanyName } from "@/services/auth/company-registration/onboarding";
+import {
+  createCompany,
+  validateCompanyName,
+} from "@/services/auth/company-registration/onboarding";
 import { headers } from "next/headers";
 
 export async function validateCompanyNameAction(name: string) {
@@ -27,7 +30,10 @@ export async function createCompanyAction(data: {
 }) {
   try {
     const headersList = await headers();
-    const ip = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "unknown";
+    const ip =
+      headersList.get("x-forwarded-for") ||
+      headersList.get("x-real-ip") ||
+      "unknown";
     const ua = headersList.get("user-agent") || "unknown";
 
     const company = await createCompany({
