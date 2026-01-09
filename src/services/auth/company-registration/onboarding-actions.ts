@@ -8,14 +8,9 @@ import { headers } from "next/headers";
 
 export async function validateCompanyNameAction(name: string) {
   try {
-    console.log("Server: validateCompanyNameAction called with:", name);
     const isValid = await validateCompanyName(name);
-    console.log("Server: validateCompanyName returned:", isValid);
-    const result = { success: true, isAvailable: isValid };
-    console.log("Server: Returning result:", result);
-    return result;
+    return { success: true, isAvailable: isValid };
   } catch (error: any) {
-    console.error("Server: Validation error:", error);
     return { success: false, error: error.message };
   }
 }
