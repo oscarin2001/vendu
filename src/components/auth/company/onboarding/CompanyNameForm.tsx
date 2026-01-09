@@ -5,6 +5,7 @@ import { CompanyActions } from "./CompanyActions";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 import { CompanyFields } from "./CompanyFields";
 import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
+import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
 
 interface CompanyNameFormProps {
   initialData?: {
@@ -145,9 +146,30 @@ export function CompanyNameForm({
       return;
     }
 
+    // Validate company name uniqueness
     setIsPending(true);
-    onNext?.();
-    setIsPending(false);
+    try {
+      const result = await validateCompanyNameAction(name);
+      if (!result.success) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Error al validar el nombre de la empresa",
+        }));
+        return;
+      }
+
+      if (!result.isAvailable) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Ya existe una empresa con ese nombre",
+        }));
+        return;
+      }
+
+      onNext?.();
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (

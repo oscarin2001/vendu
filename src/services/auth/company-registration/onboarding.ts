@@ -17,6 +17,23 @@ interface CreateCompanyData {
   ua?: string;
 }
 
+export async function validateCompanyName(name: string): Promise<boolean> {
+  if (!name || name.trim().length === 0) {
+    return false;
+  }
+
+  const existingNames = await prisma.tbcompanies.findMany({
+    select: { name: true },
+  });
+
+  const normalizedName = name.toLocaleLowerCase().trim();
+  const hasInsensitiveMatch = existingNames.some(
+    (item) => item.name.toLocaleLowerCase() === normalizedName
+  );
+
+  return !hasInsensitiveMatch;
+}
+
 export async function createCompany(data: CreateCompanyData) {
   const {
     name,
@@ -35,18 +52,6 @@ export async function createCompany(data: CreateCompanyData) {
 
   if (!name || !country || !openedAt) {
     throw new Error("Datos incompletos");
-  }
-
-  const existingNames = await prisma.tbcompanies.findMany({
-    select: { name: true },
-  });
-  const normalizedName = name.toLocaleLowerCase();
-  const hasInsensitiveMatch = existingNames.some(
-    (item) => item.name.toLocaleLowerCase() === normalizedName
-  );
-
-  if (hasInsensitiveMatch) {
-    throw new Error("Ya existe una empresa con ese nombre");
   }
 
   const slug = await generateUniqueSlug(name);

@@ -1,7 +1,16 @@
 "use server";
 
-import { createCompany } from "@/services/auth/company-registration/onboarding";
+import { createCompany, validateCompanyName } from "@/services/auth/company-registration/onboarding";
 import { headers } from "next/headers";
+
+export async function validateCompanyNameAction(name: string) {
+  try {
+    const isValid = await validateCompanyName(name);
+    return { success: true, isAvailable: isValid };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
 
 export async function createCompanyAction(data: {
   name: string;
