@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
-import { generateUniqueSlug } from "../../redirection-handler";
+import { generateUniqueSlug } from "../../../../lib/utils";
 import { createCompanyFromOnboarding } from "./create-company";
 
 export async function saveCompanyData(
@@ -12,6 +12,12 @@ export async function saveCompanyData(
   const name = String(formData.get("name") || "").trim();
   const country = String(formData.get("country") || "").trim();
   const taxId = String(formData.get("taxId") || "").trim() || undefined;
+  const taxIdPath =
+    String(formData.get("taxIdPath") || "").trim() || undefined;
+  const businessName =
+    String(formData.get("businessName") || "").trim() || undefined;
+  const fiscalAddress =
+    String(formData.get("fiscalAddress") || "").trim() || undefined;
   const department =
     String(formData.get("department") || "").trim() || undefined;
   const commerceType =
@@ -20,6 +26,7 @@ export async function saveCompanyData(
     String(formData.get("description") || "").trim() || undefined;
   const vision = String(formData.get("vision") || "").trim() || undefined;
   const mission = String(formData.get("mission") || "").trim() || undefined;
+  const openedAt = String(formData.get("openedAt") || "").trim() || undefined;
   const tosAccepted = String(formData.get("tosAccepted") || "") === "true";
   const tosRead = String(formData.get("tosRead") || "") === "true";
 
@@ -28,17 +35,25 @@ export async function saveCompanyData(
   }
 
   try {
-    // Check if company name already exists
-    const existingCompany = await prisma.tbcompanies.findFirst({
-      where: { name: name },
-    });
-
-    if (existingCompany) {
-      return { success: false, error: "Ya existe una empresa con ese nombre" };
+    // Generate unique slug
+    let slug = generateUniqueSlug(name);
+    let counter = 1;
+    while (await prisma.tbcompanies.findFirst({ where: { slug } })) {
+      slug = `${generateUniqueSlug(name)}-${counter}`;
+      counter++;
     }
 
-    // Generate unique slug
-    const slug = await generateUniqueSlug(name);
+    // Check if slug already exists
+    const existingSlug = await prisma.tbcompanies.findFirst({
+      where: { slug },
+    });
+
+    if (existingSlug) {
+      return {
+        success: false,
+        error: "Ya existe una empresa con un nombre similar",
+      };
+    }
 
     // Create company
     const company = await prisma.tbcompanies.create({
@@ -46,12 +61,16 @@ export async function saveCompanyData(
       data: {
         name,
         taxId,
+        taxIdPath,
+        businessName,
+        fiscalAddress,
         country,
         department,
         commerceType,
         description,
         vision,
         mission,
+        openedAt: openedAt ? new Date(openedAt) : undefined,
         tosRead: tosRead,
         tosReadAt: tosRead ? new Date() : undefined,
         tosAccepted: tosAccepted,
@@ -94,9 +113,9 @@ export async function finalizeOnboarding() {
   redirect("/(dashboard)/1/admin"); // TODO: Get actual tenantId
 }
 
-export async function createCompanyFromOnboardingAction() {
+export async function createCompanyFromOnboardingAction(data: any) {
   try {
-    const result = await createCompanyFromOnboarding();
+    const result = await createCompanyFromOnboarding(data);
     // Clear session after success
     // TODO: Clear session
     return { success: true, company: result.company };

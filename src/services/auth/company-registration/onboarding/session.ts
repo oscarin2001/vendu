@@ -1,5 +1,5 @@
 // TODO: Implement session storage for onboarding data
-// For now, using localStorage as placeholder
+// Using localStorage for client-side
 
 import { OnboardingData } from "./types";
 

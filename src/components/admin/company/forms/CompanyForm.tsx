@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CompanyData } from "@/services/admin/company";
@@ -30,8 +30,12 @@ export function CompanyForm({
   const [taxId, setTaxId] = useState(initialData?.taxId || "");
   const [country, setCountry] = useState(initialData?.country || "");
   const [department, setDepartment] = useState(initialData?.department || "");
-  const [commerceType, setCommerceType] = useState(initialData?.commerceType || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [commerceType, setCommerceType] = useState(
+    initialData?.commerceType || ""
+  );
+  const [description, setDescription] = useState(
+    initialData?.description || ""
+  );
   const [vision, setVision] = useState(initialData?.vision || "");
   const [mission, setMission] = useState(initialData?.mission || "");
 
@@ -128,7 +132,11 @@ export function CompanyForm({
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Actualizar"}
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+            ? "Crear"
+            : "Actualizar"}
         </Button>
       </div>
     </form>

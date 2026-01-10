@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getCompanyByTenant(tenantId: string) {
-  const company = await prisma.tbcompanies.findUnique({
+  const company = (await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
     include: {
       tbsubscriptions: true,
@@ -13,10 +13,15 @@ export async function getCompanyByTenant(tenantId: string) {
           firstName: true,
           lastName: true,
           phone: true,
+          ci: true,
+          birthDate: true,
+          birthYear: true,
+          joinedAt: true,
+          contractEndAt: true,
         },
       },
     },
-  });
+  })) as any;
 
   if (!company) {
     throw new Error("Company not found");
@@ -27,12 +32,15 @@ export async function getCompanyByTenant(tenantId: string) {
     name: company.name,
     slug: company.slug,
     taxId: company.taxId,
+    taxIdPath: company.taxIdPath,
     country: company.country,
     department: company.department,
     commerceType: company.commerceType,
     description: company.description,
     vision: company.vision,
     mission: company.mission,
+    businessName: company.businessName,
+    fiscalAddress: company.fiscalAddress,
     openedAt: company.openedAt,
     createdAt: company.createdAt,
     owner: company.createdBy
@@ -41,6 +49,11 @@ export async function getCompanyByTenant(tenantId: string) {
           firstName: company.createdBy.firstName,
           lastName: company.createdBy.lastName,
           phone: company.createdBy.phone,
+          ci: company.createdBy.ci,
+          birthDate: company.createdBy.birthDate || undefined,
+          birthYear: company.createdBy.birthYear || undefined,
+          joinedAt: company.createdBy.joinedAt || undefined,
+          contractEndAt: company.createdBy.contractEndAt || undefined,
         }
       : null,
     subscription: company.tbsubscriptions

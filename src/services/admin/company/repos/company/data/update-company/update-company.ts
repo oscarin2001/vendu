@@ -5,6 +5,7 @@ export async function updateCompany(
   data: {
     name?: string;
     taxId?: string | null;
+    taxIdPath?: string | null;
     country?: string | null;
     department?: string | null;
     commerceType?: string | null;

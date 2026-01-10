@@ -25,16 +25,17 @@ export async function updateCompany(tenantId: string, data: UpdateCompanyData) {
   }
 
   // Update company
-  const company = await updateCompanyRepo(
+  const company = (await updateCompanyRepo(
     existingCompany.PK_company,
     validatedData
-  );
+  )) as any;
 
   return {
     id: company.PK_company,
     name: company.name,
     slug: company.slug,
     taxId: company.taxId,
+    taxIdPath: company.taxIdPath,
     country: company.country,
     department: company.department,
     commerceType: company.commerceType,

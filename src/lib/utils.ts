@@ -28,3 +28,11 @@ export function formatPhonePattern(len: number): string {
   const groups = buildPhoneGroups(len);
   return groups.map((g) => "X".repeat(g)).join(" ");
 }
+
+// Generate a unique slug from name
+export function generateUniqueSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}

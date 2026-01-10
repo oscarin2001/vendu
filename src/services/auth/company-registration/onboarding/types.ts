@@ -2,6 +2,8 @@ export interface CompanyData {
   name: string;
   country: string;
   phone: string;
+  taxId?: string;
+  taxIdPath?: string;
   department?: string;
   commerceType?: string;
   description?: string;
@@ -20,6 +22,10 @@ export interface OwnerData {
   phone: string;
   ci?: string;
   country: string;
+  gender?: string;
+  birthDate?: string;
+  joinedAt?: string;
+  contractEndAt?: string;
 }
 
 export interface BranchData {
@@ -44,6 +50,7 @@ export interface FiscalData {
   taxId?: string;
   businessName?: string;
   fiscalAddress?: string;
+  taxIdPath?: string;
 }
 
 export interface OnboardingData {

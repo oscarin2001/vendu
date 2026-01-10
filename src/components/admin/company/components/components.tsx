@@ -1,7 +1,9 @@
 import { CompanyData, SubscriptionData } from "@/services/admin/company";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";import { Building2, Edit, Eye, Calendar, User } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2, Edit, Eye, Calendar, User } from "lucide-react";
 
 interface CompanyOverviewHeaderProps {
   onViewDetails: () => void;
@@ -66,7 +68,9 @@ export function CompanyBasicCard({ company }: CompanyBasicInfoProps) {
           )}
           {company.openedAt && (
             <div>
-              <p className="text-sm text-muted-foreground">Fecha de Fundación</p>
+              <p className="text-sm text-muted-foreground">
+                Fecha de Fundación
+              </p>
               <p className="font-medium">
                 {new Date(company.openedAt).toLocaleDateString()}
               </p>
@@ -90,9 +94,21 @@ export function CompanyFiscalCard({ company }: CompanyBasicInfoProps) {
             <p className="text-sm text-muted-foreground">NIT / ID Fiscal</p>
             <p className="font-medium">{company.taxId || "No especificado"}</p>
           </div>
+          {company.businessName && (
+            <div>
+              <p className="text-sm text-muted-foreground">Razón social</p>
+              <p className="font-medium">{company.businessName}</p>
+            </div>
+          )}
+          {company.fiscalAddress && (
+            <div>
+              <p className="text-sm text-muted-foreground">Dirección fiscal</p>
+              <p className="font-medium">{company.fiscalAddress}</p>
+            </div>
+          )}
           <div>
             <p className="text-sm text-muted-foreground">Ruta del NIT</p>
-            <p className="font-medium">No disponible</p>
+            <p className="font-medium">{company.taxIdPath || "No especificado"}</p>
           </div>
         </div>
       </CardContent>
@@ -138,7 +154,7 @@ export function CompanyOwnerCard({ company }: CompanyBasicInfoProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Información del Propietario
+          Fundador / Responsable
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -152,8 +168,31 @@ export function CompanyOwnerCard({ company }: CompanyBasicInfoProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{company.owner.phone || "No especificado"}</p>
+              <p className="font-medium">
+                {company.owner.phone || "No especificado"}
+              </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">CI / ID</p>
+              <p className="font-medium">{company.owner.ci || "No especificado"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Fecha de nacimiento</p>
+              <p className="font-medium">
+                {company.owner.birthDate
+                  ? new Date(company.owner.birthDate).toLocaleDateString()
+                  : company.owner.birthYear || "No especificado"}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Se unió</p>
+              <p className="font-medium">
+                {company.owner.joinedAt
+                  ? new Date(company.owner.joinedAt).toLocaleDateString()
+                  : "No especificado"}
+              </p>
+            </div>
+            {/* Contrato fin removido del onboarding; se oculta en la tarjeta */}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No asignado</p>
@@ -197,7 +236,9 @@ export function CompanyBasicInfo({ company }: CompanyBasicInfoProps) {
           )}
           {company.openedAt && (
             <div>
-              <p className="text-sm text-muted-foreground">Fecha de Fundación</p>
+              <p className="text-sm text-muted-foreground">
+                Fecha de Fundación
+              </p>
               <p className="font-medium">
                 {new Date(company.openedAt).toLocaleDateString()}
               </p>
@@ -243,8 +284,31 @@ export function CompanyBasicInfo({ company }: CompanyBasicInfoProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{company.owner.phone || "No especificado"}</p>
+              <p className="font-medium">
+                {company.owner.phone || "No especificado"}
+              </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">CI / ID</p>
+              <p className="font-medium">{company.owner.ci || "No especificado"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Fecha de nacimiento</p>
+              <p className="font-medium">
+                {company.owner.birthDate
+                  ? new Date(company.owner.birthDate).toLocaleDateString()
+                  : company.owner.birthYear || "No especificado"}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Se unió</p>
+              <p className="font-medium">
+                {company.owner.joinedAt
+                  ? new Date(company.owner.joinedAt).toLocaleDateString()
+                  : "No especificado"}
+              </p>
+            </div>
+            {/* Contrato fin removido del onboarding; se oculta en la tarjeta */}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No asignado</p>

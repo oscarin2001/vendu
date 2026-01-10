@@ -89,7 +89,12 @@ export async function completeCompanyRegistrationAction(formData: {
     country: string;
     phone: string;
   };
-  fiscal?: { taxId: string; businessName: string; fiscalAddress: string };
+  fiscal?: {
+    taxId?: string;
+    businessName?: string;
+    fiscalAddress?: string;
+    taxIdPath?: string;
+  };
 }) {
   const { username, password, companyName, owner, branch, warehouse, fiscal } =
     formData;

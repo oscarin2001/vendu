@@ -247,10 +247,13 @@ model tbemployee_profiles {
   ci        String    @unique
   phone     String?
   birthDate DateTime?
+  birthYear Int?
 
   // Datos Laborales y Seguridad
   salary          Decimal         @default(0)
   hireDate        DateTime        @default(now())
+  joinedAt        DateTime? // Fecha exacta de ingreso (además de hireDate)
+  contractEndAt   DateTime? // Hasta cuándo estará (nulo = indefinido)
   contractType    ContractType    @default(INDEFINIDO)
   contributionType ContributionType @default(NONE)
   status          EmployeeStatus  @default(ACTIVE) // Estado del empleado
@@ -787,8 +790,11 @@ model tbproductvariants {
 model tbcompanies {
   PK_company Int      @id @default(autoincrement())
   name       String // Nombre comercial de la empresa
-  slug       String @unique
+  slug       String   @unique
   taxId      String? // NIT/CUIT/CI del contribuyente
+  taxIdPath  String? // Ruta o URL del documento NIT
+  businessName  String? // Razón social
+  fiscalAddress String? // Dirección fiscal
   country    String? // País de operación
   department String? // Departamento o región
   commerceType String? // Tipo de comercio (Ropa usada, Accesorios, etc.)

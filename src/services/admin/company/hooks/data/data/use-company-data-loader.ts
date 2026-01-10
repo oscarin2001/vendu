@@ -41,6 +41,7 @@ export function useCompanyDataLoader(
         id: companyData.id,
         name: companyData.name,
         taxId: companyData.taxId || "",
+        taxIdPath: companyData.taxIdPath || undefined,
         country: companyData.country || "",
         slug: companyData.slug,
         department: companyData.department || undefined,
@@ -48,14 +49,22 @@ export function useCompanyDataLoader(
         description: companyData.description || undefined,
         vision: companyData.vision || undefined,
         mission: companyData.mission || undefined,
+        businessName: companyData.businessName || undefined,
+        fiscalAddress: companyData.fiscalAddress || undefined,
         openedAt: companyData.openedAt || undefined,
         createdAt: companyData.createdAt,
-        owner: companyData.owner ? {
-          id: companyData.owner.id,
-          firstName: companyData.owner.firstName,
-          lastName: companyData.owner.lastName,
-          phone: companyData.owner.phone || undefined,
-        } : undefined,
+        owner: companyData.owner
+          ? {
+              id: companyData.owner.id,
+              firstName: companyData.owner.firstName,
+              lastName: companyData.owner.lastName,
+              phone: companyData.owner.phone || undefined,
+              ci: companyData.owner.ci || undefined,
+              birthDate: companyData.owner.birthDate || undefined,
+              birthYear: companyData.owner.birthYear || undefined,
+              joinedAt: companyData.owner.joinedAt || undefined,
+            }
+          : undefined,
       };
 
       setCompany(transformedCompany);

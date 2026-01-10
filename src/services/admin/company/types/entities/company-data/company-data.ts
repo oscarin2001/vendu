@@ -1,7 +1,8 @@
 export interface CompanyData {
   id: number;
   name: string;
-  taxId: string;
+  taxId?: string;
+  taxIdPath?: string;
   country: string;
   slug: string;
   department?: string;
@@ -9,6 +10,8 @@ export interface CompanyData {
   description?: string;
   vision?: string;
   mission?: string;
+  businessName?: string;
+  fiscalAddress?: string;
   openedAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
@@ -17,5 +20,10 @@ export interface CompanyData {
     firstName: string;
     lastName: string;
     phone?: string;
+    ci?: string;
+    birthDate?: Date;
+    birthYear?: number;
+    joinedAt?: Date;
+    contractEndAt?: Date;
   };
 }

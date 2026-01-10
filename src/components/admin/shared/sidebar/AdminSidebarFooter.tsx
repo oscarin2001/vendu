@@ -26,8 +26,8 @@ export function AdminSidebarFooter({
     if (onLogout) {
       onLogout();
     } else {
-      // Fallback to server logout endpoint that clears cookie and redirects
-      window.location.href = "/api/auth/logout";
+      // Redirect to login page
+      window.location.href = "/register-company?mode=login";
     }
   };
 

@@ -6,6 +6,10 @@ export interface OwnerFormData {
   phone: string;
   ci: string;
   gender: string;
+  country: string;
+  birthDate?: string;
+  joinedAt?: string;
+  contractEndAt?: string;
 }
 
 export interface OwnerFormErrors {
@@ -14,11 +18,14 @@ export interface OwnerFormErrors {
   phone?: string;
   ci?: string;
   gender?: string;
+  birthDate?: string;
+  joinedAt?: string;
 }
 
 export function useOwnerForm(
   initialData: Partial<OwnerFormData> = {},
-  onDataChange?: (data: OwnerFormData) => void
+  onDataChange?: (data: OwnerFormData) => void,
+  companyCountry?: string
 ) {
   const [firstName, setFirstName] = useState(initialData.firstName || "");
   const [lastName, setLastName] = useState(initialData.lastName || "");
@@ -26,6 +33,12 @@ export function useOwnerForm(
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [ci, setCi] = useState(initialData.ci || "");
   const [gender, setGender] = useState(initialData.gender || "");
+  const [country, setCountry] = useState(
+    initialData.country || companyCountry || ""
+  );
+  const [birthDate, setBirthDate] = useState(initialData.birthDate || "");
+  const [joinedAt, setJoinedAt] = useState(initialData.joinedAt || "");
+  const [contractEndAt, setContractEndAt] = useState<string>("");
   const [errors, setErrors] = useState<OwnerFormErrors>({});
 
   const validateForm = useCallback(() => {
@@ -59,9 +72,17 @@ export function useOwnerForm(
       newErrors.gender = "Debe seleccionar un género";
     }
 
+    if (birthDate && isNaN(Date.parse(birthDate))) {
+      newErrors.birthDate = "Fecha de nacimiento inválida";
+    }
+
+    if (joinedAt && isNaN(Date.parse(joinedAt))) {
+      newErrors.joinedAt = "Fecha de ingreso inválida";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [firstName, lastName, phone, ci, gender]);
+  }, [firstName, lastName, phone, ci, gender, birthDate, joinedAt]);
 
   const getFormData = useCallback(
     (): OwnerFormData => ({
@@ -70,8 +91,12 @@ export function useOwnerForm(
       phone,
       ci,
       gender,
+      country,
+      birthDate,
+      joinedAt,
+      contractEndAt,
     }),
-    [firstName, lastName, phone, ci, gender]
+    [firstName, lastName, phone, ci, gender, country, birthDate, joinedAt, contractEndAt]
   );
 
   // Notify parent component of data changes
@@ -79,7 +104,19 @@ export function useOwnerForm(
     if (onDataChange) {
       onDataChange(getFormData());
     }
-  }, [firstName, lastName, phone, ci, gender, onDataChange, getFormData]);
+  }, [
+    firstName,
+    lastName,
+    phone,
+    ci,
+    gender,
+    country,
+    birthDate,
+    joinedAt,
+    contractEndAt,
+    onDataChange,
+    getFormData,
+  ]);
 
   const handlePhoneChange = useCallback((value: string, valid?: boolean) => {
     setPhone(value);
@@ -100,12 +137,20 @@ export function useOwnerForm(
     phoneValid,
     ci,
     gender,
+    country,
+    joinedAt,
+    contractEndAt,
+    birthDate,
     errors,
     setFirstName,
     setLastName,
     setPhone: setPhoneValue,
     setCi,
     setGender,
+    setCountry,
+    setBirthDate,
+    setJoinedAt,
+    setContractEndAt,
     setErrors,
     handlePhoneChange,
     validateForm,

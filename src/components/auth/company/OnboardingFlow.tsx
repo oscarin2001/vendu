@@ -29,6 +29,8 @@ interface OnboardingFlowProps {
       vision?: string;
       mission?: string;
       openedAt?: string;
+      taxId?: string;
+      taxIdPath?: string;
     };
     owner: {
       firstName: string;
@@ -36,8 +38,16 @@ interface OnboardingFlowProps {
       phone: string;
       ci: string;
       gender: string;
+      birthDate?: string;
+      joinedAt?: string;
+      contractEndAt?: string;
     };
-    fiscal: { taxId: string; businessName: string; fiscalAddress: string };
+    fiscal: {
+      taxId?: string;
+      businessName?: string;
+      fiscalAddress?: string;
+      taxIdPath?: string;
+    };
     legal: { tosAccepted: boolean; tosRead: boolean };
   };
   onStepComplete: (step: string, data: any) => void;

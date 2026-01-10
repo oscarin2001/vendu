@@ -37,8 +37,11 @@ export default function RegisterCompanyForm() {
       phone: "",
       ci: "",
       gender: "",
+      birthDate: "",
+      joinedAt: "",
+      contractEndAt: "",
     },
-    fiscal: { taxId: "", businessName: "", fiscalAddress: "" },
+    fiscal: { taxId: "", businessName: "", fiscalAddress: "", taxIdPath: "" },
     legal: { tosAccepted: false, tosRead: false },
   });
 

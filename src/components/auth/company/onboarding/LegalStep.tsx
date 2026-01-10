@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import CompanyLegalAcceptance from "./CompanyLegalAcceptance";
 import { toast } from "sonner";
-import { createCompanyAction } from "@/services/auth/company-registration/onboarding-actions";
+import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 
 interface LegalStepProps {
   companyData: {
@@ -71,20 +71,14 @@ export function LegalStep({
 
     setIsPending(true);
     try {
-      const payload = {
-        ...companyData,
-        tosAccepted,
-        tosRead,
-      };
-
-      const result = await createCompanyAction(payload);
-
-      if (!result.success) {
-        setError(result.error || "No pudimos guardar la aceptación legal");
-        return;
-      }
-
-      toast.success("¡Empresa registrada exitosamente!");
+      await saveOnboardingData({
+        company: {
+          ...companyData,
+          tosAccepted,
+          tosRead,
+        },
+      });
+      toast.success("Términos guardados");
       onNext?.({ tosAccepted, tosRead });
     } finally {
       setIsPending(false);

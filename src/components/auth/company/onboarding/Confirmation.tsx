@@ -14,6 +14,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { createCompanyFromOnboardingAction } from "@/services/auth/company-registration/onboarding/actions";
+import {
+  getOnboardingData,
+  clearOnboardingData,
+} from "@/services/auth/company-registration/onboarding/session";
 import { toast } from "sonner";
 
 interface ConfirmationProps {
@@ -29,12 +33,17 @@ export function Confirmation({
   onBack = () => {},
   tenantId = "",
 }: ConfirmationProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const handleComplete = () => {
     startTransition(async () => {
       try {
-        const result = await createCompanyFromOnboardingAction();
-        if (result.success) {
+        const sessionData = getOnboardingData();
+        const result = await createCompanyFromOnboardingAction(sessionData);
+        if (result.success && result.company) {
           toast.success("Empresa creada exitosamente");
+          clearOnboardingData();
           // Redirect to dashboard with the new tenantId
           const slug = result.company.slug;
           router.push(`/vendu/dashboard/${slug}/admin/company`);

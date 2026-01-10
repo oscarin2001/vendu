@@ -4,21 +4,30 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { saveOnboardingData, getOnboardingData } from "@/services/auth/company-registration/onboarding/session";
+import {
+  saveOnboardingData,
+  getOnboardingData,
+} from "@/services/auth/company-registration/onboarding/session";
 
 interface FiscalFormProps {
-  initialData?: { taxId: string; businessName: string; fiscalAddress: string };
+  initialData?: {
+    taxId?: string;
+    businessName?: string;
+    fiscalAddress?: string;
+    taxIdPath?: string;
+  };
   onBack?: () => void;
   onDataChange?: (data: {
-    taxId: string;
-    businessName: string;
-    fiscalAddress: string;
+    taxId?: string;
+    businessName?: string;
+    fiscalAddress?: string;
+    taxIdPath?: string;
   }) => void;
   onNext?: () => void;
 }
 
 export function FiscalForm({
-  initialData = { taxId: "", businessName: "", fiscalAddress: "" },
+  initialData = { taxId: "", businessName: "", fiscalAddress: "", taxIdPath: "" },
   onBack = () => {},
   onDataChange,
   onNext = () => {},
@@ -30,23 +39,27 @@ export function FiscalForm({
   const [fiscalAddress, setFiscalAddress] = useState(
     initialData.fiscalAddress || ""
   );
+  const [taxIdPath, setTaxIdPath] = useState(initialData.taxIdPath || "");
   const [errors, setErrors] = useState<{
     taxId?: string;
     businessName?: string;
     fiscalAddress?: string;
+    taxIdPath?: string;
   }>({});
 
   // Save data whenever it changes (persist onboarding session)
   useEffect(() => {
     if (onDataChange) {
-      onDataChange({ taxId, businessName, fiscalAddress });
+      onDataChange({ taxId, businessName, fiscalAddress, taxIdPath });
     }
-    // merge into existing company data in session
+
+    // Persist full fiscal data plus mirror taxId into company data for creation
     const existing = getOnboardingData();
     saveOnboardingData({
-      company: { ...(existing.company || {}), taxId } as any,
+      fiscal: { taxId, businessName, fiscalAddress, taxIdPath },
+      company: { ...(existing.company || {}), taxId, taxIdPath } as any,
     });
-  }, [taxId, onDataChange]);
+  }, [taxId, businessName, fiscalAddress, taxIdPath, onDataChange]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -67,13 +80,16 @@ export function FiscalForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Todos estos campos fiscales son opcionales. Ingresa la información si la tienes disponible.
+      </p>
       <Field>
         <FieldLabel htmlFor="taxId">NIT / RUC</FieldLabel>
         <Input
           id="taxId"
           value={taxId}
           onChange={(e) => setTaxId(e.target.value)}
-          placeholder="123456789"
+          placeholder="123456789 (opcional)"
         />
         {errors.taxId && (
           <p className="text-sm text-red-600 mt-1">{errors.taxId}</p>
@@ -85,7 +101,7 @@ export function FiscalForm({
           id="businessName"
           value={businessName}
           onChange={(e) => setBusinessName(e.target.value)}
-          placeholder="Mi Empresa S.A."
+          placeholder="Mi Empresa S.A. (opcional)"
         />
         {errors.businessName && (
           <p className="text-sm text-red-600 mt-1">{errors.businessName}</p>
@@ -97,10 +113,23 @@ export function FiscalForm({
           id="fiscalAddress"
           value={fiscalAddress}
           onChange={(e) => setFiscalAddress(e.target.value)}
-          placeholder="Calle Fiscal 789"
+          placeholder="Calle Fiscal 789 (opcional)"
         />
         {errors.fiscalAddress && (
           <p className="text-sm text-red-600 mt-1">{errors.fiscalAddress}</p>
+        )}
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="taxIdPath">Ruta del NIT</FieldLabel>
+        <Input
+          id="taxIdPath"
+          value={taxIdPath}
+          onChange={(e) => setTaxIdPath(e.target.value)}
+          placeholder="https://tu-storage/nit.pdf (opcional)"
+        />
+        {errors.taxIdPath && (
+          <p className="text-sm text-red-600 mt-1">{errors.taxIdPath}</p>
         )}
       </Field>
 

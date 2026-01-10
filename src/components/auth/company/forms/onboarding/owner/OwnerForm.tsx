@@ -5,6 +5,7 @@ import { OwnerFields } from "./components/OwnerFields";
 import { OwnerActions } from "./components/OwnerActions";
 import { useOwnerForm, OwnerFormData } from "./hooks/useOwnerForm";
 import { saveOwnerData } from "@/services/auth/company-registration/onboarding/actions";
+import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
 import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
 
 interface OwnerFormProps {
@@ -22,6 +23,9 @@ export function OwnerForm({
     phone: "",
     ci: "",
     gender: "",
+    birthDate: "",
+    joinedAt: "",
+    contractEndAt: "",
   },
   onBack = () => {},
   onDataChange,
@@ -36,17 +40,25 @@ export function OwnerForm({
     phoneValid,
     ci,
     gender,
+    birthDate,
+    joinedAt,
+    contractEndAt,
+    country,
     errors,
     setFirstName,
     setLastName,
     setPhone,
     setCi,
     setGender,
+    setBirthDate,
+    setJoinedAt,
+    setContractEndAt,
+    setCountry,
     setErrors,
     handlePhoneChange,
     validateForm,
     getFormData,
-  } = useOwnerForm(initialData, onDataChange);
+  } = useOwnerForm(initialData, onDataChange, companyCountry);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +91,7 @@ export function OwnerForm({
     });
 
     startTransition(() => {
+      saveOnboardingData({ owner: data });
       saveOwnerData(formData);
     });
 
@@ -93,12 +106,18 @@ export function OwnerForm({
         phone={phone}
         ci={ci}
         gender={gender}
+        birthDate={birthDate}
+        joinedAt={joinedAt}
+        contractEndAt={contractEndAt}
         errors={errors}
         onFirstNameChange={setFirstName}
         onLastNameChange={setLastName}
         onPhoneChange={handlePhoneChange}
         onCiChange={setCi}
         onGenderChange={setGender}
+        onBirthDateChange={setBirthDate}
+        onJoinedAtChange={setJoinedAt}
+        onContractEndAtChange={setContractEndAt}
         companyCountry={companyCountry}
       />
 
