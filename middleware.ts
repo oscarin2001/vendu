@@ -8,10 +8,31 @@ export async function middleware(request: NextRequest) {
   // Guest-only: if an authenticated user tries to access auth routes, redirect to their dashboard
   if (pathname.startsWith("/register-company")) {
     const auth = await getAuthCookie();
-    if (auth) {
-      return NextResponse.redirect(
-        new URL(`/vendu/dashboard/${auth.tenantId}/admin`, request.url)
-      );
+    const mode = request.nextUrl.searchParams.get("mode");
+
+    // Allow login/register forms to render even if there is a cookie
+    const isAuthForm = mode === "register" || mode === "login" || !mode;
+
+    if (auth && !isAuthForm) {
+      const isPending = auth.tenantId === "pending-onboarding";
+
+      if (!isPending) {
+        return NextResponse.redirect(
+          new URL(`/vendu/dashboard/${auth.tenantId}/admin`, request.url)
+        );
+      }
+
+      if (
+        isPending &&
+        !pathname.startsWith("/register-company/onboarding-auth-company")
+      ) {
+        return NextResponse.redirect(
+          new URL(
+            "/register-company/onboarding-auth-company/company-name",
+            request.url
+          )
+        );
+      }
     }
   }
 
@@ -27,6 +48,15 @@ export async function middleware(request: NextRequest) {
 
     // Check if slug matches
     const slugFromUrl = pathname.split("/")[3]; // /vendu/dashboard/[slug]/...
+    if (auth.tenantId === "pending-onboarding") {
+      return NextResponse.redirect(
+        new URL(
+          "/register-company/onboarding-auth-company/company-name",
+          request.url
+        )
+      );
+    }
+
     if (slugFromUrl !== auth.tenantId) {
       return NextResponse.redirect(
         new URL("/register-company?mode=login", request.url)

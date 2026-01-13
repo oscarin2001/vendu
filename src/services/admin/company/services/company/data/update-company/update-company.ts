@@ -36,6 +36,8 @@ export async function updateCompany(tenantId: string, data: UpdateCompanyData) {
     slug: company.slug,
     taxId: company.taxId,
     taxIdPath: company.taxIdPath,
+    businessName: company.businessName,
+    fiscalAddress: company.fiscalAddress,
     country: company.country,
     department: company.department,
     commerceType: company.commerceType,

@@ -24,6 +24,7 @@ interface AuthFormProps {
   isLoading?: boolean;
   error?: string;
   className?: string;
+  onSwitchMode?: (mode: "login" | "register") => void;
 }
 
 function GoogleIcon() {
@@ -60,6 +61,7 @@ export default function AuthForm({
   isLoading = false,
   error,
   className,
+  onSwitchMode,
   ...props
 }: AuthFormProps) {
   const [formData, setFormData] = useState({
@@ -179,22 +181,24 @@ export default function AuthForm({
             {mode === "login" ? (
               <>
                 ¿No tienes cuenta?{" "}
-                <Link
-                  href="/register-company?mode=register"
+                <button
+                  type="button"
                   className="underline underline-offset-4"
+                  onClick={() => onSwitchMode?.("register")}
                 >
                   Regístrate
-                </Link>
+                </button>
               </>
             ) : (
               <>
                 ¿Ya tienes cuenta?{" "}
-                <Link
-                  href="/register-company?mode=login"
+                <button
+                  type="button"
                   className="underline underline-offset-4"
+                  onClick={() => onSwitchMode?.("login")}
                 >
                   Inicia sesión
-                </Link>
+                </button>
               </>
             )}
           </FieldDescription>

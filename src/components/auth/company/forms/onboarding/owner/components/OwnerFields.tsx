@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/select";
 import { getCountryConfigByName } from "@/services/admin/config";
 import { OwnerFormErrors } from "../hooks/useOwnerForm";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -157,11 +161,9 @@ export function OwnerFields({
             >
               <CalendarIcon className="h-4 w-4" />
               {birthDate
-                ? format(
-                    parseISOToLocalDate(birthDate) as Date,
-                    "dd/MM/yyyy",
-                    { locale: es }
-                  )
+                ? format(parseISOToLocalDate(birthDate) as Date, "dd/MM/yyyy", {
+                    locale: es,
+                  })
                 : "Selecciona la fecha"}
             </button>
           </PopoverTrigger>
@@ -193,11 +195,9 @@ export function OwnerFields({
             >
               <CalendarIcon className="h-4 w-4" />
               {joinedAt
-                ? format(
-                    parseISOToLocalDate(joinedAt) as Date,
-                    "dd/MM/yyyy",
-                    { locale: es }
-                  )
+                ? format(parseISOToLocalDate(joinedAt) as Date, "dd/MM/yyyy", {
+                    locale: es,
+                  })
                 : "Selecciona la fecha"}
             </button>
           </PopoverTrigger>

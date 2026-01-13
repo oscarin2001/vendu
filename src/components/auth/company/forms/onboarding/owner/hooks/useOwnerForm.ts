@@ -96,7 +96,17 @@ export function useOwnerForm(
       joinedAt,
       contractEndAt,
     }),
-    [firstName, lastName, phone, ci, gender, country, birthDate, joinedAt, contractEndAt]
+    [
+      firstName,
+      lastName,
+      phone,
+      ci,
+      gender,
+      country,
+      birthDate,
+      joinedAt,
+      contractEndAt,
+    ]
   );
 
   // Notify parent component of data changes

@@ -8,10 +8,23 @@ export const metadata = {
   description: "Crea tu cuenta empresarial en Vendu",
 };
 
-export default async function RegisterCompanyPage() {
+export default async function RegisterCompanyPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const modeValue = params?.mode;
+  const mode = typeof modeValue === "string" ? modeValue : "";
+
   // If user is already authenticated, redirect them to their dashboard
   const auth = await getAuthCookie();
-  if (auth) {
+
+  if (auth && mode !== "register") {
+    if (auth.tenantId === "pending-onboarding") {
+      redirect("/register-company/onboarding-auth-company/company-name");
+    }
+
     redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
   }
 

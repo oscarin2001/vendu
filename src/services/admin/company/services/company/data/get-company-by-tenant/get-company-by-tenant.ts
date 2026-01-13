@@ -2,7 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 
-export async function getCompanyByTenant(tenantId: string) {
+export async function getCompanyByTenant(
+  tenantId: string
+): Promise<any | null> {
   const company = (await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
     include: {
@@ -24,7 +26,7 @@ export async function getCompanyByTenant(tenantId: string) {
   })) as any;
 
   if (!company) {
-    throw new Error("Company not found");
+    return null;
   }
 
   return {

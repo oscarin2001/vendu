@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useSidebarToolbar } from "../sidebar/SidebarToolbarContext";
+import { useSidebarToolbar } from "../sidebar/context/SidebarToolbarContext";
 
 export function AdminBreadcrumbs() {
   const { breadcrumbs } = useSidebarToolbar();

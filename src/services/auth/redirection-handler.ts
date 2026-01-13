@@ -7,6 +7,7 @@ export interface UserWithCompany {
     slug?: string;
     name?: string;
     onboardingCompleted?: boolean;
+    tosAccepted?: boolean;
   } | null;
 }
 
@@ -16,7 +17,11 @@ export function getPostLoginRedirect(user: UserWithCompany): string {
   }
 
   const slug = user.company.slug || "default";
-  const onboardingCompleted = !!user.company.onboardingCompleted;
+  const onboardingCompleted = Boolean(
+    user.company.onboardingCompleted ??
+      user.company.tosAccepted ??
+      user.company.slug
+  );
 
   if (!onboardingCompleted) {
     return `/register-company?mode=register${slug ? `&tenantId=${slug}` : ""}`;

@@ -1,8 +1,8 @@
 "use client";
 
 import { GalleryVerticalEnd } from "lucide-react";
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthForm from "@/components/auth/company/auth-form";
 import { OnboardingFlow } from "@/components/auth/company/OnboardingFlow";
 import { Stepper } from "@/components/auth/company/onboarding/Stepper";
@@ -46,42 +46,67 @@ export default function RegisterCompanyForm() {
   });
 
   const searchParams = useSearchParams();
-  const mode = searchParams.get("mode") === "login" ? "login" : "register";
+  const router = useRouter();
+
+  const initialMode = useMemo(() => {
+    return searchParams.get("mode") === "login" ? "login" : "register";
+  }, [searchParams]);
+
+  const [mode, setMode] = useState<"login" | "register">(initialMode);
 
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Persistencia del progreso: limpiar si se solicita login
   useEffect(() => {
-    if (mode === "login") {
+    // Sincroniza el estado con la URL si cambia externamente
+    const currentMode =
+      searchParams.get("mode") === "login" ? "login" : "register";
+    if (currentMode !== mode) {
+      setMode(currentMode);
+    }
+  }, [searchParams, mode]);
+
+  // Si el usuario ya inició un onboarding parcial, reabrir wizard al montar
+  useEffect(() => {
+    if (mode === "register") {
       try {
-        localStorage.removeItem("onboarding-progress");
-        localStorage.removeItem("onboarding-data");
+        const saved = localStorage.getItem("onboarding-progress");
+        if (saved) {
+          const { currentStep: savedStep, onboardingData: savedData } =
+            JSON.parse(saved);
+          if (savedStep) {
+            setCurrentStep(savedStep);
+          }
+          if (savedData) {
+            setOnboardingData(savedData);
+          }
+          setShowOnboarding(true);
+        }
       } catch (e) {
         // noop
       }
-      setShowOnboarding(false);
-      return;
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    // Siempre limpia progreso al cambiar de modo para evitar abrir el wizard.
+    try {
+      localStorage.removeItem("onboarding-started");
+      localStorage.removeItem("onboarding-progress");
+      localStorage.removeItem("onboarding-data");
+    } catch (e) {
+      // noop
     }
 
-    const savedProgress = localStorage.getItem("onboarding-progress");
-    if (savedProgress) {
-      try {
-        const { currentStep: savedStep, onboardingData: savedData } =
-          JSON.parse(savedProgress);
-        setCurrentStep(savedStep);
-        setOnboardingData(savedData);
-        setShowOnboarding(true);
-      } catch (error) {
-        console.error("Error loading onboarding progress:", error);
-      }
-    }
+    setShowOnboarding(false);
+    setCurrentStep("company-name");
   }, [mode]);
 
   useEffect(() => {
     if (showOnboarding) {
       const progress = { currentStep, onboardingData };
       localStorage.setItem("onboarding-progress", JSON.stringify(progress));
+      localStorage.setItem("onboarding-started", "true");
     }
   }, [currentStep, onboardingData, showOnboarding]);
 
@@ -176,16 +201,10 @@ export default function RegisterCompanyForm() {
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1] as any);
     } else if (step === "confirmation") {
-      // Onboarding completed, generate slug and redirect
-      const companyName = onboardingData.companyName.name;
-      const slug = companyName
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
-      // Clear progress
+      // Onboarding completed, slug vendrá del servidor tras confirmación final
       localStorage.removeItem("onboarding-progress");
-      // Redirect to dashboard
-      window.location.href = `/vendu/dashboard/${slug}/admin/company`;
+      localStorage.removeItem("onboarding-started");
+      localStorage.removeItem("onboarding-data");
     }
   };
 
@@ -254,6 +273,10 @@ export default function RegisterCompanyForm() {
                   onSubmit={handleAuthSubmit}
                   error={authError || undefined}
                   isLoading={isSubmitting}
+                  onSwitchMode={(nextMode) => {
+                    setMode(nextMode);
+                    router.replace(`/register-company?mode=${nextMode}`);
+                  }}
                 />
               </Suspense>
             )}

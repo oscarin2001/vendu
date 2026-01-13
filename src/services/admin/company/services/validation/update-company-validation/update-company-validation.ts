@@ -7,6 +7,8 @@ export const updateCompanySchema = z.object({
   name: z.string().min(1, "Company name is required"),
   taxId: z.string().optional(),
   taxIdPath: z.string().optional(),
+  businessName: z.string().optional(),
+  fiscalAddress: z.string().optional(),
   country: z.string().optional(),
   department: z.string().optional(),
   commerceType: z.string().optional(),

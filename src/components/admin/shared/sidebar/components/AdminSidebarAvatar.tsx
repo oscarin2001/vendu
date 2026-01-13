@@ -13,14 +13,7 @@ export function AdminSidebarAvatar({
   lastName = "U",
   className,
 }: AdminSidebarAvatarProps) {
-  // Función para obtener iniciales
-  const getInitials = (first: string, last: string) => {
-    const firstInitial = first.charAt(0).toUpperCase();
-    const lastInitial = last.charAt(0).toUpperCase();
-    return `${firstInitial}${lastInitial}`;
-  };
-
-  const initials = getInitials(firstName, lastName);
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 
   return (
     <Avatar className={className}>

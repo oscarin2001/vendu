@@ -150,6 +150,12 @@ enum EmployeeStatus {
   INACTIVE // INACTIVO - Permanente (renuncia, despido)
 }
 
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
 enum ContributionType {
   NONE // NO_CONTRIBUYE
   CONTRIBUTES // CONTRIBUYE
@@ -261,6 +267,11 @@ model tbemployee_profiles {
   deletedAt    DateTime? // Fecha de borrado lógico (soft-delete)
   createdAt    DateTime    @default(now())
   FK_createdBy Int? // Usuario que creó el perfil del empleado
+
+  // Configuraciones del sistema
+  theme         Theme?    @default(SYSTEM)
+  notifications Boolean?  @default(true)
+  language      String?   @default("es")
 
   auth   tbauth      @relation(fields: [FK_auth], references: [PK_auth])
   branch tbbranches? @relation(fields: [FK_branch], references: [PK_branch])

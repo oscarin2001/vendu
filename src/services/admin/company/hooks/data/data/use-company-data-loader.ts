@@ -36,6 +36,22 @@ export function useCompanyDataLoader(
         getCompanySubscription(tenantId),
       ]);
 
+      // Handle company not found gracefully
+      if (!companyData) {
+        setCompany(null);
+        setSubscription(null);
+        setMetrics({
+          totalBranches: 0,
+          activeBranches: 0,
+          totalEmployees: 0,
+          activeEmployees: 0,
+        });
+        const msg = "Company not found";
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+
       // Transform company data
       const transformedCompany: CompanyData = {
         id: companyData.id,
@@ -79,6 +95,8 @@ export function useCompanyDataLoader(
           amount: getPlanAmount(subscriptionData.planType),
         };
         setSubscription(transformedSubscription);
+      } else {
+        setSubscription(null);
       }
 
       // Load metrics (placeholder - you might want to create actual metrics service)

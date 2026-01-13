@@ -65,7 +65,17 @@ export async function createUser(payload: CreateUserPayload) {
   createData.FK_privilege = privilege.PK_privilege;
 
   // Create the auth record (do NOT pass `email` here; it doesn't exist on tbauth model)
-  const user = await prisma.tbauth.create({ data: createData });
+  const user = await prisma.tbauth.create({
+    data: createData,
+    select: {
+      PK_auth: true,
+      username: true,
+      FK_company: true,
+      FK_privilege: true,
+      accountType: true,
+      isActive: true,
+    },
+  });
 
   // If email provided, create or link a customer profile
   if (email) {
@@ -103,5 +113,5 @@ export async function createUser(payload: CreateUserPayload) {
     }
   }
 
-  return user;
+  return { user, privilegeCode: privilege.privilegeCode };
 }

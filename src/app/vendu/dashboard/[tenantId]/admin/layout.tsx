@@ -2,9 +2,9 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AdminSidebar } from "@/components/admin/shared/sidebar/AdminSidebar";
+import { AdminSidebar } from "@/components/admin/shared/sidebar/components/AdminSidebar";
 import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBreadcrumbs";
-import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/SidebarToolbarContext";
+import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/context/SidebarToolbarContext";
 import { useCompany } from "@/services/admin/company";
 import {
   SidebarProvider,
@@ -25,6 +25,7 @@ export default function AdminLayout({
   // TODO: Obtener datos reales del usuario
   // Por ahora, datos mock
   const mockUser = {
+    id: 1,
     firstName: "Oscar",
     lastName: "Flores",
   };
@@ -37,6 +38,7 @@ export default function AdminLayout({
             organizationName="Cargando..."
             userFirstName={mockUser.firstName}
             userLastName={mockUser.lastName}
+            userId={mockUser.id}
             tenantId={tenantId}
           />
           <SidebarInset>
@@ -58,6 +60,7 @@ export default function AdminLayout({
           organizationName={company?.name || "Empresa"}
           userFirstName={mockUser.firstName}
           userLastName={mockUser.lastName}
+          userId={mockUser.id}
           tenantId={tenantId}
         />
         <SidebarInset>

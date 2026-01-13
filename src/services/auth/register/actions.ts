@@ -1,5 +1,6 @@
 "use server";
 
+import { setAuthCookie } from "../adapters";
 import { createUser } from "../services/authService";
 
 export async function registerAction(prevState: any, formData: FormData) {
@@ -26,7 +27,18 @@ export async function registerAction(prevState: any, formData: FormData) {
   }
 
   try {
-    await createUser({ username, password, email });
+    const { user, privilegeCode } = await createUser({
+      username,
+      password,
+      email,
+    });
+
+    await setAuthCookie({
+      userId: user.PK_auth,
+      username: user.username,
+      tenantId: "pending-onboarding",
+      privilege: privilegeCode,
+    });
     return { ok: true };
   } catch (err: any) {
     if (err.message.includes("ya existente")) {

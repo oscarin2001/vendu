@@ -69,29 +69,37 @@ export async function loginAction(
 
     const tenantId = user.company?.slug;
     const onboardingCompleted = Boolean(
-      (user.company as { onboardingCompleted?: boolean } | null)
-        ?.onboardingCompleted
+      (
+        user.company as {
+          onboardingCompleted?: boolean;
+          tosAccepted?: boolean;
+          slug?: string;
+        } | null
+      )?.onboardingCompleted ??
+        user.company?.tosAccepted ??
+        user.company?.slug
     );
 
     const onboardingRedirect = tenantId
       ? `/register-company/onboarding-auth-company/company-name?tenantId=${tenantId}`
       : "/register-company/onboarding-auth-company/company-name";
 
-    // If company/slug is missing, we can't issue auth cookie; force onboarding route
-    if (!tenantId) {
+    const cookieTenantId = tenantId || "pending-onboarding";
+
+    await setAuthCookie({
+      userId: user.PK_auth,
+      username: user.username,
+      tenantId: cookieTenantId,
+      privilege: user.privilege.privilegeCode,
+    });
+
+    // If company/slug is missing, force onboarding route after setting cookie
+    if (!tenantId || cookieTenantId === "pending-onboarding") {
       return {
         onboardingRequired: true,
         redirectTo: onboardingRedirect,
       };
     }
-
-    // Set authentication cookie
-    await setAuthCookie({
-      userId: user.PK_auth,
-      username: user.username,
-      tenantId,
-      privilege: user.privilege.privilegeCode,
-    });
 
     const redirectTo = onboardingCompleted
       ? `/vendu/dashboard/${tenantId}/admin`
@@ -113,6 +121,10 @@ import { getAuthCookie } from "@/services/auth/adapters";
 export async function checkAuthAndRedirect() {
   const auth = await getAuthCookie();
   if (auth) {
+    if (auth.tenantId === "pending-onboarding") {
+      redirect("/register-company/onboarding-auth-company/company-name");
+    }
+
     // Already authenticated - redirect to tenant dashboard
     redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
   }

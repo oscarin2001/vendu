@@ -27,7 +27,12 @@ interface FiscalFormProps {
 }
 
 export function FiscalForm({
-  initialData = { taxId: "", businessName: "", fiscalAddress: "", taxIdPath: "" },
+  initialData = {
+    taxId: "",
+    businessName: "",
+    fiscalAddress: "",
+    taxIdPath: "",
+  },
   onBack = () => {},
   onDataChange,
   onNext = () => {},
@@ -81,7 +86,8 @@ export function FiscalForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Todos estos campos fiscales son opcionales. Ingresa la información si la tienes disponible.
+        Todos estos campos fiscales son opcionales. Ingresa la información si la
+        tienes disponible.
       </p>
       <Field>
         <FieldLabel htmlFor="taxId">NIT / RUC</FieldLabel>

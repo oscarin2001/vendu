@@ -108,7 +108,9 @@ export function CompanyFiscalCard({ company }: CompanyBasicInfoProps) {
           )}
           <div>
             <p className="text-sm text-muted-foreground">Ruta del NIT</p>
-            <p className="font-medium">{company.taxIdPath || "No especificado"}</p>
+            <p className="font-medium">
+              {company.taxIdPath || "No especificado"}
+            </p>
           </div>
         </div>
       </CardContent>
@@ -174,10 +176,14 @@ export function CompanyOwnerCard({ company }: CompanyBasicInfoProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">CI / ID</p>
-              <p className="font-medium">{company.owner.ci || "No especificado"}</p>
+              <p className="font-medium">
+                {company.owner.ci || "No especificado"}
+              </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Fecha de nacimiento</p>
+              <p className="text-sm text-muted-foreground">
+                Fecha de nacimiento
+              </p>
               <p className="font-medium">
                 {company.owner.birthDate
                   ? new Date(company.owner.birthDate).toLocaleDateString()
@@ -290,10 +296,14 @@ export function CompanyBasicInfo({ company }: CompanyBasicInfoProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">CI / ID</p>
-              <p className="font-medium">{company.owner.ci || "No especificado"}</p>
+              <p className="font-medium">
+                {company.owner.ci || "No especificado"}
+              </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Fecha de nacimiento</p>
+              <p className="text-sm text-muted-foreground">
+                Fecha de nacimiento
+              </p>
               <p className="font-medium">
                 {company.owner.birthDate
                   ? new Date(company.owner.birthDate).toLocaleDateString()

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { generateUniqueSlug } from "../../../../lib/utils";
+import { getAuthCookie, setAuthCookie } from "@/services/auth/adapters";
 import { createCompanyFromOnboarding } from "./create-company";
 
 export async function saveCompanyData(
@@ -12,8 +13,7 @@ export async function saveCompanyData(
   const name = String(formData.get("name") || "").trim();
   const country = String(formData.get("country") || "").trim();
   const taxId = String(formData.get("taxId") || "").trim() || undefined;
-  const taxIdPath =
-    String(formData.get("taxIdPath") || "").trim() || undefined;
+  const taxIdPath = String(formData.get("taxIdPath") || "").trim() || undefined;
   const businessName =
     String(formData.get("businessName") || "").trim() || undefined;
   const fiscalAddress =
@@ -115,10 +115,37 @@ export async function finalizeOnboarding() {
 
 export async function createCompanyFromOnboardingAction(data: any) {
   try {
-    const result = await createCompanyFromOnboarding(data);
-    // Clear session after success
-    // TODO: Clear session
-    return { success: true, company: result.company };
+    const auth = await getAuthCookie();
+
+    const result = await createCompanyFromOnboarding(data, {
+      existingAuthId: auth?.userId,
+      existingUsername: auth?.username,
+    });
+
+    if (result.success && result.company) {
+      const tenantSlug = result.company.slug;
+
+      if (tenantSlug && result.ownerAuthId) {
+        const username =
+          result.ownerUsername || auth?.username || `admin-${tenantSlug}`;
+        const privilege =
+          result.ownerPrivilegeCode || auth?.privilege || "SYS_AD";
+
+        await setAuthCookie({
+          userId: result.ownerAuthId,
+          username,
+          tenantId: tenantSlug,
+          privilege,
+        });
+      }
+
+      return { success: true, company: result.company };
+    }
+
+    return {
+      success: false,
+      error: "Error al crear empresa",
+    };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

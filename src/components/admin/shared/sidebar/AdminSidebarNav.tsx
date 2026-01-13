@@ -6,15 +6,9 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Building2,
-  MapPin,
   Users,
-  UserCheck,
-  Settings,
-  BarChart3,
   ChevronDown,
   Truck,
-  Warehouse,
-  Briefcase,
   Package,
   TrendingUp,
 } from "lucide-react";
@@ -30,7 +24,7 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
-import { useSidebarToolbar } from "./SidebarToolbarContext";
+import { useSidebarToolbar } from "./context/SidebarToolbarContext";
 
 export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
   const pathname = usePathname();
@@ -39,7 +33,6 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
     Operaciones: true, // Default open
     Logística: false,
     "Recursos Humanos": false,
-    Sistema: false,
   });
 
   const navigationGroups = [
@@ -136,24 +129,6 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
         },
       ],
     },
-    {
-      title: "Sistema",
-      collapsible: true,
-      items: [
-        {
-          title: "Configuración",
-          url: tenantId
-            ? `/vendu/dashboard/${tenantId}/admin/settings`
-            : "/admin/settings",
-        },
-        {
-          title: "Reportes",
-          url: tenantId
-            ? `/vendu/dashboard/${tenantId}/admin/reports`
-            : "/admin/reports",
-        },
-      ],
-    },
   ];
 
   // Function to get breadcrumbs based on current pathname
@@ -239,14 +214,6 @@ export function AdminSidebarNav({ tenantId }: { tenantId?: string }) {
                         {group.title === "Estratégico" &&
                           item.title === "Inventario Estratégico" && (
                             <Package className="h-4 w-4" />
-                          )}
-                        {group.title === "Sistema" &&
-                          item.title === "Configuración" && (
-                            <Settings className="h-4 w-4" />
-                          )}
-                        {group.title === "Sistema" &&
-                          item.title === "Reportes" && (
-                            <BarChart3 className="h-4 w-4" />
                           )}
                         {group.title === "Operaciones" && (
                           <TrendingUp className="h-4 w-4" />
