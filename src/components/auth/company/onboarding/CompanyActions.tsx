@@ -6,12 +6,14 @@ interface CompanyActionsProps {
   onBack: () => void;
   isPending?: boolean;
   showBackButton?: boolean;
+  disabled?: boolean;
 }
 
 export function CompanyActions({
   onBack,
   isPending = false,
   showBackButton = true,
+  disabled = false,
 }: CompanyActionsProps) {
   return (
     <div className="flex space-x-4">
@@ -29,7 +31,7 @@ export function CompanyActions({
       <Button
         type="submit"
         className={showBackButton ? "flex-1" : "w-full"}
-        disabled={isPending}
+        disabled={isPending || disabled}
       >
         {isPending ? "Guardando..." : "Siguiente"}
       </Button>

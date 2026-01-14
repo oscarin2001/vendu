@@ -7,6 +7,8 @@ import { useCompanyForm } from "@/components/auth/company/hooks/useCompanyForm";
 import { CompanyActions } from "./CompanyActions";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
 import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
+import { ImmutableConfirmCheckbox } from "../shared/ImmutableConfirmCheckbox";
+import { SlugPreview } from "../shared/SlugPreview";
 
 interface CompanyFormProps {
   initialData?: {
@@ -59,10 +61,24 @@ export function CompanyForm({
     validateForm,
   } = useCompanyForm(initialData);
 
+  // Función pura para generar slug
+  const generateSlug = (companyName: string): string => {
+    return companyName
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+  };
+
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
   const [phonePlaceholder, setPhonePlaceholder] =
     useState<string>("59112345678");
   const [forcePhoneValidation, setForcePhoneValidation] = useState(false);
+  const [confirmImmutable, setConfirmImmutable] = useState(false);
+
+  const [slugPreview, setSlugPreview] = useState("");
+  const [validationStatus, setValidationStatus] = useState<
+    "idle" | "loading" | "available" | "unavailable"
+  >("idle");
 
   const [errors, setErrors] = useState(formErrors || {});
 
@@ -88,6 +104,17 @@ export function CompanyForm({
       },
     });
     setErrors(formErrors || {});
+
+    // Generar preview del slug en tiempo real
+    if (name.trim()) {
+      const slug = generateSlug(name);
+      setSlugPreview(slug);
+      // Reset validation status when name changes
+      setValidationStatus("idle");
+    } else {
+      setSlugPreview("");
+      setValidationStatus("idle");
+    }
   }, [
     name,
     country,
@@ -98,6 +125,22 @@ export function CompanyForm({
     onDataChange,
     formErrors,
   ]);
+
+  const handleNameBlur = async () => {
+    if (!name.trim() || name.trim().length < 2) return;
+
+    setValidationStatus("loading");
+    try {
+      const result = await validateCompanyNameAction(name);
+      if (result.success) {
+        setValidationStatus(result.isAvailable ? "available" : "unavailable");
+      } else {
+        setValidationStatus("unavailable");
+      }
+    } catch (error) {
+      setValidationStatus("unavailable");
+    }
+  };
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
@@ -121,6 +164,15 @@ export function CompanyForm({
     // Use validation from the hook
     const isValid = validateForm();
     if (!isValid) return;
+
+    // Verificar confirmación de campos inmutables
+    if (!confirmImmutable) {
+      setErrors((prev) => ({
+        ...prev,
+        confirm: "Debes confirmar que el nombre de la empresa es correcto",
+      }));
+      return;
+    }
 
     // extra phone validation from PhoneInput
     const phoneMessage = getPhoneMissingDigitsMessage(phone, country);
@@ -187,12 +239,22 @@ export function CompanyForm({
         openedAt={openedAt}
         setOpenedAt={setOpenedAt}
         errors={errors}
+        onNameBlur={handleNameBlur}
+      />
+
+      <SlugPreview slug={slugPreview} status={validationStatus} />
+
+      <ImmutableConfirmCheckbox
+        checked={confirmImmutable}
+        onCheckedChange={setConfirmImmutable}
+        label="Confirmo que el nombre de la empresa es correcto y entiendo que se convertirá en mi URL única de acceso (ej. vendu.com/mi-empresa)."
       />
 
       <CompanyActions
         onBack={onBack}
         isPending={isPending}
         showBackButton={false}
+        disabled={!confirmImmutable}
       />
     </form>
   );

@@ -853,6 +853,23 @@ model tbsubscriptions {
 }
 
 //////////////////////////////
+// HISTORIAL DE CONFIGURACIÓN DE COMPAÑÍA
+// Registra cambios en settings críticos para auditoría y rollback
+model tbcompany_settings_history {
+  PK_history   Int      @id @default(autoincrement())
+  FK_company   Int
+  FK_changedBy Int? // Empleado que realizó el cambio
+  changedAt    DateTime @default(now())
+  oldValues    Json? // Valores anteriores
+  newValues    Json? // Valores nuevos
+  reason       String? // Motivo del cambio
+  changeType   String   @default("UPDATE") // UPDATE, ROLLBACK, etc.
+
+  @@index([FK_company])
+  @@index([changedAt])
+}
+
+//////////////////////////////
 // AUDITORÍA CENTRALIZADA
 // Logs de auditoría para trazabilidad legal e investigación
 model tbaudit_logs {

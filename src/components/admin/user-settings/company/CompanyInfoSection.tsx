@@ -4,7 +4,7 @@ import { CompanyFormState } from "./types";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Building2, ChevronDown, Check, Coins } from "lucide-react";
+import { Building2, ChevronDown, Check, Coins, Lock, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CompanyCountryField } from "./CompanyCountryField";
 import { CompanyDepartmentField } from "./CompanyDepartmentField";
@@ -74,14 +74,30 @@ export function CompanyInfoSection({
 
       {expanded && (
         <div className="p-6 bg-card border-t space-y-6">
+          {/* Aviso de campos inmutables */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
+            <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground">
+              El nombre de la empresa fue definido durante el registro y no
+              puede modificarse. Los demás campos son editables.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field>
-              <FieldLabel>Nombre</FieldLabel>
+              <FieldLabel className="flex items-center gap-2">
+                Nombre
+                <Lock className="h-3 w-3 text-muted-foreground" />
+              </FieldLabel>
               <Input
                 value={data.name}
-                onChange={(event) => onFieldChange("name", event.target.value)}
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
                 placeholder="Nombre de la empresa"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Campo permanente definido en el registro
+              </p>
             </Field>
             <Field>
               <FieldLabel>NIT</FieldLabel>

@@ -46,6 +46,7 @@ interface CompanyFieldsProps {
   openedAt?: string;
   setOpenedAt?: (v: string) => void;
   errors?: CompanyFormErrors;
+  onNameBlur?: () => void;
 }
 
 export function CompanyFields({
@@ -67,6 +68,7 @@ export function CompanyFields({
   openedAt,
   setOpenedAt,
   errors = {},
+  onNameBlur,
 }: CompanyFieldsProps) {
   const [phoneTouched, setPhoneTouched] = useState(false);
   const countryConfig = getCountryConfigByName(country);
@@ -110,6 +112,7 @@ export function CompanyFields({
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onBlur={onNameBlur}
             placeholder="Mi empresa S.R.L."
           />
           {errors.name && (
