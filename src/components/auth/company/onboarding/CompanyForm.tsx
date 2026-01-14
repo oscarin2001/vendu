@@ -8,7 +8,7 @@ import { CompanyActions } from "./CompanyActions";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
 import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
 import { ImmutableConfirmCheckbox } from "../shared/ImmutableConfirmCheckbox";
-import { SlugPreview } from "../shared/SlugPreview";
+import { SlugPreview } from "./shared/SlugPreview";
 
 interface CompanyFormProps {
   initialData?: {

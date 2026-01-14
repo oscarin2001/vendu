@@ -3,7 +3,7 @@
 import { AnimatedTransition } from "@/components/ui/animations";
 
 // Onboarding components
-import { CompanyForm } from "./onboarding/CompanyForm";
+import { OnboardingWizard } from "./onboarding/OnboardingWizard";
 import { CompanyDescriptionForm } from "./onboarding/CompanyDescriptionForm";
 import { OwnerForm } from "./forms/onboarding/owner/OwnerForm";
 import { FiscalForm } from "./onboarding/FiscalForm";
@@ -85,11 +85,11 @@ export function OnboardingFlow({
           show={currentStep === "company-name"}
           direction="right"
         >
-          <CompanyForm
-            initialData={onboardingData.companyName}
-            onDataChange={(data) => onDataChange?.({ companyName: data })}
-            onBack={onStepBack}
-            onNext={() => handleStepNext("company-name")}
+          <OnboardingWizard
+            onComplete={(data) => {
+              onDataChange?.({ companyName: data });
+              handleStepNext("company-name");
+            }}
           />
         </AnimatedTransition>
       )}
