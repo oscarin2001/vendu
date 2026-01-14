@@ -118,6 +118,22 @@ export async function loginAction(
 
 import { getAuthCookie } from "@/services/auth/adapters";
 
+export async function checkAuthStatus(): Promise<{
+  authenticated: boolean;
+  pendingOnboarding: boolean;
+  tenantId: string | null;
+}> {
+  const auth = await getAuthCookie();
+  if (!auth) {
+    return { authenticated: false, pendingOnboarding: false, tenantId: null };
+  }
+  return {
+    authenticated: true,
+    pendingOnboarding: auth.tenantId === "pending-onboarding",
+    tenantId: auth.tenantId,
+  };
+}
+
 export async function checkAuthAndRedirect() {
   const auth = await getAuthCookie();
   if (auth) {

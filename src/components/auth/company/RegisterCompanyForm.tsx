@@ -1,12 +1,16 @@
 "use client";
 
 import { GalleryVerticalEnd } from "lucide-react";
-import { Suspense, useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthForm from "@/components/auth/company/auth-form";
 import { OnboardingFlow } from "@/components/auth/company/OnboardingFlow";
 import { Stepper } from "@/components/auth/company/onboarding/Stepper";
-import { loginAction, type LoginResult } from "@/services/auth/login/actions";
+import {
+  loginAction,
+  type LoginResult,
+  checkAuthStatus,
+} from "@/services/auth/login/actions";
 import { registerAction } from "@/services/auth/register/actions";
 
 export default function RegisterCompanyForm() {
@@ -57,6 +61,25 @@ export default function RegisterCompanyForm() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Ref para evitar que el useEffect de limpieza cancele el onboarding tras login exitoso
+  const skipCleanupRef = useRef(false);
+
+  // Al montar, verificar si hay sesión con pending-onboarding para mostrar wizard automáticamente
+  useEffect(() => {
+    const checkPendingOnboarding = async () => {
+      try {
+        const status = await checkAuthStatus();
+        if (status.authenticated && status.pendingOnboarding) {
+          skipCleanupRef.current = true;
+          setShowOnboarding(true);
+        }
+      } catch (e) {
+        // noop
+      }
+    };
+    checkPendingOnboarding();
+  }, []);
+
   useEffect(() => {
     // Sincroniza el estado con la URL si cambia externamente
     const currentMode =
@@ -89,6 +112,12 @@ export default function RegisterCompanyForm() {
   }, [mode]);
 
   useEffect(() => {
+    // Si estamos continuando onboarding tras login, saltamos la limpieza
+    if (skipCleanupRef.current) {
+      skipCleanupRef.current = false;
+      return;
+    }
+
     // Siempre limpia progreso al cambiar de modo para evitar abrir el wizard.
     try {
       localStorage.removeItem("onboarding-started");
@@ -153,6 +182,8 @@ export default function RegisterCompanyForm() {
           } catch (_) {
             // Si sonner no carga, seguimos sin interrumpir el flujo
           }
+          // Marcamos para evitar que el useEffect de limpieza cancele el onboarding
+          skipCleanupRef.current = true;
           setShowOnboarding(true);
           return;
         }

@@ -7,6 +7,10 @@ import { AdminBreadcrumbs } from "@/components/admin/shared/navigation/AdminBrea
 import { SidebarToolbarProvider } from "@/components/admin/shared/sidebar/context/SidebarToolbarContext";
 import { useCompany } from "@/services/admin/company";
 import {
+  getAccountProfile,
+  AccountProfileData,
+} from "@/services/admin/user-settings";
+import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
@@ -21,24 +25,38 @@ export default function AdminLayout({
   const tenantId = params.tenantId as string;
 
   const { company, isLoading } = useCompany(tenantId);
+  const [userData, setUserData] = useState<AccountProfileData | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
 
-  // TODO: Obtener datos reales del usuario
-  // Por ahora, datos mock
-  const mockUser = {
-    id: 1,
-    firstName: "Oscar",
-    lastName: "Flores",
-  };
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const result = await getAccountProfile();
+        if (result.success && result.data) {
+          setUserData(result.data);
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      } finally {
+        setUserLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
 
-  if (isLoading) {
+  const userFirstName = userData?.firstName || "";
+  const userLastName = userData?.lastName || "";
+  const userId = userData?.authId || 0;
+
+  if (isLoading || userLoading) {
     return (
       <SidebarToolbarProvider>
         <SidebarProvider>
           <AdminSidebar
             organizationName="Cargando..."
-            userFirstName={mockUser.firstName}
-            userLastName={mockUser.lastName}
-            userId={mockUser.id}
+            userFirstName={userFirstName}
+            userLastName={userLastName}
+            userId={userId}
             tenantId={tenantId}
           />
           <SidebarInset>
@@ -58,9 +76,9 @@ export default function AdminLayout({
       <SidebarProvider>
         <AdminSidebar
           organizationName={company?.name || "Empresa"}
-          userFirstName={mockUser.firstName}
-          userLastName={mockUser.lastName}
-          userId={mockUser.id}
+          userFirstName={userFirstName}
+          userLastName={userLastName}
+          userId={userId}
           tenantId={tenantId}
         />
         <SidebarInset>

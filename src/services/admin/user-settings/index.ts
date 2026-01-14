@@ -5,3 +5,7 @@
 export { updateSystemSettings } from "./mutations/system-mutation";
 export { getSystemSettings } from "./queries/system-query";
 export { getCompanySettings, updateCompanySettings } from "./services";
+
+// Account profile actions
+export { getAccountProfile } from "./actions";
+export type { AccountProfileData, AccountProfileResult } from "./actions";

@@ -11,27 +11,37 @@ export async function middleware(request: NextRequest) {
     const mode = request.nextUrl.searchParams.get("mode");
 
     // Allow login/register forms to render even if there is a cookie
+    // También permitir que usuarios con pending-onboarding se queden en /register-company
     const isAuthForm = mode === "register" || mode === "login" || !mode;
+    const isMainRegisterPage = pathname === "/register-company";
 
-    if (auth && !isAuthForm) {
+    if (auth) {
       const isPending = auth.tenantId === "pending-onboarding";
 
-      if (!isPending) {
-        return NextResponse.redirect(
-          new URL(`/vendu/dashboard/${auth.tenantId}/admin`, request.url)
-        );
+      // Si el usuario tiene pending-onboarding y está en /register-company, dejarlo ahí
+      // para que el wizard se muestre inline en el formulario
+      if (isPending && isMainRegisterPage) {
+        return NextResponse.next();
       }
 
-      if (
-        isPending &&
-        !pathname.startsWith("/register-company/onboarding-auth-company")
-      ) {
-        return NextResponse.redirect(
-          new URL(
-            "/register-company/onboarding-auth-company/company-name",
-            request.url
-          )
-        );
+      if (!isAuthForm) {
+        if (!isPending) {
+          return NextResponse.redirect(
+            new URL(`/vendu/dashboard/${auth.tenantId}/admin`, request.url)
+          );
+        }
+
+        if (
+          isPending &&
+          !pathname.startsWith("/register-company/onboarding-auth-company")
+        ) {
+          return NextResponse.redirect(
+            new URL(
+              "/register-company/onboarding-auth-company/company-name",
+              request.url
+            )
+          );
+        }
       }
     }
   }

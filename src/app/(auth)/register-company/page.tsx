@@ -20,12 +20,15 @@ export default async function RegisterCompanyPage({
   // If user is already authenticated, redirect them to their dashboard
   const auth = await getAuthCookie();
 
-  if (auth && mode !== "register") {
-    if (auth.tenantId === "pending-onboarding") {
-      redirect("/register-company/onboarding-auth-company/company-name");
-    }
+  if (auth) {
+    const isPending = auth.tenantId === "pending-onboarding";
 
-    redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
+    // Si es pending-onboarding, permitir que el componente cliente maneje el wizard inline
+    // Solo redirigir si el usuario ya tiene un slug válido (onboarding completado)
+    if (!isPending && mode !== "register" && mode !== "login") {
+      redirect(`/vendu/dashboard/${auth.tenantId}/admin`);
+    }
+    // Si es pending-onboarding, dejamos que el cliente muestre el wizard inline
   }
 
   return (

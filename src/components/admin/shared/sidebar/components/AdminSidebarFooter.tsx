@@ -47,7 +47,10 @@ export function AdminSidebarFooter({
       <div className="flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center gap-3 rounded-md px-2 py-1 text-sm hover:bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
+            <button
+              className="flex w-full items-center gap-3 rounded-md px-2 py-1 text-sm hover:bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
+              suppressHydrationWarning
+            >
               <AdminSidebarAvatar
                 firstName={userFirstName}
                 lastName={userLastName}

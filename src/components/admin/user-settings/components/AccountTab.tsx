@@ -14,8 +14,10 @@ import {
   Check,
   Phone,
   CreditCard,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getAccountProfile } from "@/services/admin/user-settings";
 
 interface AccountTabProps {
   userId: number;
@@ -31,6 +33,7 @@ export function AccountTab({ userId }: AccountTabProps) {
     newPassword: "",
     confirmPassword: "",
   });
+  const [lastLogin, setLastLogin] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,19 +49,26 @@ export function AccountTab({ userId }: AccountTabProps) {
 
   const loadData = async () => {
     try {
-      // Load profile data
+      // Load profile data from server
       setProfileLoading(true);
       try {
-        // TODO: Replace with actual profile loading
-        setProfileData({
-          firstName: "Oscar",
-          lastName: "Flores",
-          phone: "+591 12345678",
-          ci: "12345678",
-          username: "oscar.flores",
-          newPassword: "",
-          confirmPassword: "",
-        });
+        const result = await getAccountProfile();
+
+        if (result.success && result.data) {
+          setProfileData({
+            firstName: result.data.firstName || "",
+            lastName: result.data.lastName || "",
+            phone: result.data.phone || "",
+            ci: result.data.ci || "",
+            username: result.data.username || "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+          setLastLogin(result.data.lastLogin);
+        } else {
+          console.error("Error loading profile:", result.error);
+          toast.error(result.error || "Error cargando datos del perfil");
+        }
       } catch (profileError) {
         console.error("Error loading profile:", profileError);
         toast.error("Error cargando datos del perfil");
@@ -214,19 +224,19 @@ export function AccountTab({ userId }: AccountTabProps) {
               </Field>
               <Field className="md:col-span-2">
                 <FieldLabel className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Usuario
+                  <Mail className="h-4 w-4" />
+                  Email / Usuario
                 </FieldLabel>
                 <Input
                   value={profileData.username}
-                  onChange={(e) =>
-                    setProfileData((prev) => ({
-                      ...prev,
-                      username: e.target.value,
-                    }))
-                  }
-                  placeholder="usuario.ejemplo"
+                  disabled
+                  className="bg-muted/50 cursor-not-allowed"
+                  placeholder="usuario@ejemplo.com"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Este es el correo con el que iniciaste sesión. No se puede
+                  modificar.
+                </p>
               </Field>
               <Field className="md:col-span-2">
                 <FieldLabel className="flex items-center gap-2">
@@ -279,14 +289,16 @@ export function AccountTab({ userId }: AccountTabProps) {
             <div className="mt-8 pt-6 border-t flex justify-between items-center">
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                Última actualización: hace 2 días
+                {lastLogin
+                  ? `Última conexión: ${formatLastLogin(lastLogin)}`
+                  : "Sin registro de última conexión"}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" size="sm">
                   Restablecer
                 </Button>
                 <Button size="sm" className="min-w-[140px]">
-                  {saving ? "Guardando..." : "Datos de la cuenta"}
+                  {saving ? "Guardando..." : "Guardar cambios"}
                 </Button>
               </div>
             </div>
@@ -295,4 +307,25 @@ export function AccountTab({ userId }: AccountTabProps) {
       </div>
     </div>
   );
+}
+
+function formatLastLogin(date: Date): string {
+  const now = new Date();
+  const loginDate = new Date(date);
+  const diffMs = now.getTime() - loginDate.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return "hace unos segundos";
+  if (diffMins < 60) return `hace ${diffMins} minuto${diffMins > 1 ? "s" : ""}`;
+  if (diffHours < 24)
+    return `hace ${diffHours} hora${diffHours > 1 ? "s" : ""}`;
+  if (diffDays < 7) return `hace ${diffDays} día${diffDays > 1 ? "s" : ""}`;
+
+  return loginDate.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
