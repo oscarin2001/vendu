@@ -201,9 +201,9 @@ export function CompanyStep({
         </Button>
       </div>
 
-      <UrlInfoModal 
-        open={showModal} 
-        onOpenChange={setShowModal} 
+      <UrlInfoModal
+        open={showModal}
+        onOpenChange={setShowModal}
         currentSlug={slugPreview}
         onConfirm={() => setConfirmImmutable(true)}
       />

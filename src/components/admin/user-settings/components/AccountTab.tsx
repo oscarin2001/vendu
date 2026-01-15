@@ -8,15 +8,16 @@ import { toast } from "sonner";
 import {
   ChevronDown,
   User,
-  Eye,
-  EyeOff,
   AlertCircle,
   Check,
-  Phone,
   CreditCard,
   Mail,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Phone as PhoneIcon } from "lucide-react";
+import { cn, formatPhonePattern } from "@/lib/utils";
+import { getOnboardingData } from "@/services/auth/company-registration/onboarding/session";
+import { getCountryConfigByName } from "@/services/admin/config";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { getAccountProfile } from "@/services/admin/user-settings";
 
 interface AccountTabProps {
@@ -186,19 +187,32 @@ export function AccountTab({ userId }: AccountTabProps) {
               </Field>
               <Field>
                 <FieldLabel className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
+                  <PhoneIcon className="h-4 w-4" />
                   Teléfono
                 </FieldLabel>
-                <Input
-                  value={profileData.phone}
-                  onChange={(e) =>
-                    setProfileData((prev) => ({
-                      ...prev,
-                      phone: e.target.value,
-                    }))
-                  }
-                  placeholder="+591 12345678"
-                />
+                {
+                  (() => {
+                    // derive company country from onboarding session so profile phone follows same formatting
+                    const session: any = typeof window !== "undefined" ? getOnboardingData() : {};
+                    const companyCountry = session?.company?.country;
+                    const countryConfig = getCountryConfigByName(companyCountry);
+                    return (
+                      <PhoneInput
+                        value={profileData.phone}
+                        onChange={(val /*, valid*/) =>
+                          setProfileData((prev) => ({ ...prev, phone: val }))
+                        }
+                        placeholder={
+                          countryConfig?.phone?.format || formatPhonePattern(countryConfig?.phone?.local || 8)
+                        }
+                        fixedCountryCode={countryConfig?.phone?.prefix}
+                        fixedLocalMax={countryConfig?.phone?.local}
+                        hideCountrySelect
+                        showValidation={!!profileData.phone}
+                      />
+                    );
+                  })()
+                }
               </Field>
               <Field>
                 <FieldLabel className="flex items-center gap-2">

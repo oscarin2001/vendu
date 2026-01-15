@@ -63,7 +63,15 @@ export function OwnerStep({
   const countryConfig = getCountryConfigByName(companyCountry);
 
   useEffect(() => {
-    const data = { firstName, lastName, phone, ci, gender, birthDate, joinedAt };
+    const data = {
+      firstName,
+      lastName,
+      phone,
+      ci,
+      gender,
+      birthDate,
+      joinedAt,
+    };
     onDataChange?.(data);
     saveOnboardingData({
       owner: { ...data, country: companyCountry || "" } as any,
@@ -248,7 +256,9 @@ export function OwnerStep({
               mode="single"
               captionLayout="dropdown"
               selected={joinedAt ? parseISOToLocalDate(joinedAt) : undefined}
-              onSelect={(date) => setJoinedAt(date ? format(date, "yyyy-MM-dd") : "")}
+              onSelect={(date) =>
+                setJoinedAt(date ? format(date, "yyyy-MM-dd") : "")
+              }
               locale={es}
               initialFocus
             />

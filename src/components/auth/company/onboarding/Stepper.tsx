@@ -19,7 +19,8 @@ const steps = [
 ];
 
 export function Stepper({ currentStep }: { currentStep?: string }) {
-  const getCurrentStepIndex = () => steps.findIndex((s) => s.path === currentStep);
+  const getCurrentStepIndex = () =>
+    steps.findIndex((s) => s.path === currentStep);
   const currentIndex = getCurrentStepIndex();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +59,10 @@ export function Stepper({ currentStep }: { currentStep?: string }) {
     const container = containerRef.current;
     if (!container) return;
     const amount = container.clientWidth * 0.6;
-    container.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    container.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -87,7 +91,9 @@ export function Stepper({ currentStep }: { currentStep?: string }) {
             return (
               <div
                 key={step.name}
-                ref={(r) => { itemRefs.current[index] = r; }}
+                ref={(r) => {
+                  itemRefs.current[index] = r;
+                }}
                 role="listitem"
                 className="flex items-center min-w-[92px] sm:min-w-[120px]"
               >
@@ -103,12 +109,22 @@ export function Stepper({ currentStep }: { currentStep?: string }) {
                   >
                     <Icon size={18} />
                   </div>
-                  <span className={`mt-1 text-xs sm:text-sm font-medium ${isCompleted || isCurrent ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span
+                    className={`mt-1 text-xs sm:text-sm font-medium ${
+                      isCompleted || isCurrent
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
                     {step.name}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`hidden sm:block flex-0 w-8 h-[2px] mx-2 ${isCompleted ? "bg-emerald-700" : "bg-muted"}`} />
+                  <div
+                    className={`hidden sm:block flex-0 w-8 h-[2px] mx-2 ${
+                      isCompleted ? "bg-emerald-700" : "bg-muted"
+                    }`}
+                  />
                 )}
               </div>
             );
@@ -128,12 +144,21 @@ export function Stepper({ currentStep }: { currentStep?: string }) {
       </div>
 
       <style jsx>{`
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; height: 0; }
-        .stepper-window { scroll-snap-type: x mandatory; }
-        .stepper-window > div { scroll-snap-align: center; }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+          height: 0;
+        }
+        .stepper-window {
+          scroll-snap-type: x mandatory;
+        }
+        .stepper-window > div {
+          scroll-snap-align: center;
+        }
       `}</style>
     </div>
   );
 }
-

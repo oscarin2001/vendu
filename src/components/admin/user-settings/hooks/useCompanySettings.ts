@@ -64,7 +64,8 @@ export function useCompanySettings(
   const [fieldErrors, setFieldErrors] = useState<{ country?: string; department?: string }>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpandedState] = useState(true);
+  // start collapsed by default so the section doesn't open automatically
+  const [expanded, setExpandedState] = useState(false);
   const [pendingCountry, setPendingCountry] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);

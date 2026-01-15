@@ -65,58 +65,53 @@ export function UserSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[1800px] max-h-[95vh] min-h-[72vh] w-[95vw] min-w-[1100px] overflow-hidden">
-        <DialogHeader className="p-4">
+      <DialogContent className="max-w-3xl w-[95vw] sm:w-[680px] h-[85vh] max-h-[600px] p-0 gap-0 overflow-hidden flex flex-col">
+        {/* Header compacto */}
+        <DialogHeader className="px-6 py-4 border-b bg-muted/30 shrink-0">
           <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-                <Settings2 className="h-5 w-5 text-foreground" />
-                Configuraciones
-              </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Personaliza tu experiencia y preferencias del sistema
-              </p>
-            </div>
-            <Badge variant="secondary" className="hidden sm:flex text-xs px-3 py-1">
+            <DialogTitle className="text-lg font-semibold flex items-center gap-2">
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
+              Configuraciones
+            </DialogTitle>
+            <Badge variant="outline" className="text-xs px-2 py-0.5 font-normal">
               {tabs.find((tab) => tab.id === activeTab)?.label || "General"}
             </Badge>
           </div>
         </DialogHeader>
-        <div className="flex h-full min-h-0 gap-4 overflow-hidden">
-          {/* Sidebar interno mejorado */}
-          <div className="w-36 sm:w-44 border-r bg-muted/20 py-4 pl-2 pr-3">
-            <div className="h-full">
-              <nav className="space-y-3">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        "w-full flex items-center justify-start gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 group hover:scale-[1.02]",
-                        activeTab === tab.id
-                          ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
-                          : "hover:bg-muted"
-                      )}
-                    >
-                      <div className="text-left flex items-center gap-2">
-                        <Icon className={cn("h-5 w-5", tab.color)} />
-                        <span className="font-medium whitespace-nowrap">
-                          {tab.label}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-          </div>
-          {/* Contenido */}
-          <div className="flex-1 min-w-0 overflow-hidden bg-card">
-            <div className="h-full overflow-y-auto max-h-[calc(95vh-8rem)] p-6">
-              {ActiveComponent && <ActiveComponent userId={userId} />}
-            </div>
+
+        {/* Body: Sidebar + Content */}
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* Sidebar compacto */}
+          <nav className="w-[140px] shrink-0 border-r bg-muted/20 p-2 space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors",
+                    isActive
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 shrink-0",
+                      isActive ? "text-primary-foreground" : tab.color
+                    )}
+                  />
+                  <span className="truncate">{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Contenido scrollable */}
+          <div className="flex-1 min-w-0 overflow-y-auto p-6">
+            {ActiveComponent && <ActiveComponent userId={userId} />}
           </div>
         </div>
       </DialogContent>

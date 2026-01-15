@@ -35,20 +35,32 @@ export function FiscalStep({
     initialData.fiscalAddress || ""
   );
   // Try to derive a sensible default for taxIdPath from the onboarding session
-  const existingSession: any = typeof window !== "undefined" ? getOnboardingData() : {};
+  const existingSession: any =
+    typeof window !== "undefined" ? getOnboardingData() : {};
   let defaultTaxIdPath = initialData.taxIdPath || "";
   if (!defaultTaxIdPath) {
-    if (existingSession && existingSession.fiscal && existingSession.fiscal.taxIdPath) {
+    if (
+      existingSession &&
+      existingSession.fiscal &&
+      existingSession.fiscal.taxIdPath
+    ) {
       defaultTaxIdPath = existingSession.fiscal.taxIdPath;
-    } else if (existingSession && existingSession.company && existingSession.company.taxIdPath) {
+    } else if (
+      existingSession &&
+      existingSession.company &&
+      existingSession.company.taxIdPath
+    ) {
       defaultTaxIdPath = existingSession.company.taxIdPath;
-    } else if (existingSession && existingSession.company && existingSession.company.slug) {
+    } else if (
+      existingSession &&
+      existingSession.company &&
+      existingSession.company.slug
+    ) {
       defaultTaxIdPath = `https://vendu.com/${existingSession.company.slug}`;
     }
   }
 
   const [taxIdPath, setTaxIdPath] = useState(defaultTaxIdPath || "");
-  
 
   useEffect(() => {
     const data = { taxId, businessName, fiscalAddress, taxIdPath };

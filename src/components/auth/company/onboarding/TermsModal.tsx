@@ -46,9 +46,10 @@ export function TermsModal({
             className="mt-1"
           />
           <span className="text-sm">
-            He leído y acepto los Términos de Uso y la Política de Uso Aceptable.
-            Declaro que mi comercio no comercializa bienes ilegales o robados y entiendo que la plataforma podrá
-            bloquear mi cuenta o página si se notifica actividad sospechosa.
+            He leído y acepto los Términos de Uso y la Política de Uso
+            Aceptable. Declaro que mi comercio no comercializa bienes ilegales o
+            robados y entiendo que la plataforma podrá bloquear mi cuenta o
+            página si se notifica actividad sospechosa.
           </span>
         </label>
 

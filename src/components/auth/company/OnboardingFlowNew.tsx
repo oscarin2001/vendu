@@ -1,7 +1,13 @@
 "use client";
 
 import { AnimatedTransition } from "@/components/ui/animations";
-import { CompanyStep, DetailsStep, OwnerStep, FiscalStep, ConfirmStep } from "./onboarding/steps";
+import {
+  CompanyStep,
+  DetailsStep,
+  OwnerStep,
+  FiscalStep,
+  ConfirmStep,
+} from "./onboarding/steps";
 
 type StepType = "company" | "details" | "owner" | "fiscal" | "confirm";
 
@@ -49,7 +55,11 @@ export function OnboardingFlow({
         <AnimatedTransition show={currentStep === "company"} direction="right">
           <CompanyStep
             initialData={onboardingData.companyName}
-            onDataChange={(data) => onDataChange?.({ companyName: { ...onboardingData.companyName, ...data } })}
+            onDataChange={(data) =>
+              onDataChange?.({
+                companyName: { ...onboardingData.companyName, ...data },
+              })
+            }
             onNext={() => onStepComplete("company", onboardingData.companyName)}
           />
         </AnimatedTransition>
@@ -60,7 +70,11 @@ export function OnboardingFlow({
           <DetailsStep
             initialData={onboardingData.companyName}
             companyCountry={onboardingData.companyName.country}
-            onDataChange={(data) => onDataChange?.({ companyName: { ...onboardingData.companyName, ...data } })}
+            onDataChange={(data) =>
+              onDataChange?.({
+                companyName: { ...onboardingData.companyName, ...data },
+              })
+            }
             onNext={() => onStepComplete("details", onboardingData.companyName)}
             onBack={onStepBack}
           />

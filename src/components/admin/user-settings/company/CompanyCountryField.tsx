@@ -45,12 +45,7 @@ export function CompanyCountryField({
         </div>
         <Lock className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="flex items-center gap-1.5 mt-1.5 text-xs text-amber-600">
-        <AlertTriangle className="h-3.5 w-3.5" />
-        <span>
-          El país no puede cambiarse (afecta contabilidad, impuestos y reportes)
-        </span>
-      </div>
+      {/* Country immutability banner removed per settings UX request */}
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
     </Field>
   );
