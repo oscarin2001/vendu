@@ -30,8 +30,7 @@ export function AccountTab({ userId }: AccountTabProps) {
     phone: "",
     ci: "",
     username: "",
-    newPassword: "",
-    confirmPassword: "",
+    // passwords removed from profile UI
   });
   const [lastLogin, setLastLogin] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +39,7 @@ export function AccountTab({ userId }: AccountTabProps) {
   const [expandedSections, setExpandedSections] = useState({
     profile: false,
   });
-  const [showPassword, setShowPassword] = useState(false);
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -54,15 +53,13 @@ export function AccountTab({ userId }: AccountTabProps) {
       try {
         const result = await getAccountProfile();
 
-        if (result.success && result.data) {
+      if (result.success && result.data) {
           setProfileData({
             firstName: result.data.firstName || "",
             lastName: result.data.lastName || "",
             phone: result.data.phone || "",
             ci: result.data.ci || "",
             username: result.data.username || "",
-            newPassword: "",
-            confirmPassword: "",
           });
           setLastLogin(result.data.lastLogin);
         } else {
@@ -86,13 +83,7 @@ export function AccountTab({ userId }: AccountTabProps) {
   const handleSave = async () => {
     try {
       setSaving(true);
-      if (
-        profileData.newPassword &&
-        profileData.newPassword !== profileData.confirmPassword
-      ) {
-        toast.error("Las contraseñas no coinciden");
-        return;
-      }
+      // passwords handled elsewhere; skip password checks here
       // TODO: Implementar guardado real
       toast.success("Cuenta actualizada (simulado)");
     } catch (error) {
@@ -238,51 +229,7 @@ export function AccountTab({ userId }: AccountTabProps) {
                   modificar.
                 </p>
               </Field>
-              <Field className="md:col-span-2">
-                <FieldLabel className="flex items-center gap-2">
-                  Nueva Contraseña
-                </FieldLabel>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={profileData.newPassword}
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
-                        ...prev,
-                        newPassword: e.target.value,
-                      }))
-                    }
-                    placeholder="Dejar vacío para mantener la actual"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </Field>
-              <Field className="md:col-span-2">
-                <FieldLabel className="flex items-center gap-2">
-                  Confirmar Contraseña
-                </FieldLabel>
-                <Input
-                  type="password"
-                  value={profileData.confirmPassword}
-                  onChange={(e) =>
-                    setProfileData((prev) => ({
-                      ...prev,
-                      confirmPassword: e.target.value,
-                    }))
-                  }
-                  placeholder="Repite la nueva contraseña"
-                />
-              </Field>
+              {/* password fields removed per request */}
             </div>
 
             {/* Footer con acciones */}
