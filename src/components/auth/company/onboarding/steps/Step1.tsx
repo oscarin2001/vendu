@@ -18,7 +18,9 @@ interface Step1Props {
 export function Step1({ data, setData, onNext }: Step1Props) {
   const [isPending, setIsPending] = useState(false);
   const [slugPreview, setSlugPreview] = useState("");
-  const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "available" | "unavailable">("idle");
+  const [validationStatus, setValidationStatus] = useState<
+    "idle" | "loading" | "available" | "unavailable"
+  >("idle");
   const [confirmImmutable, setConfirmImmutable] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -46,7 +48,9 @@ export function Step1({ data, setData, onNext }: Step1Props) {
     setValidationStatus("loading");
     try {
       const result = await validateCompanyNameAction(data.name);
-      setValidationStatus(result.success && result.isAvailable ? "available" : "unavailable");
+      setValidationStatus(
+        result.success && result.isAvailable ? "available" : "unavailable"
+      );
     } catch {
       setValidationStatus("unavailable");
     }
@@ -69,7 +73,9 @@ export function Step1({ data, setData, onNext }: Step1Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Información de la Empresa</h2>
-        <p className="text-muted-foreground">Configura el nombre de tu empresa y su URL única.</p>
+        <p className="text-muted-foreground">
+          Configura el nombre de tu empresa y su URL única.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -109,7 +115,12 @@ export function Step1({ data, setData, onNext }: Step1Props) {
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isPending || !confirmImmutable || validationStatus !== "available"}>
+        <Button
+          type="submit"
+          disabled={
+            isPending || !confirmImmutable || validationStatus !== "available"
+          }
+        >
           Siguiente
         </Button>
       </div>

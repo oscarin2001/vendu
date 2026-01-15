@@ -14,7 +14,9 @@ export function ProgressBar({ current, total, className }: ProgressBarProps) {
   return (
     <div className={cn("w-full", className)}>
       <div className="flex justify-between text-sm text-muted-foreground mb-2">
-        <span>Paso {current + 1} de {total}</span>
+        <span>
+          Paso {current + 1} de {total}
+        </span>
         <span>{Math.round(progress)}% completado</span>
       </div>
       <div className="w-full bg-muted rounded-full h-2">

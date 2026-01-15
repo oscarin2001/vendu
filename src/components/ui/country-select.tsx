@@ -2,8 +2,7 @@
 
 import React from "react";
 import { Button } from "./Button";
-import { Label } from "./label";
-import { ChevronDown, MapPin } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -36,45 +35,39 @@ export function CountrySelect({
   const selected = COUNTRIES.find((c) => c.name === value);
 
   return (
-    <div className={className}>
-      <Label className="mb-2 flex items-center gap-2">
-        <MapPin size={16} />
-        País
-      </Label>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between h-12 px-4 transition-all duration-200 hover:border-primary/50"
-          >
-            <div className="flex items-center gap-3">
-              {selected ? (
-                <>
-                  <span className="text-lg">{selected.flag}</span>
-                  <span className="font-medium">{selected.name}</span>
-                </>
-              ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
-              )}
-            </div>
-            <ChevronDown size={16} className="text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className={`w-full justify-between h-12 px-4 transition-all duration-200 hover:border-primary/50 ${className}`}
+        >
+          <div className="flex items-center gap-3">
+            {selected ? (
+              <>
+                <span className="text-lg">{selected.flag}</span>
+                <span className="font-medium">{selected.name}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">{placeholder}</span>
+            )}
+          </div>
+          <ChevronDown size={16} className="text-muted-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto">
-          {COUNTRIES.map((c) => (
-            <DropdownMenuItem
-              key={c.name}
-              onClick={() => onChange?.(c.name)}
-              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-accent transition-colors"
-            >
-              <span className="text-lg">{c.flag}</span>
-              <span className="font-medium">{c.name}</span>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+      <DropdownMenuContent className="w-80 max-h-64 overflow-y-auto">
+        {COUNTRIES.map((c) => (
+          <DropdownMenuItem
+            key={c.name}
+            onClick={() => onChange?.(c.name)}
+            className="flex items-center gap-3 p-3 cursor-pointer hover:bg-accent transition-colors"
+          >
+            <span className="text-lg">{c.flag}</span>
+            <span className="font-medium">{c.name}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

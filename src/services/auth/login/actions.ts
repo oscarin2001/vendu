@@ -138,7 +138,8 @@ export async function checkAuthAndRedirect() {
   const auth = await getAuthCookie();
   if (auth) {
     if (auth.tenantId === "pending-onboarding") {
-      redirect("/register-company/onboarding-auth-company/company-name");
+      // User has pending onboarding - redirect to login to continue or start fresh
+      redirect("/register-company?mode=login");
     }
 
     // Already authenticated - redirect to tenant dashboard

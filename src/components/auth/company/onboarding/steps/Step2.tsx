@@ -24,7 +24,8 @@ interface Step2Props {
 
 export function Step2({ data, setData, onNext, onBack }: Step2Props) {
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
-  const [phonePlaceholder, setPhonePlaceholder] = useState<string>("59112345678");
+  const [phonePlaceholder, setPhonePlaceholder] =
+    useState<string>("59112345678");
   const [phoneTouched, setPhoneTouched] = useState(false);
 
   const countryConfig = getCountryConfigByName(data.country);
@@ -74,7 +75,9 @@ export function Step2({ data, setData, onNext, onBack }: Step2Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Ubicación y Contacto</h2>
-        <p className="text-muted-foreground">Configura tu ubicación y datos de contacto.</p>
+        <p className="text-muted-foreground">
+          Configura tu ubicación y datos de contacto.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -94,7 +97,8 @@ export function Step2({ data, setData, onNext, onBack }: Step2Props) {
             onChange={handlePhoneChange}
             placeholder={
               countryConfig
-                ? countryConfig.phone.format ?? formatPhonePattern(countryConfig.phone.local)
+                ? countryConfig.phone.format ??
+                  formatPhonePattern(countryConfig.phone.local)
                 : phonePlaceholder
             }
             required

@@ -4,7 +4,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { Suspense, useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthForm from "@/components/auth/company/auth-form";
-import { OnboardingFlow } from "@/components/auth/company/OnboardingFlow";
+import { OnboardingFlow } from "@/components/auth/company/OnboardingFlowNew";
 import { Stepper } from "@/components/auth/company/onboarding/Stepper";
 import {
   loginAction,
@@ -13,16 +13,11 @@ import {
 } from "@/services/auth/login/actions";
 import { registerAction } from "@/services/auth/register/actions";
 
+type StepType = "company" | "details" | "owner" | "fiscal" | "confirm";
+
 export default function RegisterCompanyForm() {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [currentStep, setCurrentStep] = useState<
-    | "company-name"
-    | "company-details"
-    | "owner"
-    | "fiscal"
-    | "legal"
-    | "confirmation"
-  >("company-name");
+  const [currentStep, setCurrentStep] = useState<StepType>("company");
   const [onboardingData, setOnboardingData] = useState({
     companyName: {
       name: "",
@@ -31,8 +26,6 @@ export default function RegisterCompanyForm() {
       department: "",
       commerceType: "",
       description: "",
-      vision: "",
-      mission: "",
       openedAt: "",
     },
     owner: {
@@ -42,11 +35,8 @@ export default function RegisterCompanyForm() {
       ci: "",
       gender: "",
       birthDate: "",
-      joinedAt: "",
-      contractEndAt: "",
     },
-    fiscal: { taxId: "", businessName: "", fiscalAddress: "", taxIdPath: "" },
-    legal: { tosAccepted: false, tosRead: false },
+    fiscal: { taxId: "", businessName: "", fiscalAddress: "" },
   });
 
   const searchParams = useSearchParams();
@@ -98,7 +88,7 @@ export default function RegisterCompanyForm() {
           const { currentStep: savedStep, onboardingData: savedData } =
             JSON.parse(saved);
           if (savedStep) {
-            setCurrentStep(savedStep);
+            setCurrentStep(savedStep as StepType);
           }
           if (savedData) {
             setOnboardingData(savedData);
@@ -128,7 +118,7 @@ export default function RegisterCompanyForm() {
     }
 
     setShowOnboarding(false);
-    setCurrentStep("company-name");
+    setCurrentStep("company");
   }, [mode]);
 
   useEffect(() => {
@@ -140,17 +130,16 @@ export default function RegisterCompanyForm() {
   }, [currentStep, onboardingData, showOnboarding]);
 
   const handleStepBack = () => {
-    const steps = [
-      "company-name",
-      "company-details",
+    const steps: StepType[] = [
+      "company",
+      "details",
       "owner",
       "fiscal",
-      "legal",
-      "confirmation",
+      "confirm",
     ];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
-      setCurrentStep(steps[currentIndex - 1] as any);
+      setCurrentStep(steps[currentIndex - 1]);
     }
   };
 
@@ -220,19 +209,17 @@ export default function RegisterCompanyForm() {
       [step]: data,
     }));
 
-    const steps = [
-      "company-name",
-      "company-details",
+    const steps: StepType[] = [
+      "company",
+      "details",
       "owner",
       "fiscal",
-      "legal",
-      "confirmation",
+      "confirm",
     ];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
-      setCurrentStep(steps[currentIndex + 1] as any);
-    } else if (step === "confirmation") {
-      // Onboarding completed, slug vendrá del servidor tras confirmación final
+      setCurrentStep(steps[currentIndex + 1]);
+    } else if (step === "confirm") {
       localStorage.removeItem("onboarding-progress");
       localStorage.removeItem("onboarding-started");
       localStorage.removeItem("onboarding-data");

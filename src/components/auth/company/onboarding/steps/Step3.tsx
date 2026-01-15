@@ -46,7 +46,9 @@ export function Step3({ data, setData, onSubmit, onBack }: Step3Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Detalles del Comercio</h2>
-        <p className="text-muted-foreground">Completa la información final de tu empresa.</p>
+        <p className="text-muted-foreground">
+          Completa la información final de tu empresa.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -109,7 +111,10 @@ export function Step3({ data, setData, onSubmit, onBack }: Step3Props) {
                       )
                 }
                 onSelect={(date) =>
-                  setData({ ...data, openedAt: date ? format(date, "yyyy-MM-dd") : "" })
+                  setData({
+                    ...data,
+                    openedAt: date ? format(date, "yyyy-MM-dd") : "",
+                  })
                 }
                 locale={es}
                 initialFocus
