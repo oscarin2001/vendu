@@ -66,21 +66,18 @@ export function UserSettingsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[1800px] max-h-[95vh] min-h-[72vh] w-[95vw] min-w-[1100px] overflow-hidden">
-        <DialogHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5 pb-6">
+        <DialogHeader className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent flex items-center gap-2">
-                <Settings2 className="h-6 w-6" />
+              <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+                <Settings2 className="h-5 w-5 text-foreground" />
                 Configuraciones
               </DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Personaliza tu experiencia y preferencias del sistema
               </p>
             </div>
-            <Badge
-              variant="secondary"
-              className="hidden sm:flex text-xs px-3 py-1"
-            >
+            <Badge variant="secondary" className="hidden sm:flex text-xs px-3 py-1">
               {tabs.find((tab) => tab.id === activeTab)?.label || "General"}
             </Badge>
           </div>
