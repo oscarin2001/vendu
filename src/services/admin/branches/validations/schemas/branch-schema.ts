@@ -12,6 +12,7 @@ export const createBranchSchema = z.object({
   country: z.string().optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
+  openedAt: z.date().optional().nullable(), // Fecha de apertura de la sucursal
 });
 
 /**

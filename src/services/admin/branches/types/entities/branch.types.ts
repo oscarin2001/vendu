@@ -9,6 +9,7 @@ export interface Branch {
   latitude: number | null;
   longitude: number | null;
   openingHours: any;
+  openedAt: Date | null; // Fecha de apertura de la sucursal
   manager: {
     id: number;
     name: string;

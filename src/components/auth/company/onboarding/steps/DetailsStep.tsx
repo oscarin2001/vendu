@@ -48,6 +48,7 @@ export function DetailsStep({
   onBack = () => {},
 }: DetailsStepProps) {
   const [description, setDescription] = useState(initialData.description || "");
+  const DESCRIPTION_MAX = 300;
   const [commerceType, setCommerceType] = useState(
     initialData.commerceType || ""
   );
@@ -188,7 +189,11 @@ export function DetailsStep({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe brevemente tu negocio..."
           rows={3}
+          maxLength={DESCRIPTION_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {description.length}/{DESCRIPTION_MAX} caracteres
+        </p>
       </div>
 
       <div className="flex justify-between pt-2">

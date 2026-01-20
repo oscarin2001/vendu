@@ -23,7 +23,7 @@ export async function deleteManager(
   tenantId: string,
   managerId: number,
   password: string,
-  context?: UserContext
+  context?: UserContext,
 ) {
   // Validate admin password first
   await validateAdminPassword(tenantId, "", password);

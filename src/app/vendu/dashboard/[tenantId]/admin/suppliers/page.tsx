@@ -18,6 +18,7 @@ import { SupplierDeleteFinalModal } from "@/components/admin/suppliers/component
 import { SupplierServiceConfigModal } from "@/components/admin/suppliers/components/modals/SupplierServiceConfigModal";
 import { SupplierStatusToggleModal } from "@/components/admin/suppliers/components/modals/SupplierStatusToggleModal";
 import { useSuppliers } from "@/services/admin/suppliers";
+import { useCompany } from "@/services/admin/company";
 import { validateAdminPassword } from "@/services/admin/managers";
 import { Supplier } from "@/services/admin/suppliers";
 import { toast } from "sonner";
@@ -25,6 +26,9 @@ import { toast } from "sonner";
 export default function SuppliersPage() {
   const params = useParams();
   const tenantId = params.tenantId as string;
+
+  // Get company data for country default
+  const { company } = useCompany(tenantId);
 
   // Custom hook for suppliers logic
   const {
@@ -52,7 +56,7 @@ export default function SuppliersPage() {
 
   // Modal states
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
-    null
+    null,
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -109,7 +113,7 @@ export default function SuppliersPage() {
       toast.success(
         `Proveedor ${
           selectedSupplier?.isActive ? "desactivado" : "activado"
-        } exitosamente`
+        } exitosamente`,
       );
       setIsStatusToggleModalOpen(false);
     } catch (error) {
@@ -234,7 +238,7 @@ export default function SuppliersPage() {
 
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Crear Nuevo Proveedor</DialogTitle>
           </DialogHeader>
@@ -242,13 +246,14 @@ export default function SuppliersPage() {
             onSubmit={handleCreateSubmit}
             isLoading={isLoading}
             mode="create"
+            companyCountry={company?.country}
           />
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Proveedor</DialogTitle>
           </DialogHeader>
@@ -268,6 +273,7 @@ export default function SuppliersPage() {
               onSubmit={handleEditSubmit}
               isLoading={isLoading}
               mode="edit"
+              companyCountry={company?.country}
             />
           )}
         </DialogContent>
@@ -308,15 +314,16 @@ export default function SuppliersPage() {
                     selectedSupplier.country
                       ? `${selectedSupplier.city}, ${selectedSupplier.department}, ${selectedSupplier.country}`
                       : selectedSupplier.city && selectedSupplier.department
-                      ? `${selectedSupplier.city}, ${selectedSupplier.department}`
-                      : selectedSupplier.city && selectedSupplier.country
-                      ? `${selectedSupplier.city}, ${selectedSupplier.country}`
-                      : selectedSupplier.department && selectedSupplier.country
-                      ? `${selectedSupplier.department}, ${selectedSupplier.country}`
-                      : selectedSupplier.city ||
-                        selectedSupplier.department ||
-                        selectedSupplier.country ||
-                        "No especificada"}
+                        ? `${selectedSupplier.city}, ${selectedSupplier.department}`
+                        : selectedSupplier.city && selectedSupplier.country
+                          ? `${selectedSupplier.city}, ${selectedSupplier.country}`
+                          : selectedSupplier.department &&
+                              selectedSupplier.country
+                            ? `${selectedSupplier.department}, ${selectedSupplier.country}`
+                            : selectedSupplier.city ||
+                              selectedSupplier.department ||
+                              selectedSupplier.country ||
+                              "No especificada"}
                   </p>
                 </div>
                 <div>

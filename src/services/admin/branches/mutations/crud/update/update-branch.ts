@@ -23,7 +23,7 @@ export async function updateBranch(
   tenantId: string,
   branchId: number,
   data: UpdateBranchData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   // Obtener valores anteriores para auditoría
   const oldBranch = await prisma.tbbranches.findUnique({
@@ -36,7 +36,10 @@ export async function updateBranch(
 
   const branch = await prisma.tbbranches.update({
     where: { PK_branch: branchId },
-    data: data,
+    data: {
+      ...data,
+      FK_updatedBy: context?.employeeId,
+    },
   });
 
   // Registrar auditoría
@@ -53,6 +56,7 @@ export async function updateBranch(
       country: oldBranch.country,
       latitude: oldBranch.latitude,
       longitude: oldBranch.longitude,
+      openedAt: oldBranch.openedAt,
     },
     {
       name: branch.name,
@@ -63,13 +67,14 @@ export async function updateBranch(
       country: branch.country,
       latitude: branch.latitude,
       longitude: branch.longitude,
+      openedAt: branch.openedAt,
     },
     {
       employeeId: context?.employeeId,
       companyId: oldBranch.FK_company || undefined,
       ipAddress: context?.ipAddress,
       userAgent: context?.userAgent,
-    }
+    },
   );
 
   return {

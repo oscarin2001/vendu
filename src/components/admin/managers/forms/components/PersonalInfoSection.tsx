@@ -2,11 +2,17 @@
 
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
+import {
+  filterNameInput,
+  filterCIInput,
+  FIELD_LIMITS,
+} from "@/services/admin/shared/validations";
 
 interface PersonalInfoSectionProps {
   firstName: string;
   lastName: string;
   ci: string;
+  country?: string;
   errors: {
     firstName?: string;
     lastName?: string;
@@ -19,53 +25,80 @@ export function PersonalInfoSection({
   firstName,
   lastName,
   ci,
+  country,
   errors,
   onChange,
 }: PersonalInfoSectionProps) {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Información Personal</h3>
+  const handleNameChange = (field: string, value: string) => {
+    const filtered = filterNameInput(value).slice(
+      0,
+      FIELD_LIMITS.firstName.max,
+    );
+    onChange(field, filtered);
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName">Nombre *</Label>
+  const handleCIChange = (value: string) => {
+    onChange("ci", filterCIInput(value, country));
+  };
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium">Información Personal</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="firstName" className="text-xs">
+            Nombre *{" "}
+            <span className="text-muted-foreground">
+              (máx. {FIELD_LIMITS.firstName.max})
+            </span>
+          </Label>
           <Input
             id="firstName"
             value={firstName}
-            onChange={(e) => onChange("firstName", e.target.value)}
-            placeholder="Ingresa el nombre"
-            className={errors.firstName ? "border-red-500" : ""}
+            onChange={(e) => handleNameChange("firstName", e.target.value)}
+            placeholder="Solo letras"
+            maxLength={FIELD_LIMITS.firstName.max}
+            className={`h-9 ${errors.firstName ? "border-red-500" : ""}`}
           />
           {errors.firstName && (
-            <p className="text-sm text-red-500">{errors.firstName}</p>
+            <p className="text-xs text-red-500">{errors.firstName}</p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="lastName">Apellido *</Label>
+        <div className="space-y-1">
+          <Label htmlFor="lastName" className="text-xs">
+            Apellido *{" "}
+            <span className="text-muted-foreground">
+              (máx. {FIELD_LIMITS.lastName.max})
+            </span>
+          </Label>
           <Input
             id="lastName"
             value={lastName}
-            onChange={(e) => onChange("lastName", e.target.value)}
-            placeholder="Ingresa el apellido"
-            className={errors.lastName ? "border-red-500" : ""}
+            onChange={(e) => handleNameChange("lastName", e.target.value)}
+            placeholder="Solo letras"
+            maxLength={FIELD_LIMITS.lastName.max}
+            className={`h-9 ${errors.lastName ? "border-red-500" : ""}`}
           />
           {errors.lastName && (
-            <p className="text-sm text-red-500">{errors.lastName}</p>
+            <p className="text-xs text-red-500">{errors.lastName}</p>
           )}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="ci">Cédula *</Label>
+      <div className="space-y-1">
+        <Label htmlFor="ci" className="text-xs">
+          Cédula de Identidad *
+        </Label>
         <Input
           id="ci"
           value={ci}
-          onChange={(e) => onChange("ci", e.target.value)}
-          placeholder="Ingresa la cédula"
-          className={errors.ci ? "border-red-500" : ""}
+          onChange={(e) => handleCIChange(e.target.value)}
+          placeholder="Solo números"
+          className={`h-9 max-w-[200px] ${errors.ci ? "border-red-500" : ""}`}
         />
-        {errors.ci && <p className="text-sm text-red-500">{errors.ci}</p>}
+        {errors.ci && <p className="text-xs text-red-500">{errors.ci}</p>}
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ interface UserContext {
 export async function createWarehouse(
   tenantId: string,
   data: CreateWarehouseData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   const validatedData = createWarehouseSchema.parse(data);
 
@@ -54,6 +54,7 @@ export async function createWarehouse(
       city: normalizedData.city,
       department: normalizedData.department,
       country: validatedData.country,
+      openedAt: validatedData.openedAt, // Fecha de apertura de la bodega
       FK_createdBy: context?.employeeId,
     },
   });

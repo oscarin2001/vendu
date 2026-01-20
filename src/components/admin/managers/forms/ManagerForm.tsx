@@ -20,9 +20,12 @@ export function ManagerForm({
   onSubmit,
   isLoading,
   mode = "create",
+  companyCountry,
 }: ManagerFormProps) {
   const { company } = useCompany(tenantId);
-  const { validateField } = useManagerFormValidation();
+  const { validateField } = useManagerFormValidation(
+    companyCountry ?? company?.country,
+  );
   const {
     showPassword,
     setShowPassword,
@@ -71,7 +74,7 @@ export function ManagerForm({
         field,
         formData[field as keyof typeof formData],
         formData,
-        mode
+        mode,
       );
       if (error) {
         newErrors[field as keyof FormErrors] = error;
@@ -120,6 +123,7 @@ export function ManagerForm({
         firstName={formData.firstName}
         lastName={formData.lastName}
         ci={formData.ci}
+        country={companyCountry ?? company?.country}
         errors={{
           firstName: errors.firstName,
           lastName: errors.lastName,
@@ -135,6 +139,8 @@ export function ManagerForm({
         confirmPassword={formData.confirmPassword}
         showPassword={showPassword}
         showConfirmPassword={showConfirmPassword}
+        country={companyCountry ?? company?.country}
+        companySlug={company?.slug}
         errors={{
           phone: errors.phone,
           email: errors.email,
@@ -143,6 +149,9 @@ export function ManagerForm({
         }}
         mode={mode}
         onChange={handleFieldChange}
+        onSetError={(field, error) =>
+          setErrors((prev) => ({ ...prev, [field]: error }))
+        }
         onTogglePassword={() => setShowPassword(!showPassword)}
         onToggleConfirmPassword={() =>
           setShowConfirmPassword(!showConfirmPassword)
@@ -153,6 +162,7 @@ export function ManagerForm({
         salary={formData.salary}
         contributionType={formData.contributionType}
         hireDate={formData.hireDate || new Date()}
+        country={companyCountry ?? company?.country}
         errors={{
           salary: errors.salary,
           contributionType: errors.contributionType,
@@ -163,21 +173,16 @@ export function ManagerForm({
 
       {errors.general && (
         <div className="text-center">
-          <p className="text-sm text-red-500">{errors.general}</p>
+          <p className="text-xs text-red-500">{errors.general}</p>
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline">
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="outline" size="sm">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading}>
-          {isLoading
-            ? "Guardando..."
-            : mode === "create"
-            ? "Crear Gerente"
-            : "Guardar Cambios"}
+        <Button type="submit" disabled={isLoading} size="sm">
+          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
         </Button>
       </div>
     </form>

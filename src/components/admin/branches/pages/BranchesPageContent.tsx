@@ -19,12 +19,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
+import { useCompany } from "@/services/admin/company";
 import { Branch } from "@/services/admin/branches";
 import { Building2 } from "lucide-react";
 
 export function BranchesPageContent() {
   const params = useParams();
   const tenantId = params.tenantId as string;
+
+  // Get company data for country default
+  const { company } = useCompany(tenantId);
 
   // Custom hook for branches logic
   const {
@@ -198,6 +202,7 @@ export function BranchesPageContent() {
               setIsCreateModalOpen(false);
             }}
             mode="create"
+            companyCountry={company?.country}
           />
         </DialogContent>
       </Dialog>
@@ -224,6 +229,7 @@ export function BranchesPageContent() {
                 setSelectedBranch(null);
               }}
               mode="edit"
+              companyCountry={company?.country}
             />
           )}
         </DialogContent>

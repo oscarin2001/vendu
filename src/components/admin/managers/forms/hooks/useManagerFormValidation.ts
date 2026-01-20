@@ -1,4 +1,8 @@
-import { useState, useEffect } from "react";
+import { validateSalaryByCountry } from "@/services/admin/shared/validations";
+import {
+  filterNameInput,
+  validateCIByCountry,
+} from "@/services/admin/shared/validations";
 
 export interface SubmitData {
   firstName: string;
@@ -32,28 +36,36 @@ export interface FormErrors {
   general?: string;
 }
 
-export function useManagerFormValidation() {
+export function useManagerFormValidation(country?: string) {
   const validateField = (
     field: string,
     value: any,
     formData?: ManagerFormData,
-    mode: "create" | "edit" = "create"
+    mode: "create" | "edit" = "create",
   ): string | undefined => {
     switch (field) {
       case "firstName":
         if (!value?.trim()) return "El nombre es requerido";
         if (value.length < 2)
           return "El nombre debe tener al menos 2 caracteres";
+        // Check if contains only letters
+        if (filterNameInput(value) !== value)
+          return "El nombre solo puede contener letras";
         break;
       case "lastName":
         if (!value?.trim()) return "El apellido es requerido";
         if (value.length < 2)
           return "El apellido debe tener al menos 2 caracteres";
+        if (filterNameInput(value) !== value)
+          return "El apellido solo puede contener letras";
         break;
       case "ci":
         if (!value?.trim()) return "La cédula es requerida";
         if (!/^\d{6,10}$/.test(value))
           return "La cédula debe contener solo números (6-10 dígitos)";
+        // Validate CI by country
+        const ciError = validateCIByCountry(value, country || "");
+        if (ciError) return ciError;
         break;
       case "email":
         if (!value?.trim()) return "El correo electrónico es requerido";
@@ -98,6 +110,11 @@ export function useManagerFormValidation() {
         break;
       case "salary":
         if (value && value < 0) return "El salario no puede ser negativo";
+        // Validate salary by country
+        if (value) {
+          const salaryError = validateSalaryByCountry(value, country || "");
+          if (salaryError) return salaryError;
+        }
         break;
       case "branchIds":
         // No longer required - branch assignment is done via configuration

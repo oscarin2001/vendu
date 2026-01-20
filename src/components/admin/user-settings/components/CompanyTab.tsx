@@ -49,9 +49,6 @@ export function CompanyTab({ userId }: CompanyTabProps) {
     <div className="space-y-6">
       <div className="text-center">
         <h3 className="text-2xl font-bold text-foreground">Empresa</h3>
-        <p className="text-muted-foreground mt-1">
-          Gestiona la informacion y configuracion de tu empresa
-        </p>
       </div>
 
       <CompanyInfoSection

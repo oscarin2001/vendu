@@ -22,6 +22,13 @@ export async function getManagerById(managerId: number) {
           branch: true,
         },
       },
+      createdBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
   });
 

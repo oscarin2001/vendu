@@ -6,6 +6,8 @@ interface BranchInfo {
   id: number;
   createdAt: Date;
   updatedAt?: Date;
+  createdBy?: { id: number; name: string };
+  updatedBy?: { id: number; name: string };
 }
 
 interface BranchAuditInfoProps {
@@ -21,16 +23,45 @@ export function BranchAuditInfo({ branchInfo }: BranchAuditInfoProps) {
       <CardContent>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium">ID:</span> {branchInfo.id}
+            <span className="text-muted-foreground">ID:</span>{" "}
+            <span className="font-medium">{branchInfo.id}</span>
           </div>
           <div>
-            <span className="font-medium">Creado:</span>{" "}
-            {new Date(branchInfo.createdAt).toLocaleDateString("es-ES")}
+            <span className="text-muted-foreground">Creado:</span>{" "}
+            <span className="font-medium">
+              {new Date(branchInfo.createdAt).toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
           </div>
+          {branchInfo.createdBy && (
+            <div>
+              <span className="text-muted-foreground">Creado por:</span>{" "}
+              <span className="font-medium">{branchInfo.createdBy.name}</span>
+            </div>
+          )}
           {branchInfo.updatedAt && (
-            <div className="col-span-2">
-              <span className="font-medium">Última modificación:</span>{" "}
-              {new Date(branchInfo.updatedAt).toLocaleDateString("es-ES")}
+            <div>
+              <span className="text-muted-foreground">Modificado:</span>{" "}
+              <span className="font-medium">
+                {new Date(branchInfo.updatedAt).toLocaleDateString("es-ES", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          )}
+          {branchInfo.updatedBy && (
+            <div>
+              <span className="text-muted-foreground">Modificado por:</span>{" "}
+              <span className="font-medium">{branchInfo.updatedBy.name}</span>
             </div>
           )}
         </div>

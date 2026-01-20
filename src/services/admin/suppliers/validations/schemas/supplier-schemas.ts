@@ -12,7 +12,10 @@ export const createSupplierSchema = z.object({
   city: z.string().optional(),
   department: z.string().optional(),
   country: z.string().optional(),
+  ci: z.string().max(20).optional(),
   notes: z.string().optional(),
+  birthDate: z.date().optional().nullable(), // Fecha de nacimiento del proveedor
+  partnerSince: z.date().optional().nullable(), // Desde cuándo trabaja con la empresa
 });
 
 /**

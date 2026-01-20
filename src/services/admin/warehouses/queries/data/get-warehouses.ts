@@ -33,6 +33,20 @@ export async function getWarehousesByCompany(tenantId: string) {
           branch: true,
         },
       },
+      createdBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      updatedBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "asc",
@@ -47,6 +61,7 @@ export async function getWarehousesByCompany(tenantId: string) {
     city: warehouse.city,
     department: warehouse.department ?? undefined,
     country: warehouse.country ?? undefined,
+    openedAt: warehouse.openedAt ?? undefined, // Fecha de apertura de la bodega
     managers: warehouse.managerWarehouses.map((mw: any) => ({
       id: mw.manager.PK_employee,
       name: `${mw.manager.firstName} ${mw.manager.lastName}`,
@@ -60,6 +75,18 @@ export async function getWarehousesByCompany(tenantId: string) {
     })),
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
+    createdBy: warehouse.createdBy
+      ? {
+          id: warehouse.createdBy.PK_employee,
+          name: `${warehouse.createdBy.firstName} ${warehouse.createdBy.lastName}`,
+        }
+      : undefined,
+    updatedBy: warehouse.updatedBy
+      ? {
+          id: warehouse.updatedBy.PK_employee,
+          name: `${warehouse.updatedBy.firstName} ${warehouse.updatedBy.lastName}`,
+        }
+      : undefined,
   }));
 }
 
@@ -96,6 +123,20 @@ export async function getWarehouseById(tenantId: string, warehouseId: number) {
           branch: true,
         },
       },
+      createdBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      updatedBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
   });
 
@@ -125,5 +166,17 @@ export async function getWarehouseById(tenantId: string, warehouseId: number) {
     })),
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
+    createdBy: warehouse.createdBy
+      ? {
+          id: warehouse.createdBy.PK_employee,
+          name: `${warehouse.createdBy.firstName} ${warehouse.createdBy.lastName}`,
+        }
+      : undefined,
+    updatedBy: warehouse.updatedBy
+      ? {
+          id: warehouse.updatedBy.PK_employee,
+          name: `${warehouse.updatedBy.firstName} ${warehouse.updatedBy.lastName}`,
+        }
+      : undefined,
   };
 }

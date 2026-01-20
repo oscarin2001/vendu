@@ -1,6 +1,7 @@
 "use client";
 
 import { ManagerForm } from "@/components/admin/managers/forms/ManagerForm";
+import { useCompany } from "@/services/admin/company";
 import { ManagerServiceConfigModal } from "./ManagerServiceConfigModal";
 import { ManagerDetailsModal } from "./ManagerDetailsModal";
 import { ManagerStatusToggleModal } from "./ManagerStatusToggleModal";
@@ -62,8 +63,9 @@ export function ManagersModals({
   onConfirmDelete,
   onRefresh,
 }: ManagersModalsProps) {
+  const { company } = useCompany(tenantId);
   const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">(
-    "initial"
+    "initial",
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
@@ -121,7 +123,7 @@ export function ManagersModals({
     <>
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={onCreateModalChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Crear Nuevo Encargado</DialogTitle>
           </DialogHeader>
@@ -130,13 +132,14 @@ export function ManagersModals({
             branches={branches}
             onSubmit={onSubmitCreate}
             mode="create"
+            companyCountry={company?.country}
           />
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={onEditModalChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Encargado</DialogTitle>
           </DialogHeader>
@@ -157,6 +160,7 @@ export function ManagersModals({
               branches={branches}
               onSubmit={onSubmitEdit}
               mode="edit"
+              companyCountry={company?.country}
             />
           )}
         </DialogContent>

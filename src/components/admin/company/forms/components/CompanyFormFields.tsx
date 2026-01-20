@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
+import { Lock } from "lucide-react";
 
 interface CompanyFormData {
   name: string;
@@ -56,13 +57,20 @@ export function CompanyFormFields({
         </div>
 
         <div>
-          <Label htmlFor="country">País</Label>
+          <Label className="flex items-center gap-1" htmlFor="country">
+            País
+            {mode !== "create" && (
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            )}
+          </Label>
           <Input
             id="country"
             value={formData.country}
             onChange={(e) => onChange("country", e.target.value)}
             placeholder="Ej: Bolivia"
             required
+            disabled={mode !== "create"}
+            className={mode !== "create" ? "h-9 bg-muted cursor-not-allowed" : "h-9"}
           />
         </div>
 

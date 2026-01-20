@@ -7,6 +7,9 @@ export interface UpdateSupplierData {
   city?: string;
   department?: string;
   country?: string;
+  ci?: string;
   notes?: string;
+  birthDate?: Date | null; // Fecha de nacimiento del proveedor
+  partnerSince?: Date | null; // Desde cuándo trabaja con la empresa
   isActive?: boolean;
 }

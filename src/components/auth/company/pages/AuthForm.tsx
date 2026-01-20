@@ -101,7 +101,7 @@ export default function AuthForm({
           <p className="text-muted-foreground text-sm text-balance">
             {mode === "login"
               ? "Ingresa tu email para acceder a tu cuenta"
-              : "Ingresa tu email para crear tu cuenta empresarial"}
+              : "Por favor, regístrate para comenzar"}
           </p>
         </div>
 

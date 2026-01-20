@@ -11,9 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCountryConfigByName } from "@/services/admin/config";
+import {
+  getCountryConfigByName,
+  filterPhoneFirstDigit,
+  getPhoneStartDigitsHint,
+  validatePhoneByCountry,
+} from "@/services/admin/config";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
-import { formatPhonePattern } from "@/lib/utils";
 
 interface Step2Props {
   data: { country: string; phone: string; department: string };
@@ -24,9 +28,8 @@ interface Step2Props {
 
 export function Step2({ data, setData, onNext, onBack }: Step2Props) {
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
-  const [phonePlaceholder, setPhonePlaceholder] =
-    useState<string>("59112345678");
   const [phoneTouched, setPhoneTouched] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const countryConfig = getCountryConfigByName(data.country);
   const departments = countryConfig?.departments ?? [];
@@ -44,18 +47,54 @@ export function Step2({ data, setData, onNext, onBack }: Step2Props) {
         next
           .normalize("NFD")
           .replace(/\p{Diacritic}/gu, "")
-          .toLowerCase()
+          .toLowerCase(),
     );
     if (found) {
-      setPhonePlaceholder(formatPhonePattern(found.local));
       if (!data.phone) setData({ ...data, phone: found.code, country: next });
     }
   };
 
   const handlePhoneChange = (value: string, valid: boolean) => {
+    const config = getCountryConfigByName(data.country);
+    const prefix = config?.phone.prefix ?? "";
+
+    // Extraer dígitos locales sin prefijo
+    let digits = value.replace(/\D/g, "");
+    let localDigits = digits;
+    if (prefix && digits.startsWith(prefix)) {
+      localDigits = digits.slice(prefix.length);
+    }
+
+    // Filtrar primer dígito inválido en tiempo real
+    if (data.country && localDigits.length > 0) {
+      const filtered = filterPhoneFirstDigit(localDigits, data.country);
+      if (filtered !== localDigits) {
+        const newVal = prefix ? prefix + filtered : filtered;
+        setData({ ...data, phone: newVal });
+        setPhoneValid(false);
+        const firstHint = getPhoneStartDigitsHint(data.country);
+        setPhoneError(
+          firstHint ??
+            "El número debe comenzar con un dígito válido para el país",
+        );
+        if (!phoneTouched) setPhoneTouched(true);
+        return;
+      }
+    }
+
     setData({ ...data, phone: value });
-    setPhoneValid(valid);
+    const error =
+      data.country && localDigits.length > 0
+        ? validatePhoneByCountry(value, data.country)
+        : null;
+    setPhoneValid(!error && valid);
     if (!phoneTouched) setPhoneTouched(true);
+
+    if (data.country && localDigits.length > 0) {
+      setPhoneError(error);
+    } else {
+      setPhoneError(null);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -95,19 +134,17 @@ export function Step2({ data, setData, onNext, onBack }: Step2Props) {
           <PhoneInput
             value={data.phone}
             onChange={handlePhoneChange}
-            placeholder={
-              countryConfig
-                ? countryConfig.phone.format ??
-                  formatPhonePattern(countryConfig.phone.local)
-                : phonePlaceholder
-            }
+            placeholder={"XXXXXXXX"}
             required
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect
-            showFormatHint={!countryConfig}
-            showValidation={phoneTouched}
+            showFormatHint={false}
+            showValidation={false}
           />
+          {phoneError && (
+            <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+          )}
         </div>
 
         {departments.length > 0 && (

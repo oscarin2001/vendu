@@ -6,42 +6,24 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn, parseISOToLocalDate, formatPhonePattern } from "@/lib/utils";
-import { getCountryConfigByName } from "@/services/admin/config";
+  getCountryConfigByName,
+  filterPhoneFirstDigit,
+  getPhoneStartDigitsHint,
+  validatePhoneByCountry,
+} from "@/services/admin/config";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
-import { getPhoneMissingDigitsMessage } from "@/services/admin/config";
+import {
+  DatePickerField,
+  GenderSelectField,
+  validateOwnerForm,
+  sanitizeNameInput,
+  sanitizeCiInput,
+  OWNER_CONSTANTS,
+  type OwnerStepProps,
+  type OwnerFormData,
+} from "./owner";
 
-interface OwnerStepProps {
-  initialData?: {
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    ci?: string;
-    gender?: string;
-    birthDate?: string;
-    joinedAt?: string;
-  };
-  companyCountry?: string;
-  onDataChange?: (data: any) => void;
-  onNext?: () => void;
-  onBack?: () => void;
-}
-
-const GENDERS = ["Masculino", "Femenino", "Otro"];
+const { FIRSTNAME_MAX, LASTNAME_MAX, CI_MAX } = OWNER_CONSTANTS;
 
 export function OwnerStep({
   initialData = {},
@@ -50,75 +32,112 @@ export function OwnerStep({
   onNext = () => {},
   onBack = () => {},
 }: OwnerStepProps) {
-  const [firstName, setFirstName] = useState(initialData.firstName || "");
-  const [lastName, setLastName] = useState(initialData.lastName || "");
-  const [phone, setPhone] = useState(initialData.phone || "");
+  const [formData, setFormData] = useState<OwnerFormData>({
+    firstName: initialData.firstName || "",
+    lastName: initialData.lastName || "",
+    phone: initialData.phone || "",
+    ci: initialData.ci || "",
+    gender: initialData.gender || "",
+    birthDate: initialData.birthDate || "",
+    joinedAt: initialData.joinedAt || "",
+  });
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
-  const [ci, setCi] = useState(initialData.ci || "");
-  const [gender, setGender] = useState(initialData.gender || "");
-  const [birthDate, setBirthDate] = useState(initialData.birthDate || "");
-  const [joinedAt, setJoinedAt] = useState(initialData.joinedAt || "");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [ciTouched, setCiTouched] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const countryConfig = getCountryConfigByName(companyCountry);
+  const phoneHint = companyCountry
+    ? getPhoneStartDigitsHint(companyCountry)
+    : null;
+
+  // Manejar cambio de teléfono con validación en tiempo real
+  const handlePhoneChange = (val: string, valid: boolean) => {
+    const config = getCountryConfigByName(companyCountry);
+    const prefix = config?.phone.prefix ?? "";
+
+    // Extraer solo dígitos locales
+    let digits = val.replace(/\D/g, "");
+    let localDigits = digits;
+    if (prefix && digits.startsWith(prefix)) {
+      localDigits = digits.slice(prefix.length);
+    }
+
+    // Filtrar primer dígito si no es válido para el país
+    if (companyCountry && localDigits.length > 0) {
+      const filtered = filterPhoneFirstDigit(localDigits, companyCountry);
+      if (filtered !== localDigits) {
+        // El primer dígito era inválido, reconstruir el valor
+        const newVal = prefix ? prefix + filtered : filtered;
+        updateField("phone", newVal);
+        setPhoneValid(false);
+        const firstHint = getPhoneStartDigitsHint(companyCountry);
+        setPhoneError(
+          firstHint ?? validatePhoneByCountry(newVal, companyCountry),
+        );
+        return;
+      }
+    }
+
+    updateField("phone", val);
+    const error =
+      companyCountry && localDigits.length > 0
+        ? validatePhoneByCountry(val, companyCountry)
+        : null;
+    setPhoneValid(!error && valid);
+
+    // Validar y mostrar error
+    if (companyCountry && localDigits.length > 0) {
+      setPhoneError(error);
+    } else {
+      setPhoneError(null);
+    }
+  };
 
   useEffect(() => {
-    const data = {
-      firstName,
-      lastName,
-      phone,
-      ci,
-      gender,
-      birthDate,
-      joinedAt,
-    };
-    onDataChange?.(data);
+    onDataChange?.(formData);
     saveOnboardingData({
-      owner: { ...data, country: companyCountry || "" } as any,
+      owner: { ...formData, country: companyCountry || "" } as any,
     });
-  }, [
-    firstName,
-    lastName,
-    phone,
-    ci,
-    gender,
-    birthDate,
-    joinedAt,
-    onDataChange,
-    companyCountry,
-  ]);
+  }, [formData, onDataChange, companyCountry]);
+
+  const updateField = <K extends keyof OwnerFormData>(
+    field: K,
+    value: OwnerFormData[K],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Record<string, string> = {};
-    if (!firstName.trim()) newErrors.firstName = "Nombre requerido";
-    if (!lastName.trim()) newErrors.lastName = "Apellido requerido";
-    if (!phone.trim()) newErrors.phone = "Teléfono requerido";
-    if (!ci.trim()) newErrors.ci = "CI/DNI requerido";
-    if (!gender) newErrors.gender = "Selecciona género";
-
-    const phoneMessage = getPhoneMissingDigitsMessage(
-      phone,
-      companyCountry || ""
+    const newErrors = validateOwnerForm(
+      formData,
+      companyCountry || "",
+      phoneValid,
     );
-    if (phoneMessage) newErrors.phone = phoneMessage;
-    if (phoneValid === false) newErrors.phone = "Teléfono inválido";
-
     setErrors(newErrors);
+    if (phoneValid === false || phoneError) return;
     if (Object.keys(newErrors).length === 0) onNext();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Nombre y Apellido */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="firstName">Nombre</Label>
           <Input
             id="firstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={formData.firstName}
+            onChange={(e) =>
+              updateField("firstName", sanitizeNameInput(e.target.value))
+            }
             placeholder="Juan"
+            maxLength={FIRSTNAME_MAX}
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            {formData.firstName.length}/{FIRSTNAME_MAX} caracteres
+          </p>
           {errors.firstName && (
             <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
           )}
@@ -127,145 +146,85 @@ export function OwnerStep({
           <Label htmlFor="lastName">Apellido</Label>
           <Input
             id="lastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            value={formData.lastName}
+            onChange={(e) =>
+              updateField("lastName", sanitizeNameInput(e.target.value))
+            }
+            maxLength={LASTNAME_MAX}
             placeholder="Pérez"
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            {formData.lastName.length}/{LASTNAME_MAX} caracteres
+          </p>
           {errors.lastName && (
             <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>
           )}
         </div>
       </div>
 
+      {/* Teléfono */}
       <div>
         <Label htmlFor="phone">Celular del responsable</Label>
         <PhoneInput
-          value={phone}
-          onChange={(val, valid) => {
-            setPhone(val);
-            setPhoneValid(valid);
-          }}
-          placeholder={
-            countryConfig?.phone.format ??
-            formatPhonePattern(countryConfig?.phone.local || 8)
-          }
+          value={formData.phone}
+          onChange={handlePhoneChange}
+          placeholder="XXXXXXXX"
           required
           fixedCountryCode={countryConfig?.phone.prefix}
           fixedLocalMax={countryConfig?.phone.local}
           hideCountrySelect
-          showValidation={!!phone}
+          showValidation={false}
         />
-        {errors.phone && (
-          <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+        {(phoneError || errors.phone) && (
+          <p className="text-sm text-red-500 mt-1">
+            {phoneError || errors.phone}
+          </p>
         )}
       </div>
 
+      {/* CI y Género */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="ci">CI / DNI</Label>
           <Input
             id="ci"
-            value={ci}
-            onChange={(e) => setCi(e.target.value)}
-            placeholder="12345678"
+            value={formData.ci}
+            onChange={(e) => updateField("ci", sanitizeCiInput(e.target.value))}
+            onBlur={() => setCiTouched(true)}
+            placeholder={"Ej: 1234"}
+            maxLength={CI_MAX}
           />
-          {errors.ci && (
-            <p className="text-sm text-red-500 mt-1">{errors.ci}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formData.ci.length}/{CI_MAX} dígitos
+          </p>
+          {((ciTouched && !formData.ci) || errors.ci) && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.ci ?? "CI/DNI requerido"}
+            </p>
           )}
         </div>
-        <div>
-          <Label>Género</Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="w-full rounded-md border px-3 py-2 text-left"
-              >
-                {gender || "Selecciona"}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {GENDERS.map((g) => (
-                <DropdownMenuItem key={g} onSelect={() => setGender(g)}>
-                  {g}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {errors.gender && (
-            <p className="text-sm text-red-500 mt-1">{errors.gender}</p>
-          )}
-        </div>
+        <GenderSelectField
+          value={formData.gender}
+          onChange={(g) => updateField("gender", g)}
+          error={errors.gender}
+        />
       </div>
 
-      <div>
-        <Label>Fecha de nacimiento (opcional)</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={cn(
-                "flex w-full items-center gap-2 justify-start text-left rounded-md border px-3 py-2",
-                !birthDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="h-4 w-4" />
-              {birthDate
-                ? format(parseISOToLocalDate(birthDate) as Date, "dd/MM/yyyy", {
-                    locale: es,
-                  })
-                : "Selecciona fecha"}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              captionLayout="dropdown"
-              selected={birthDate ? parseISOToLocalDate(birthDate) : undefined}
-              onSelect={(date) =>
-                setBirthDate(date ? format(date, "yyyy-MM-dd") : "")
-              }
-              locale={es}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+      {/* Fechas opcionales */}
+      <DatePickerField
+        label="Fecha de nacimiento"
+        value={formData.birthDate}
+        onChange={(d) => updateField("birthDate", d)}
+        optional
+      />
+      <DatePickerField
+        label="Fecha que se unió al equipo"
+        value={formData.joinedAt}
+        onChange={(d) => updateField("joinedAt", d)}
+        optional
+      />
 
-      <div>
-        <Label>Fecha que se unió al equipo (opcional)</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={cn(
-                "flex w-full items-center gap-2 justify-start text-left rounded-md border px-3 py-2",
-                !joinedAt && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="h-4 w-4" />
-              {joinedAt
-                ? format(parseISOToLocalDate(joinedAt) as Date, "dd/MM/yyyy", {
-                    locale: es,
-                  })
-                : "Selecciona fecha"}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              captionLayout="dropdown"
-              selected={joinedAt ? parseISOToLocalDate(joinedAt) : undefined}
-              onSelect={(date) =>
-                setJoinedAt(date ? format(date, "yyyy-MM-dd") : "")
-              }
-              locale={es}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
+      {/* Botones */}
       <div className="flex justify-between pt-2">
         <Button type="button" variant="outline" onClick={onBack}>
           Atrás

@@ -83,7 +83,7 @@ export function CompanyDescriptionForm({
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[80px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[80px] placeholder:text-sm"
           maxLength={250}
           placeholder="Ej: Venta de ropa vintage y accesorios en mercados locales..."
         />
@@ -95,7 +95,7 @@ export function CompanyDescriptionForm({
           id="vision"
           value={vision}
           onChange={(e) => setVision(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[60px] placeholder:text-sm"
           maxLength={300}
           placeholder="Ser la plataforma líder regional para revendedores locales..."
         />
@@ -107,7 +107,7 @@ export function CompanyDescriptionForm({
           id="mission"
           value={mission}
           onChange={(e) => setMission(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[60px] placeholder:text-sm"
           maxLength={300}
           placeholder="Facilitar la gestión y venta a comercios informales para incrementar sus ingresos..."
         />

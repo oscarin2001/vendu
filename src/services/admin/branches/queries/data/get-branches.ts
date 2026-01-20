@@ -58,7 +58,7 @@ export async function getBranchesByCompany(tenantId: string) {
     branches.map(async (branch: any) => {
       const lastUpdate = await auditService.getLastUpdate(
         "BRANCH",
-        branch.PK_branch
+        branch.PK_branch,
       );
 
       return {
@@ -73,6 +73,7 @@ export async function getBranchesByCompany(tenantId: string) {
         latitude: branch.latitude,
         longitude: branch.longitude,
         openingHours: branch.openingHours,
+        openedAt: branch.openedAt, // Fecha de apertura de la sucursal
         manager: branch.managerBranches[0]
           ? {
               id: branch.managerBranches[0].manager.PK_employee,
@@ -106,7 +107,7 @@ export async function getBranchesByCompany(tenantId: string) {
           : undefined,
         updatedBy: lastUpdate?.updatedBy || null,
       };
-    })
+    }),
   );
 
   return branchesWithAudit;

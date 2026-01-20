@@ -6,6 +6,7 @@ import { WarehousesTable } from "@/components/admin/warehouses/tables";
 import { WarehousesModals } from "@/components/admin/warehouses/components";
 import { useWarehouses } from "@/services/admin/warehouses/utils/hooks/use-warehouses";
 import { useWarehouseHandlers } from "@/components/admin/warehouses/hooks/useWarehouseHandlers";
+import { useCompany } from "@/services/admin/company";
 
 interface WarehousesPageContentProps {
   tenantId: string;
@@ -14,6 +15,8 @@ interface WarehousesPageContentProps {
 export function WarehousesPageContent({
   tenantId,
 }: WarehousesPageContentProps) {
+  const { company } = useCompany(tenantId);
+
   // Custom hook for warehouses logic
   const {
     warehouses,
@@ -111,6 +114,7 @@ export function WarehousesPageContent({
         isDeleteModalOpen={isDeleteModalOpen}
         isDeleting={isDeleting}
         tenantId={tenantId}
+        companyCountry={company?.country}
         onCreateModalChange={setIsCreateModalOpen}
         onEditModalChange={setIsEditModalOpen}
         onDetailsModalChange={setIsDetailsModalOpen}

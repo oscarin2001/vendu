@@ -57,7 +57,7 @@ export function PhoneInput({
   fixedCountryCode,
   fixedLocalMax,
   hideCountrySelect = false,
-  showFormatHint = true,
+  showFormatHint = false,
 }: PhoneInputProps) {
   const initialCountry = fixedCountryCode || COUNTRIES[0].code;
   const initialLocalMax =
@@ -147,7 +147,7 @@ export function PhoneInput({
       // switch country and set local to the following digits
       const newLocal = digits.slice(
         maybeCountry.code.length,
-        maybeCountry.code.length + maybeCountry.local
+        maybeCountry.code.length + maybeCountry.local,
       );
       setCountry(maybeCountry.code);
       setLocalMax(maybeCountry.local);
@@ -208,13 +208,13 @@ export function PhoneInput({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-36 justify-start rounded-l-md px-3 py-2 border-none min-w-0 flex-shrink-0"
+                className="w-28 justify-start rounded-l-md px-3 py-2 border-none min-w-0 flex-shrink-0"
               >
                 <span className="mr-2">{currentCountry.flag}</span>
                 <span className="font-medium">+{currentCountry.code}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-48">
               {COUNTRIES.map((c) => (
                 <DropdownMenuItem
                   key={c.code}
@@ -265,7 +265,7 @@ export function PhoneInput({
           {hideCountrySelect || fixedCountryCode
             ? formatPhonePattern(currentCountry.local)
             : `+${currentCountry.code} ${formatPhonePattern(
-                currentCountry.local
+                currentCountry.local,
               )}`}
         </p>
       )}

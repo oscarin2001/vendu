@@ -10,7 +10,12 @@ import { SlugPreview } from "../shared/SlugPreview";
 import { UrlInfoModal } from "../shared/UrlInfoModal";
 import { validateCompanyNameAction } from "@/services/auth/company-registration/onboarding-actions";
 import { saveOnboardingData } from "@/services/auth/company-registration/onboarding/session";
-import { getCountryConfigByName } from "@/services/admin/config";
+import {
+  getCountryConfigByName,
+  filterPhoneFirstDigit,
+  getPhoneStartDigitsHint,
+  validatePhoneByCountry,
+} from "@/services/admin/config";
 import { COUNTRIES as PHONE_COUNTRIES } from "@/components/ui/phone-input";
 import { formatPhonePattern } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,10 +42,12 @@ export function CompanyStep({
   onNext = () => {},
 }: CompanyStepProps) {
   const [name, setName] = useState(initialData.name);
+  const COMPANY_NAME_MAX = 100;
   const [country, setCountry] = useState(initialData.country);
   const [phone, setPhone] = useState(initialData.phone);
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
-  const [phonePlaceholder, setPhonePlaceholder] = useState("59112345678");
+  const [phonePlaceholder, setPhonePlaceholder] = useState("XXXXXXXX");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [slugPreview, setSlugPreview] = useState("");
   const [validationStatus, setValidationStatus] = useState<
     "idle" | "loading" | "available" | "unavailable"
@@ -84,11 +91,52 @@ export function CompanyStep({
         next
           .normalize("NFD")
           .replace(/\p{Diacritic}/gu, "")
-          .toLowerCase()
+          .toLowerCase(),
     );
     if (found) {
-      setPhonePlaceholder(formatPhonePattern(found.local));
+      setPhonePlaceholder("XXXXXXXX");
       if (!phone) setPhone(found.code);
+    }
+    setPhoneError(null);
+  };
+
+  const handlePhoneChange = (val: string, valid: boolean) => {
+    const config = getCountryConfigByName(country);
+    const prefix = config?.phone.prefix ?? "";
+
+    // Solo dígitos locales
+    let digits = val.replace(/\D/g, "");
+    let localDigits = digits;
+    if (prefix && digits.startsWith(prefix)) {
+      localDigits = digits.slice(prefix.length);
+    }
+
+    if (country && localDigits.length > 0) {
+      const filtered = filterPhoneFirstDigit(localDigits, country);
+      if (filtered !== localDigits) {
+        const newVal = prefix ? prefix + filtered : filtered;
+        setPhone(newVal);
+        setPhoneValid(false);
+        const firstHint = getPhoneStartDigitsHint(country);
+        setPhoneError(
+          firstHint ??
+            "El número debe comenzar con un dígito válido para el país",
+        );
+        return;
+      }
+    }
+
+    setPhone(val);
+    const error =
+      country && localDigits.length > 0
+        ? validatePhoneByCountry(val, country)
+        : null;
+    setPhoneValid(!error && valid);
+
+    if (country && localDigits.length > 0) {
+      setPhoneError(error);
+    } else {
+      setPhoneError(null);
     }
   };
 
@@ -98,7 +146,7 @@ export function CompanyStep({
     try {
       const result = await validateCompanyNameAction(name);
       setValidationStatus(
-        result.success && result.isAvailable ? "available" : "unavailable"
+        result.success && result.isAvailable ? "available" : "unavailable",
       );
     } catch {
       setValidationStatus("unavailable");
@@ -108,6 +156,7 @@ export function CompanyStep({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !country || !phone) return;
+    if (phoneValid === false || phoneError) return;
     if (!confirmImmutable) return;
     if (validationStatus !== "available") return;
     setIsPending(true);
@@ -136,7 +185,11 @@ export function CompanyStep({
           onBlur={handleNameBlur}
           placeholder="Mi empresa S.R.L."
           required
+          maxLength={COMPANY_NAME_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {name.length}/{COMPANY_NAME_MAX} caracteres
+        </p>
         <SlugPreview
           slug={slugPreview}
           status={validationStatus}
@@ -157,17 +210,18 @@ export function CompanyStep({
         <Label htmlFor="phone">Celular de contacto</Label>
         <PhoneInput
           value={phone}
-          onChange={(val, valid) => {
-            setPhone(val);
-            setPhoneValid(valid);
-          }}
-          placeholder={countryConfig?.phone.format ?? phonePlaceholder}
+          onChange={handlePhoneChange}
+          placeholder={"XXXXXXXX"}
           required
           fixedCountryCode={countryConfig?.phone.prefix}
           fixedLocalMax={countryConfig?.phone.local}
           hideCountrySelect
-          showValidation={!!phone}
+          showValidation={false}
+          showFormatHint={false}
         />
+        {phoneError && (
+          <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+        )}
       </div>
 
       <div className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors">

@@ -16,7 +16,10 @@ import {
 import { Phone as PhoneIcon } from "lucide-react";
 import { cn, formatPhonePattern } from "@/lib/utils";
 import { getOnboardingData } from "@/services/auth/company-registration/onboarding/session";
-import { getCountryConfigByName } from "@/services/admin/config";
+import {
+  getCountryConfigByName,
+  validatePhoneByCountry,
+} from "@/services/admin/config";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { getAccountProfile } from "@/services/admin/user-settings";
 
@@ -40,7 +43,7 @@ export function AccountTab({ userId }: AccountTabProps) {
   const [expandedSections, setExpandedSections] = useState({
     profile: false,
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export function AccountTab({ userId }: AccountTabProps) {
       try {
         const result = await getAccountProfile();
 
-      if (result.success && result.data) {
+        if (result.success && result.data) {
           setProfileData({
             firstName: result.data.firstName || "",
             lastName: result.data.lastName || "",
@@ -105,13 +108,6 @@ export function AccountTab({ userId }: AccountTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-2xl font-bold text-foreground">Cuenta</h3>
-        <p className="text-muted-foreground mt-1">
-          Gestiona tu información personal y credenciales
-        </p>
-      </div>
-
       {/* Profile Section Mejorada */}
       <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         <button
@@ -134,7 +130,7 @@ export function AccountTab({ userId }: AccountTabProps) {
           <ChevronDown
             className={cn(
               "h-5 w-5 transition-transform duration-300",
-              expandedSections.profile ? "rotate-180" : ""
+              expandedSections.profile ? "rotate-180" : "",
             )}
           />
         </button>
@@ -190,29 +186,53 @@ export function AccountTab({ userId }: AccountTabProps) {
                   <PhoneIcon className="h-4 w-4" />
                   Teléfono
                 </FieldLabel>
-                {
-                  (() => {
-                    // derive company country from onboarding session so profile phone follows same formatting
-                    const session: any = typeof window !== "undefined" ? getOnboardingData() : {};
-                    const companyCountry = session?.company?.country;
-                    const countryConfig = getCountryConfigByName(companyCountry);
-                    return (
+                {(() => {
+                  // derive company country from onboarding session so profile phone follows same formatting
+                  const session: any =
+                    typeof window !== "undefined" ? getOnboardingData() : {};
+                  const companyCountry = session?.company?.country;
+                  const countryConfig = getCountryConfigByName(companyCountry);
+                  return (
+                    <>
                       <PhoneInput
                         value={profileData.phone}
-                        onChange={(val /*, valid*/) =>
-                          setProfileData((prev) => ({ ...prev, phone: val }))
-                        }
+                        onChange={(val /*, valid*/) => {
+                          setProfileData((prev) => ({ ...prev, phone: val }));
+                          // Validación por país (ej: Bolivia debe empezar con 6 o 7)
+                          const phoneError = validatePhoneByCountry(
+                            val,
+                            companyCountry || "",
+                          );
+                          if (phoneError) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              phone: phoneError,
+                            }));
+                          } else {
+                            setErrors((prev) => {
+                              const { phone, ...rest } = prev;
+                              return rest;
+                            });
+                          }
+                        }}
                         placeholder={
-                          countryConfig?.phone?.format || formatPhonePattern(countryConfig?.phone?.local || 8)
+                          countryConfig?.phone?.format ||
+                          formatPhonePattern(countryConfig?.phone?.local || 8)
                         }
                         fixedCountryCode={countryConfig?.phone?.prefix}
                         fixedLocalMax={countryConfig?.phone?.local}
                         hideCountrySelect
                         showValidation={!!profileData.phone}
                       />
-                    );
-                  })()
-                }
+                      {errors.phone && (
+                        <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.phone}
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </Field>
               <Field>
                 <FieldLabel className="flex items-center gap-2">

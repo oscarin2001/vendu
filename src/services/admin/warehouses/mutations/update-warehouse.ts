@@ -27,7 +27,7 @@ export async function updateWarehouse(
   tenantId: string,
   warehouseId: number,
   data: UpdateWarehouseData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   const validatedData = updateWarehouseSchema.parse(data);
 
@@ -61,6 +61,7 @@ export async function updateWarehouse(
       city: normalizedData.city,
       department: normalizedData.department,
       country: validatedData.country,
+      openedAt: validatedData.openedAt, // Fecha de apertura de la bodega
       FK_updatedBy: context?.employeeId,
     },
   });
@@ -75,11 +76,13 @@ export async function updateWarehouse(
         name: existingWarehouse.name,
         address: existingWarehouse.address,
         city: existingWarehouse.city,
+        openedAt: existingWarehouse.openedAt,
       },
       newValue: {
         name: warehouse.name,
         address: warehouse.address,
         city: warehouse.city,
+        openedAt: warehouse.openedAt,
       },
       employeeId: context.employeeId,
       companyId: company.PK_company,
@@ -96,6 +99,7 @@ export async function updateWarehouse(
     city: warehouse.city,
     department: warehouse.department,
     country: warehouse.country,
+    openedAt: warehouse.openedAt, // Fecha de apertura de la bodega
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
   };

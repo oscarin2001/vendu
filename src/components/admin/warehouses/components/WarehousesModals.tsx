@@ -24,6 +24,7 @@ interface WarehousesModalsProps {
   isDeleteModalOpen: boolean;
   isDeleting: boolean;
   tenantId: string;
+  companyCountry?: string;
   onCreateModalChange: (open: boolean) => void;
   onEditModalChange: (open: boolean) => void;
   onDetailsModalChange: (open: boolean) => void;
@@ -48,6 +49,7 @@ export function WarehousesModals({
   isDeleteModalOpen,
   isDeleting,
   tenantId,
+  companyCountry,
   onCreateModalChange,
   onEditModalChange,
   onDetailsModalChange,
@@ -65,17 +67,21 @@ export function WarehousesModals({
     <>
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={onCreateModalChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Crear Nueva Bodega</DialogTitle>
+            <DialogTitle>Crear Bodega</DialogTitle>
           </DialogHeader>
-          <WarehouseForm onSubmit={onSubmitCreate} mode="create" />
+          <WarehouseForm
+            onSubmit={onSubmitCreate}
+            mode="create"
+            companyCountry={companyCountry}
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={onEditModalChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Bodega</DialogTitle>
           </DialogHeader>
@@ -87,10 +93,11 @@ export function WarehousesModals({
                 address: selectedWarehouse.address,
                 city: selectedWarehouse.city,
                 department: selectedWarehouse.department || "",
-                country: selectedWarehouse.country || "Bolivia",
+                country: selectedWarehouse.country || companyCountry,
               }}
               onSubmit={onSubmitEdit}
               mode="edit"
+              companyCountry={companyCountry}
               warehouseInfo={{
                 id: selectedWarehouse.id,
                 createdAt: selectedWarehouse.createdAt,

@@ -32,7 +32,7 @@ export function BranchDetailsModal({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <BranchHeader branch={branch} />
 
-        <div className="space-y-6">
+        <div className="space-y-6 mt-4">
           <BranchStatusBadges />
 
           <Separator />

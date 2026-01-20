@@ -48,7 +48,7 @@ export default function CompanyDetailsFields({
               type="button"
               className={cn(
                 "w-full justify-start text-left font-normal",
-                !openedAt && "text-muted-foreground"
+                !openedAt && "text-muted-foreground",
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -67,7 +67,7 @@ export default function CompanyDetailsFields({
                   : new Date(
                       new Date().getFullYear(),
                       new Date().getMonth(),
-                      18
+                      18,
                     )
               }
               onSelect={(date) =>
@@ -116,7 +116,7 @@ export default function CompanyDetailsFields({
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[80px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[80px] placeholder:text-sm"
           maxLength={250}
           placeholder="Ej: Venta de ropa vintage y accesorios en mercados locales..."
         />
@@ -128,7 +128,7 @@ export default function CompanyDetailsFields({
           id="vision"
           value={vision}
           onChange={(e) => setVision(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[60px] placeholder:text-sm"
           maxLength={300}
           placeholder="Ser la plataforma líder regional para revendedores locales..."
         />
@@ -140,7 +140,7 @@ export default function CompanyDetailsFields({
           id="mission"
           value={mission}
           onChange={(e) => setMission(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 min-h-[60px]"
+          className="w-full rounded-md border px-3 py-2 min-h-[60px] placeholder:text-sm"
           maxLength={300}
           placeholder="Facilitar la gestión y venta a comercios informales para incrementar sus ingresos..."
         />

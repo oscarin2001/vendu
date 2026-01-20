@@ -123,15 +123,18 @@ export function ManagerDetailsModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+            <User className="h-5 w-5 flex-shrink-0" />
             Detalles del Encargado
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription
+            className="truncate"
+            title={`Información completa del encargado ${manager.fullName}`}
+          >
             Información completa del encargado {manager.fullName}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 mt-4">
           {/* Información Personal */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -140,40 +143,49 @@ export function ManagerDetailsModal({
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-muted-foreground">
                   Nombre Completo
                 </label>
-                <p className="text-sm font-medium">{manager.fullName}</p>
+                <p
+                  className="text-sm font-medium truncate"
+                  title={manager.fullName}
+                >
+                  {manager.fullName}
+                </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-muted-foreground">
                   Cédula de Identidad
                 </label>
                 <p className="text-sm font-medium flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  {manager.ci}
+                  <CreditCard className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{manager.ci}</span>
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-muted-foreground">
                   Correo Electrónico
                 </label>
                 <p className="text-sm font-medium flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {manager.email}
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate" title={manager.email}>
+                    {manager.email}
+                  </span>
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-muted-foreground">
                   Teléfono
                 </label>
                 <p className="text-sm font-medium flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  {manager.phone || "No especificado"}
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {manager.phone || "No especificado"}
+                  </span>
                 </p>
               </div>
             </div>
@@ -317,7 +329,7 @@ export function ManagerDetailsModal({
           </div>
 
           {/* Información de Creación */}
-          {manager.createdAt && (
+          {(manager.createdAt || manager.updatedAt) && (
             <>
               <Separator />
               <div className="space-y-2">
@@ -325,11 +337,39 @@ export function ManagerDetailsModal({
                   <Clock className="h-4 w-4" />
                   Información del Sistema
                 </h3>
-                <div className="text-sm text-muted-foreground">
-                  <p>
-                    Creado el{" "}
-                    {format(manager.createdAt, "PPP 'a las' p", { locale: es })}
-                  </p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {manager.createdAt && (
+                    <div>
+                      <p className="text-muted-foreground">Creado</p>
+                      <p className="font-medium">
+                        {format(manager.createdAt, "PPP 'a las' p", {
+                          locale: es,
+                        })}
+                      </p>
+                      {manager.createdBy && (
+                        <p className="text-xs text-muted-foreground">
+                          por {manager.createdBy.name}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {manager.updatedAt && (
+                    <div>
+                      <p className="text-muted-foreground">
+                        Última actualización
+                      </p>
+                      <p className="font-medium">
+                        {format(manager.updatedAt, "PPP 'a las' p", {
+                          locale: es,
+                        })}
+                      </p>
+                      {manager.updatedBy && (
+                        <p className="text-xs text-muted-foreground">
+                          por {manager.updatedBy.name}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </>

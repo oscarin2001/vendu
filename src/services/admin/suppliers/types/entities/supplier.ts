@@ -9,7 +9,10 @@ export interface Supplier {
   city: string | null;
   department: string | null;
   country: string | null;
+  ci?: string | null;
   notes: string | null;
+  birthDate: Date | null; // Fecha de nacimiento del proveedor
+  partnerSince: Date | null; // Desde cuándo trabaja con la empresa
   isActive: boolean;
   managers: {
     id: number;
@@ -18,4 +21,12 @@ export interface Supplier {
   }[];
   createdAt: Date;
   updatedAt?: Date;
+  createdBy?: {
+    id: number;
+    name: string;
+  };
+  updatedBy?: {
+    id: number;
+    name: string;
+  };
 }

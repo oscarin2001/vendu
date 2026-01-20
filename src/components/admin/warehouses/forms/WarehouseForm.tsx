@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Warehouse } from "lucide-react";
+import { Warehouse, Lock, Calendar } from "lucide-react";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  getDepartmentsForCountry,
+  FIELD_LIMITS,
+  filterEntityName,
+  filterCityInput,
+  filterAddressInput,
+  validateWarehouseName,
+  validateCityName,
+  validateAddressField,
+  filterPhoneFirstDigit,
+  getPhoneStartDigitsHint,
+} from "@/services/admin/shared/validations";
+import { getCountryConfigByName } from "@/services/admin/config/types/countries";
 
 interface WarehouseFormData {
   name: string;
@@ -21,6 +36,15 @@ interface WarehouseFormData {
   city: string;
   department: string;
   country: string;
+  openedAt: Date | null; // Fecha de apertura de la bodega
+}
+
+interface WarehouseAuditInfo {
+  id: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  createdBy?: { id: number; name: string };
+  updatedBy?: { id: number; name: string };
 }
 
 interface WarehouseFormProps {
@@ -28,11 +52,8 @@ interface WarehouseFormProps {
   onSubmit: (data: WarehouseFormData) => void;
   isLoading?: boolean;
   mode: "create" | "edit";
-  warehouseInfo?: {
-    id: number;
-    createdAt: Date;
-    updatedAt?: Date;
-  };
+  warehouseInfo?: WarehouseAuditInfo;
+  companyCountry?: string;
 }
 
 export function WarehouseForm({
@@ -41,57 +62,107 @@ export function WarehouseForm({
   isLoading,
   mode,
   warehouseInfo,
+  companyCountry,
 }: WarehouseFormProps) {
+  const defaultCountry = initialData?.country || companyCountry || "";
   const [formData, setFormData] = useState<WarehouseFormData>({
     name: initialData?.name || "",
     phone: initialData?.phone || "",
     address: initialData?.address || "",
     city: initialData?.city || "",
     department: initialData?.department || "",
-    country: initialData?.country || "Bolivia",
+    country: defaultCountry,
+    openedAt: (initialData as any)?.openedAt
+      ? new Date((initialData as any).openedAt)
+      : null,
   });
 
   const [errors, setErrors] = useState<Partial<WarehouseFormData>>({});
+  const [departments, setDepartments] = useState<string[]>([]);
+
+  const phoneConfig = getCountryConfigByName(formData.country);
+  const phonePrefix = phoneConfig?.phone.prefix ?? "591";
+  const phoneLocalLength = phoneConfig?.phone.local ?? 8;
+
+  useEffect(() => {
+    const depts = getDepartmentsForCountry(formData.country);
+    setDepartments(depts);
+    if (formData.department && !depts.includes(formData.department)) {
+      setFormData((prev) => ({ ...prev, department: "" }));
+    }
+  }, [formData.country]);
 
   const validateForm = () => {
     const newErrors: Partial<WarehouseFormData> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "El nombre de la bodega es requerido";
-    }
-
-    if (!formData.address.trim()) {
-      newErrors.address = "La dirección es requerida";
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = "La ciudad es requerida";
-    }
-
+    const nameError = validateWarehouseName(formData.name);
+    if (nameError) newErrors.name = nameError;
+    const addressError = validateAddressField(formData.address);
+    if (addressError) newErrors.address = addressError;
+    const cityError = validateCityName(formData.city);
+    if (cityError) newErrors.city = cityError;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
-    }
+    if (validateForm()) onSubmit(formData);
   };
 
-  const handleChange = (
-    field: keyof WarehouseFormData,
-    value: string | number | null
-  ) => {
+  const handleChange = (field: keyof WarehouseFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleNameChange = (value: string) => {
+    handleChange(
+      "name",
+      filterEntityName(value, FIELD_LIMITS.warehouseName.max),
+    );
+  };
+
+  const handleCityChange = (value: string) => {
+    handleChange(
+      "city",
+      filterCityInput(value).slice(0, FIELD_LIMITS.city.max),
+    );
+  };
+
+  const handleAddressChange = (value: string) => {
+    handleChange(
+      "address",
+      filterAddressInput(value, FIELD_LIMITS.address.max),
+    );
+  };
+
+  // Phone change handler con filtro de primer dígito
+  const handlePhoneChange = (value: string) => {
+    let digits = value.replace(/\D/g, "");
+    let localDigits = digits;
+    if (phonePrefix && digits.startsWith(phonePrefix)) {
+      localDigits = digits.slice(phonePrefix.length);
     }
+
+    if (localDigits.length > 0) {
+      const filtered = filterPhoneFirstDigit(localDigits, formData.country);
+      if (filtered !== localDigits) {
+        const hint = getPhoneStartDigitsHint(formData.country);
+        setErrors((prev) => ({
+          ...prev,
+          phone: hint || "Dígito inicial inválido",
+        }));
+        const newVal = phonePrefix + filtered;
+        handleChange("phone", newVal);
+        return;
+      }
+    }
+
+    if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+    handleChange("phone", value);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Header */}
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-orange-100 rounded-lg">
           <Warehouse className="h-5 w-5 text-orange-600" />
@@ -100,128 +171,179 @@ export function WarehouseForm({
           <h2 className="text-lg font-semibold">
             {mode === "create" ? "Crear Bodega" : "Editar Bodega"}
           </h2>
-          <p className="text-sm text-muted-foreground">
-            {mode === "create"
-              ? "Agrega una nueva bodega a tu red de distribución"
-              : "Modifica la información de la bodega"}
+          <p className="text-xs text-muted-foreground">
+            {mode === "create" ? "Nueva bodega" : "Modifica la información"}
           </p>
         </div>
       </div>
 
-      {/* Basic Information */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Información Básica</CardTitle>
+        <CardHeader className="py-3">
+          <CardTitle className="text-sm">Información Básica</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nombre de la Bodega *</Label>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="name" className="text-xs">
+                Nombre *{" "}
+                <span className="text-muted-foreground">
+                  (máx. {FIELD_LIMITS.warehouseName.max})
+                </span>
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="Ej: Bodega Central Norte"
-                className={errors.name ? "border-red-500" : ""}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="Ej: Bodega Central"
+                maxLength={FIELD_LIMITS.warehouseName.max}
+                className={`h-9 ${errors.name ? "border-red-500" : ""}`}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
+                <p className="text-xs text-red-500">{errors.name}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Teléfono</Label>
-              <Input
-                id="phone"
+            <div className="space-y-1">
+              <Label className="text-xs">Teléfono</Label>
+              <PhoneInput
                 value={formData.phone}
-                onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="Ej: +591 2 1234567"
+                onChange={(val) => handlePhoneChange(val)}
+                fixedCountryCode={phonePrefix}
+                fixedLocalMax={phoneLocalLength}
+                hideCountrySelect
+                showValidation
               />
+              {errors.phone && (
+                <p className="text-xs text-red-500">{errors.phone}</p>
+              )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="address">Dirección *</Label>
+          <div className="space-y-1">
+            <Label htmlFor="address" className="text-xs">
+              Dirección *{" "}
+              <span className="text-muted-foreground">
+                (máx. {FIELD_LIMITS.address.max})
+              </span>
+            </Label>
             <Input
               id="address"
               value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
+              onChange={(e) => handleAddressChange(e.target.value)}
               placeholder="Ej: Calle 123, Zona Norte"
-              className={errors.address ? "border-red-500" : ""}
+              maxLength={FIELD_LIMITS.address.max}
+              className={`h-9 ${errors.address ? "border-red-500" : ""}`}
             />
             {errors.address && (
-              <p className="text-sm text-red-500">{errors.address}</p>
+              <p className="text-xs text-red-500">{errors.address}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="city">Ciudad *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="city" className="text-xs">
+                Ciudad *{" "}
+                <span className="text-muted-foreground">(solo letras)</span>
+              </Label>
               <Input
                 id="city"
                 value={formData.city}
-                onChange={(e) => handleChange("city", e.target.value)}
+                onChange={(e) => handleCityChange(e.target.value)}
                 placeholder="Ej: La Paz"
-                className={errors.city ? "border-red-500" : ""}
+                maxLength={FIELD_LIMITS.city.max}
+                className={`h-9 ${errors.city ? "border-red-500" : ""}`}
               />
               {errors.city && (
-                <p className="text-sm text-red-500">{errors.city}</p>
+                <p className="text-xs text-red-500">{errors.city}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="department">Departamento</Label>
-              <Input
-                id="department"
-                value={formData.department}
-                onChange={(e) => handleChange("department", e.target.value)}
-                placeholder="Ej: La Paz"
-              />
+            <div className="space-y-1">
+              <Label className="text-xs">Departamento</Label>
+              {departments.length > 0 ? (
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) => handleChange("department", value)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Selecciona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={formData.department}
+                  onChange={(e) => handleChange("department", e.target.value)}
+                  placeholder="Departamento"
+                  className="h-9"
+                />
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="country">País</Label>
-              <Select
+            <div className="space-y-1">
+              <Label className="text-xs flex items-center gap-1">
+                País
+                <Lock className="h-3 w-3 text-muted-foreground" />
+              </Label>
+              <Input
                 value={formData.country}
-                onValueChange={(value) => handleChange("country", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Bolivia">Bolivia</SelectItem>
-                  <SelectItem value="Perú">Perú</SelectItem>
-                  <SelectItem value="Chile">Chile</SelectItem>
-                  <SelectItem value="Argentina">Argentina</SelectItem>
-                  <SelectItem value="Brasil">Brasil</SelectItem>
-                </SelectContent>
-              </Select>
+                disabled
+                className="h-9 bg-muted cursor-not-allowed"
+              />
             </div>
+          </div>
+
+          {/* Fecha de apertura */}
+          <div className="space-y-1">
+            <Label className="text-xs flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              Fecha de Apertura
+            </Label>
+            <DatePicker
+              date={formData.openedAt || undefined}
+              onSelect={(date: Date | undefined) =>
+                setFormData((prev) => ({ ...prev, openedAt: date || null }))
+              }
+              placeholder="¿Cuándo abrió esta bodega?"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Desde cuándo opera esta bodega
+            </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Metadata */}
       {warehouseInfo && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Información del Sistema</CardTitle>
+          <CardHeader className="py-2">
+            <CardTitle className="text-xs">Sistema</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <CardContent className="py-2">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="font-medium">ID:</span> {warehouseInfo.id}
+                <span className="text-muted-foreground">ID:</span>{" "}
+                {warehouseInfo.id}
               </div>
               <div>
-                <span className="font-medium">Creado:</span>{" "}
-                {new Date(warehouseInfo.createdAt).toLocaleDateString("es-ES")}
+                <span className="text-muted-foreground">Creado:</span>{" "}
+                {new Date(warehouseInfo.createdAt).toLocaleDateString("es")}
               </div>
+              {warehouseInfo.createdBy && (
+                <div>
+                  <span className="text-muted-foreground">Por:</span>{" "}
+                  {warehouseInfo.createdBy.name}
+                </div>
+              )}
               {warehouseInfo.updatedAt && (
-                <div className="col-span-2">
-                  <span className="font-medium">Última modificación:</span>{" "}
-                  {new Date(warehouseInfo.updatedAt).toLocaleDateString(
-                    "es-ES"
-                  )}
+                <div>
+                  <span className="text-muted-foreground">Modificado:</span>{" "}
+                  {new Date(warehouseInfo.updatedAt).toLocaleDateString("es")}
                 </div>
               )}
             </div>
@@ -229,17 +351,12 @@ export function WarehouseForm({
         </Card>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline">
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="outline" size="sm">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading}>
-          {isLoading
-            ? "Guardando..."
-            : mode === "create"
-            ? "Crear Bodega"
-            : "Guardar Cambios"}
+        <Button type="submit" disabled={isLoading} size="sm">
+          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
         </Button>
       </div>
     </form>

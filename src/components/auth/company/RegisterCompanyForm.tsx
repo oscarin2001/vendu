@@ -3,6 +3,7 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import { Suspense, useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import AuthForm from "@/components/auth/company/auth-form";
 import { OnboardingFlow } from "@/components/auth/company/OnboardingFlowNew";
 import { Stepper } from "@/components/auth/company/onboarding/Stepper";
@@ -94,6 +95,10 @@ export default function RegisterCompanyForm() {
             setOnboardingData(savedData);
           }
           setShowOnboarding(true);
+          // Toast para indicar que hay pasos pendientes
+          toast.info("Tienes pasos pendientes por completar", {
+            description: "Continúa donde lo dejaste",
+          });
         }
       } catch (e) {
         // noop
@@ -165,12 +170,7 @@ export default function RegisterCompanyForm() {
 
         // Si el onboarding está pendiente (o se requiere), mostramos el flujo en la misma página
         if ("onboardingRequired" in result || !result.onboardingCompleted) {
-          try {
-            const { toast } = await import("sonner");
-            toast.info("Debes completar tu onboarding para continuar");
-          } catch (_) {
-            // Si sonner no carga, seguimos sin interrumpir el flujo
-          }
+          toast.info("Debes completar los pasos para continuar");
           // Marcamos para evitar que el useEffect de limpieza cancele el onboarding
           skipCleanupRef.current = true;
           setShowOnboarding(true);
@@ -196,6 +196,10 @@ export default function RegisterCompanyForm() {
         return;
       }
       setShowOnboarding(true);
+      // Toast de bienvenida para primer ingreso al onboarding
+      toast.success("¡Bienvenido! 🎉", {
+        description: "Completa los siguientes pasos para configurar tu empresa",
+      });
     } catch (err: any) {
       setAuthError(err?.message || "Error al realizar la operación");
     } finally {

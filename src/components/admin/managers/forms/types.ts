@@ -32,6 +32,7 @@ export interface FormErrors {
 
 export interface ManagerFormProps {
   tenantId: string;
+  companyCountry?: string;
   initialData?: {
     firstName: string;
     lastName: string;

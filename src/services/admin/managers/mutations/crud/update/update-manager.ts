@@ -22,11 +22,27 @@ export async function updateManager(
   tenantId: string,
   managerId: number,
   data: UpdateManagerData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   // Separar los campos que van a diferentes tablas
   const { branchIds, email, password, contributionType, ...restEmployeeData } =
     data;
+
+  // Verificar que la cédula de identidad no existe en otro empleado si se está actualizando
+  if (restEmployeeData.ci !== undefined) {
+    const existingEmployee = await prisma.tbemployee_profiles.findFirst({
+      where: {
+        ci: restEmployeeData.ci,
+        PK_employee: { not: managerId }, // Excluir el empleado actual
+      },
+    });
+
+    if (existingEmployee) {
+      throw new Error(
+        "La cédula de identidad ya está registrada por otro empleado",
+      );
+    }
+  }
 
   // Transformar contributionType a mayúsculas para coincidir con el enum de Prisma
   const employeeData = {
@@ -77,12 +93,12 @@ export async function updateManager(
 
     // Sucursales a desasignar (están en current pero no en branchIds)
     const branchesToUnassign = currentBranchIds.filter(
-      (id) => !branchIds.includes(id)
+      (id) => !branchIds.includes(id),
     );
 
     // Sucursales a asignar (están en branchIds pero no en current)
     const branchesToAssign = branchIds.filter(
-      (id) => !currentBranchIds.includes(id)
+      (id) => !currentBranchIds.includes(id),
     );
 
     // Desasignar sucursales que ya no están en la lista

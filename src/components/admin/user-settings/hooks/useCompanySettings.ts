@@ -61,7 +61,10 @@ export function useCompanySettings(
 
   const [formData, setFormData] = useState<CompanyFormState>(EMPTY_STATE);
   const [initialData, setInitialData] = useState<CompanyFormState | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ country?: string; department?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    country?: string;
+    department?: string;
+  }>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   // start collapsed by default so the section doesn't open automatically
@@ -70,9 +73,9 @@ export function useCompanySettings(
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>(
-    undefined
-  );
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | undefined
+  >(undefined);
   const [companyNameInput, setCompanyNameInput] = useState("");
   const [companyNameError, setCompanyNameError] = useState<string | undefined>(
     undefined
@@ -251,7 +254,11 @@ export function useCompanySettings(
       department: "",
       currency: config?.currency.code || prev.currency,
     }));
-    setFieldErrors((prev) => ({ ...prev, country: undefined, department: undefined }));
+    setFieldErrors((prev) => ({
+      ...prev,
+      country: undefined,
+      department: undefined,
+    }));
     resetVerificationState();
     setPendingCountry(null);
     setVerifyOpen(false);

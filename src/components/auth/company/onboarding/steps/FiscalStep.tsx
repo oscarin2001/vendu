@@ -34,6 +34,11 @@ export function FiscalStep({
   const [fiscalAddress, setFiscalAddress] = useState(
     initialData.fiscalAddress || ""
   );
+  const TAXID_MAX = 30;
+  const BUSINESS_NAME_MAX = 120;
+  const TAXIDPATH_MAX = 200;
+  const FISCAL_ADDRESS_MAX = 150;
+  const [errors, setErrors] = useState<Record<string, string>>({});
   // Try to derive a sensible default for taxIdPath from the onboarding session
   const existingSession: any =
     typeof window !== "undefined" ? getOnboardingData() : {};
@@ -74,7 +79,31 @@ export function FiscalStep({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onNext();
+    const newErrors: Record<string, string> = {};
+    if (taxId && taxId.length > TAXID_MAX)
+      newErrors.taxId = `Máximo ${TAXID_MAX} caracteres`;
+    if (businessName && businessName.length > BUSINESS_NAME_MAX)
+      newErrors.businessName = `Máximo ${BUSINESS_NAME_MAX} caracteres`;
+    if (fiscalAddress && fiscalAddress.length > FISCAL_ADDRESS_MAX)
+      newErrors.fiscalAddress = `Máximo ${FISCAL_ADDRESS_MAX} caracteres`;
+    if (taxIdPath && taxIdPath.length > TAXIDPATH_MAX)
+      newErrors.taxIdPath = `Máximo ${TAXIDPATH_MAX} caracteres`;
+    if (taxIdPath) {
+      try {
+        // basic URL validation
+        // allow relative paths? we require absolute URL starting with http/https
+        const u = new URL(taxIdPath);
+        if (!["http:", "https:"].includes(u.protocol)) {
+          newErrors.taxIdPath =
+            "URL inválida (debe comenzar con http:// o https://)";
+        }
+      } catch (e) {
+        newErrors.taxIdPath = "URL inválida";
+      }
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) onNext();
   };
 
   return (
@@ -89,9 +118,16 @@ export function FiscalStep({
         <Input
           id="taxId"
           value={taxId}
-          onChange={(e) => setTaxId(e.target.value)}
-          placeholder="123456789 (opcional)"
+          onChange={(e) => setTaxId(e.target.value.replace(/\s/g, ""))}
+          placeholder={`123456789 (hasta ${TAXID_MAX} dígitos)`}
+          maxLength={TAXID_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {taxId.length}/{TAXID_MAX} caracteres
+        </p>
+        {errors.taxId && (
+          <p className="text-sm text-red-500 mt-1">{errors.taxId}</p>
+        )}
       </div>
 
       <div>
@@ -101,7 +137,14 @@ export function FiscalStep({
           value={businessName}
           onChange={(e) => setBusinessName(e.target.value)}
           placeholder="Mi Empresa S.R.L. (opcional)"
+          maxLength={BUSINESS_NAME_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {businessName.length}/{BUSINESS_NAME_MAX} caracteres
+        </p>
+        {errors.businessName && (
+          <p className="text-sm text-red-500 mt-1">{errors.businessName}</p>
+        )}
       </div>
 
       <div>
@@ -111,7 +154,14 @@ export function FiscalStep({
           value={taxIdPath}
           onChange={(e) => setTaxIdPath(e.target.value)}
           placeholder="https://mi-firma-o-facturacion/empresa/123 (opcional)"
+          maxLength={TAXIDPATH_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {taxIdPath.length}/{TAXIDPATH_MAX} caracteres
+        </p>
+        {errors.taxIdPath && (
+          <p className="text-sm text-red-500 mt-1">{errors.taxIdPath}</p>
+        )}
       </div>
 
       <div>
@@ -121,7 +171,14 @@ export function FiscalStep({
           value={fiscalAddress}
           onChange={(e) => setFiscalAddress(e.target.value)}
           placeholder="Calle Principal #123 (opcional)"
+          maxLength={FISCAL_ADDRESS_MAX}
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          {fiscalAddress.length}/{FISCAL_ADDRESS_MAX} caracteres
+        </p>
+        {errors.fiscalAddress && (
+          <p className="text-sm text-red-500 mt-1">{errors.fiscalAddress}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-2">

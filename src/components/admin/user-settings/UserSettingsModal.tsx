@@ -73,7 +73,10 @@ export function UserSettingsModal({
               <Settings2 className="h-5 w-5 text-muted-foreground" />
               Configuraciones
             </DialogTitle>
-            <Badge variant="outline" className="text-xs px-2 py-0.5 font-normal">
+            <Badge
+              variant="outline"
+              className="text-xs px-2 py-0.5 font-normal"
+            >
               {tabs.find((tab) => tab.id === activeTab)?.label || "General"}
             </Badge>
           </div>

@@ -31,4 +31,13 @@ export interface Manager {
   };
   isActive: boolean;
   createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: {
+    id: number;
+    name: string;
+  };
+  updatedBy?: {
+    id: number;
+    name: string;
+  };
 }

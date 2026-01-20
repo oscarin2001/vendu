@@ -82,7 +82,7 @@ export function WarehouseDetailsModal({
       // Filter out already assigned managers
       const assignedIds = warehouse?.managers?.map((m) => m.id) || [];
       const available = managers.filter(
-        (m: any) => !assignedIds.includes(m.id)
+        (m: any) => !assignedIds.includes(m.id),
       );
       setAvailableManagers(available);
     } catch (error) {
@@ -141,7 +141,7 @@ export function WarehouseDetailsModal({
 
   const handleAssignBranch = async (
     branchId: number,
-    isPrimary: boolean = false
+    isPrimary: boolean = false,
   ) => {
     if (!warehouse) return;
     setIsAssigning(true);
@@ -150,12 +150,12 @@ export function WarehouseDetailsModal({
         tenantId,
         warehouse.id,
         branchId,
-        isPrimary
+        isPrimary,
       );
       toast.success(
         isPrimary
           ? "Sucursal designada como bodega principal exitosamente"
-          : "Sucursal agregada como bodega secundaria exitosamente"
+          : "Sucursal agregada como bodega secundaria exitosamente",
       );
       onClose();
     } catch (error) {
@@ -195,14 +195,17 @@ export function WarehouseDetailsModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 mt-4">
           {/* Basic Information */}
           <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="min-w-0">
+              <h3
+                className="text-lg font-semibold text-gray-900 truncate"
+                title={warehouse.name}
+              >
                 {warehouse.name}
               </h3>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs">
                   ID: {warehouse.id}
                 </Badge>
@@ -222,11 +225,25 @@ export function WarehouseDetailsModal({
                   Información General
                 </h4>
                 <div className="space-y-1 text-sm">
+                  {warehouse.openedAt && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3 text-orange-500" />
+                      <span className="text-orange-700 font-medium">
+                        Abierta desde:
+                      </span>
+                      <span>{formatDate(warehouse.openedAt)}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <Calendar className="h-3 w-3 text-muted-foreground" />
                     <span className="text-muted-foreground">Creado:</span>
                     <span>{formatDate(warehouse.createdAt)}</span>
                   </div>
+                  {warehouse.createdBy && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      Por: {warehouse.createdBy.name}
+                    </div>
+                  )}
                   {warehouse.updatedAt && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-3 w-3 text-muted-foreground" />
@@ -234,6 +251,11 @@ export function WarehouseDetailsModal({
                         Actualizado:
                       </span>
                       <span>{formatDate(warehouse.updatedAt)}</span>
+                    </div>
+                  )}
+                  {warehouse.updatedBy && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      Por: {warehouse.updatedBy.name}
                     </div>
                   )}
                 </div>
@@ -392,12 +414,24 @@ export function WarehouseDetailsModal({
                 <span>Creado: {formatDate(warehouse.createdAt)}</span>
               </div>
 
+              {warehouse.createdBy && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>Creado por: {warehouse.createdBy.name}</span>
+                </div>
+              )}
+
               {warehouse.updatedAt && (
-                <div className="flex items-center gap-2 col-span-2">
+                <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    Última modificación: {formatDate(warehouse.updatedAt)}
-                  </span>
+                  <span>Modificado: {formatDate(warehouse.updatedAt)}</span>
+                </div>
+              )}
+
+              {warehouse.updatedBy && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>Modificado por: {warehouse.updatedBy.name}</span>
                 </div>
               )}
             </div>

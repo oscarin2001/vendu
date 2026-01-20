@@ -3,19 +3,29 @@
 import { updateSupplier } from "../../../repos/suppliers";
 import { updateSupplierSchema } from "../../../validations/schemas/supplier-schemas";
 
+interface UserContext {
+  employeeId?: number;
+}
+
 /**
  * Update an existing supplier
  * @param supplierId - The supplier ID to update
  * @param data - Supplier update data
+ * @param context - User context for auditing
  * @returns Updated supplier information
  * @throws Error if validation fails or supplier not found
  */
-export async function updateSupplierService(supplierId: number, data: any) {
+export async function updateSupplierService(
+  supplierId: number,
+  data: any,
+  context?: UserContext,
+) {
   const validatedData = updateSupplierSchema.parse(data);
 
   const supplier = await updateSupplier(supplierId, {
     ...(validatedData.firstName && { firstName: validatedData.firstName }),
     ...(validatedData.lastName && { lastName: validatedData.lastName }),
+    ...(validatedData.ci !== undefined && { ci: validatedData.ci }),
     ...(validatedData.phone !== undefined && {
       phone: validatedData.phone,
     }),
@@ -35,13 +45,21 @@ export async function updateSupplierService(supplierId: number, data: any) {
     ...(validatedData.notes !== undefined && {
       notes: validatedData.notes,
     }),
+    ...(validatedData.birthDate !== undefined && {
+      birthDate: validatedData.birthDate,
+    }),
+    ...(validatedData.partnerSince !== undefined && {
+      partnerSince: validatedData.partnerSince,
+    }),
     ...(validatedData.isActive !== undefined && {
       isActive: validatedData.isActive,
     }),
+    FK_updatedBy: context?.employeeId,
   });
 
   return {
     id: supplier.PK_supplier,
+    ci: (supplier as any).ci,
     firstName: supplier.firstName,
     lastName: supplier.lastName,
     fullName: `${supplier.firstName} ${supplier.lastName}`,
@@ -52,6 +70,8 @@ export async function updateSupplierService(supplierId: number, data: any) {
     department: supplier.department,
     country: supplier.country,
     notes: supplier.notes,
+    birthDate: supplier.birthDate,
+    partnerSince: supplier.partnerSince,
     isActive: supplier.isActive,
     createdAt: supplier.createdAt,
     updatedAt: supplier.updatedAt,

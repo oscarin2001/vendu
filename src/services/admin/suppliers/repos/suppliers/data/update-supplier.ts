@@ -5,6 +5,7 @@ export async function updateSupplier(
   data: {
     firstName?: string;
     lastName?: string;
+    ci?: string;
     phone?: string;
     email?: string;
     address?: string;
@@ -12,7 +13,10 @@ export async function updateSupplier(
     department?: string;
     country?: string;
     notes?: string;
-  }
+    birthDate?: Date | null;
+    partnerSince?: Date | null;
+    FK_updatedBy?: number;
+  },
 ) {
   return await prisma.tbsuppliers.update({
     where: { PK_supplier: supplierId },

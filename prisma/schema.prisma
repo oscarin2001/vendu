@@ -313,6 +313,11 @@ model tbemployee_profiles {
 
   // Relaciones de auditoría para sucursales creadas/actualizadas
   branchesCreated tbbranches[] @relation("BranchCreatedBy")
+  branchesUpdated tbbranches[] @relation("BranchUpdatedBy")
+
+  // Relaciones de auditoría para proveedores creados/actualizados
+  suppliersCreated tbsuppliers[] @relation("SupplierCreatedBy")
+  suppliersUpdated tbsuppliers[] @relation("SupplierUpdatedBy")
 
   // Relaciones de auditoría para empresas y privilegios
   companiesCreated tbcompanies[] @relation("CompanyCreatedBy")
@@ -427,8 +432,11 @@ model tbbranches {
   country      String? // País de la sucursal
   latitude     Float?
   longitude    Float?
+  openedAt     DateTime? // Fecha de apertura de la sucursal
   createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt // Fecha de última actualización
   FK_createdBy Int? // Usuario que creó la sucursal
+  FK_updatedBy Int? // Usuario que actualizó la sucursal
 
   tbinventories       tbinventories[]
   // Relaciones para transferencias
@@ -458,6 +466,7 @@ model tbbranches {
 
   // Relaciones de auditoría
   createdBy tbemployee_profiles? @relation("BranchCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+  updatedBy tbemployee_profiles? @relation("BranchUpdatedBy", fields: [FK_updatedBy], references: [PK_employee])
 }
 
 //////////////////////////////
@@ -473,8 +482,9 @@ model tbwarehouses {
   city         String
   department   String?
   country      String?
+  openedAt     DateTime? // Fecha de apertura de la bodega
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime?
+  updatedAt    DateTime? @updatedAt
   FK_createdBy Int? // Usuario que creó la bodega
   FK_updatedBy Int? // Usuario que actualizó la bodega
 
@@ -1293,12 +1303,17 @@ model tbsuppliers {
   city           String?
   department     String?
   country        String?
+  ci             String?   // Cédula de identidad del proveedor/contacto
   notes          String?
+  birthDate      DateTime? // Fecha de nacimiento del contacto/proveedor
+  partnerSince   DateTime? // Desde cuándo trabaja con la empresa
   isActive       Boolean   @default(true)
   FK_company     Int?      // Compañía a la que pertenece el proveedor
   deletedAt      DateTime? // Fecha de borrado lógico (soft-delete) para proveedores
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
+  FK_createdBy   Int?      // Usuario que creó el proveedor
+  FK_updatedBy   Int?      // Usuario que actualizó el proveedor
 
   // Relación muchos-a-muchos con managers (encargados de sucursal)
   supplierManagers tbsupplier_managers[]
@@ -1308,6 +1323,10 @@ model tbsuppliers {
 
   // Relación con compañía
   company tbcompanies? @relation(fields: [FK_company], references: [PK_company])
+
+  // Relaciones de auditoría
+  createdBy tbemployee_profiles? @relation("SupplierCreatedBy", fields: [FK_createdBy], references: [PK_employee])
+  updatedBy tbemployee_profiles? @relation("SupplierUpdatedBy", fields: [FK_updatedBy], references: [PK_employee])
 
   tbpurchases tbpurchases[]
 }

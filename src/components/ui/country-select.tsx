@@ -13,12 +13,25 @@ import {
 export type Country = { name: string; flag: string };
 
 const COUNTRIES: Country[] = [
+  { name: "Argentina", flag: "🇦🇷" },
   { name: "Bolivia", flag: "🇧🇴" },
-  { name: "Honduras", flag: "🇭🇳" },
-  { name: "Guatemala", flag: "🇬🇹" },
-  { name: "Nicaragua", flag: "🇳🇮" },
-  { name: "Perú", flag: "🇵🇪" },
+  { name: "Chile", flag: "🇨🇱" },
+  { name: "Colombia", flag: "🇨🇴" },
+  { name: "Costa Rica", flag: "🇨🇷" },
+  { name: "Cuba", flag: "🇨🇺" },
   { name: "Ecuador", flag: "🇪🇨" },
+  { name: "El Salvador", flag: "🇸🇻" },
+  { name: "España", flag: "🇪🇸" },
+  { name: "Guatemala", flag: "🇬🇹" },
+  { name: "Honduras", flag: "🇭🇳" },
+  { name: "México", flag: "🇲🇽" },
+  { name: "Nicaragua", flag: "🇳🇮" },
+  { name: "Panamá", flag: "🇵🇦" },
+  { name: "Paraguay", flag: "🇵🇾" },
+  { name: "Perú", flag: "🇵🇪" },
+  { name: "República Dominicana", flag: "🇩🇴" },
+  { name: "Uruguay", flag: "🇺🇾" },
+  { name: "Venezuela", flag: "🇻🇪" },
 ];
 
 export function CountrySelect({

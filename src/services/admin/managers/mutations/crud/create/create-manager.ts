@@ -21,7 +21,7 @@ interface UserContext {
 export async function createManager(
   tenantId: string,
   data: CreateManagerData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   const company = await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
@@ -38,6 +38,15 @@ export async function createManager(
 
   if (existingUser) {
     throw new Error("Email already exists");
+  }
+
+  // Verificar que la cédula de identidad no existe
+  const existingEmployee = await prisma.tbemployee_profiles.findUnique({
+    where: { ci: data.ci },
+  });
+
+  if (existingEmployee) {
+    throw new Error("La cédula de identidad ya está registrada");
   }
 
   // Obtener o crear el privilegio de manager
@@ -64,7 +73,7 @@ export async function createManager(
         | "$transaction"
         | "$use"
         | "$extends"
-      >
+      >,
     ) => {
       const auth = await tx.tbauth.create({
         data: {
@@ -102,7 +111,7 @@ export async function createManager(
       }
 
       return { auth, employee };
-    }
+    },
   );
 
   return {

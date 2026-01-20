@@ -17,6 +17,7 @@ export async function getSupplierByIdService(supplierId: number) {
     firstName: supplier.firstName,
     lastName: supplier.lastName,
     fullName: `${supplier.firstName} ${supplier.lastName}`,
+    ci: (supplier as any).ci,
     phone: supplier.phone,
     email: supplier.email,
     address: supplier.address,

@@ -23,7 +23,12 @@ import {
   PhoneInput,
   COUNTRIES as PHONE_COUNTRIES,
 } from "@/components/ui/phone-input";
-import { getCountryConfigByName } from "@/services/admin/config";
+import {
+  getCountryConfigByName,
+  filterPhoneFirstDigit,
+  getPhoneStartDigitsHint,
+  validatePhoneByCountry,
+} from "@/services/admin/config";
 import { COMMERCE_TYPES } from "@/services/auth/company-registration/onboarding/constants";
 import { parseISOToLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -82,6 +87,7 @@ export default function CompanyDetailsCard({
   const parsedOpenedAt = openedAt ? parseISOToLocalDate(openedAt) : undefined;
   const countryConfig = getCountryConfigByName(country);
   const departments = countryConfig?.departments ?? [];
+  const [phoneError, setPhoneError] = React.useState<string | null>(null);
 
   const handleCountryChange = (val: string | null) => {
     const next = val || "";
@@ -95,11 +101,51 @@ export default function CompanyDetailsCard({
         next
           .normalize("NFD")
           .replace(/\p{Diacritic}/gu, "")
-          .toLowerCase()
+          .toLowerCase(),
     );
     if (found) {
-      setPhonePlaceholder(`${found.code}${"7".repeat(found.local)}`);
+      setPhonePlaceholder("XXXXXXXX");
       if (!phone) setPhone(found.code);
+    }
+    setPhoneError(null);
+  };
+
+  const handlePhoneChange = (val: string, valid: boolean) => {
+    const config = getCountryConfigByName(country);
+    const prefix = config?.phone.prefix ?? "";
+
+    let digits = val.replace(/\D/g, "");
+    let localDigits = digits;
+    if (prefix && digits.startsWith(prefix)) {
+      localDigits = digits.slice(prefix.length);
+    }
+
+    if (country && localDigits.length > 0) {
+      const filtered = filterPhoneFirstDigit(localDigits, country);
+      if (filtered !== localDigits) {
+        const newVal = prefix ? prefix + filtered : filtered;
+        setPhone(newVal);
+        setPhoneValid(false);
+        const firstHint = getPhoneStartDigitsHint(country);
+        setPhoneError(
+          firstHint ??
+            "El número debe comenzar con un dígito válido para el país",
+        );
+        return;
+      }
+    }
+
+    setPhone(val);
+    const error =
+      country && localDigits.length > 0
+        ? validatePhoneByCountry(val, country)
+        : null;
+    setPhoneValid(!error && valid);
+
+    if (country && localDigits.length > 0) {
+      setPhoneError(error);
+    } else {
+      setPhoneError(null);
     }
   };
 
@@ -117,7 +163,7 @@ export default function CompanyDetailsCard({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Rous Boutique"
-            className="w-full h-12 rounded-md border px-3"
+            className="w-full h-12 rounded-md border px-3 placeholder:text-sm"
           />
         </Field>
 
@@ -134,19 +180,18 @@ export default function CompanyDetailsCard({
           <FieldLabel htmlFor="phone">Celular</FieldLabel>
           <PhoneInput
             value={phone}
-            onChange={(val: string, valid: boolean) => {
-              setPhone(val);
-              setPhoneValid(valid);
-            }}
-            placeholder={
-              countryConfig?.phone.example ?? phonePlaceholder ?? "59112345678"
-            }
+            onChange={handlePhoneChange}
+            placeholder={"XXXXXXXX"}
             required
-            showValidation
             fixedCountryCode={countryConfig?.phone.prefix}
             fixedLocalMax={countryConfig?.phone.local}
             hideCountrySelect={!!countryConfig}
+            showValidation={false}
+            showFormatHint={false}
           />
+          {phoneError && (
+            <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+          )}
         </Field>
 
         {departments.length > 0 && (
@@ -185,7 +230,7 @@ export default function CompanyDetailsCard({
                 type="button"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !openedAt && "text-muted-foreground"
+                  !openedAt && "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />

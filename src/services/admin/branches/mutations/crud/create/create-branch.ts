@@ -22,7 +22,7 @@ interface UserContext {
 export async function createBranch(
   tenantId: string,
   data: CreateBranchData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   const company = await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
@@ -43,6 +43,7 @@ export async function createBranch(
       country: data.country,
       latitude: data.latitude,
       longitude: data.longitude,
+      openedAt: data.openedAt, // Fecha de apertura de la sucursal
       FK_createdBy: context?.employeeId,
     },
   });
@@ -68,7 +69,7 @@ export async function createBranch(
       companyId: company.PK_company,
       ipAddress: context?.ipAddress,
       userAgent: context?.userAgent,
-    }
+    },
   );
 
   return {

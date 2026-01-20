@@ -109,7 +109,7 @@ export function OwnerFields({
           id="ci"
           value={ci}
           onChange={(e) => onCiChange(e.target.value)}
-          placeholder="12345678"
+          placeholder="Ej: 1234"
           required
         />
         {errors.ci && <p className="text-sm text-red-600 mt-1">{errors.ci}</p>}

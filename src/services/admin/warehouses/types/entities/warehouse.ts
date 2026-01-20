@@ -11,8 +11,17 @@ export interface Warehouse {
   city: string;
   department?: string;
   country?: string;
+  openedAt?: Date | null; // Fecha de apertura de la bodega
   createdAt: Date;
   updatedAt: Date | undefined;
+  createdBy?: {
+    id: number;
+    name: string;
+  };
+  updatedBy?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface WarehouseWithRelations extends Warehouse {

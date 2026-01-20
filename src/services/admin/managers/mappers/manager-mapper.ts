@@ -46,6 +46,14 @@ export function mapManagerFromDB(manager: any): Manager {
       code: manager.auth.privilege.privilegeCode,
     },
     isActive,
-    createdAt: manager.hireDate,
+    createdAt: manager.createdAt,
+    updatedAt: undefined, // tbemployee_profiles no tiene updatedAt
+    createdBy: manager.createdBy
+      ? {
+          id: manager.createdBy.PK_employee,
+          name: `${manager.createdBy.firstName} ${manager.createdBy.lastName}`,
+        }
+      : undefined,
+    updatedBy: undefined, // tbemployee_profiles no tiene relación updatedBy
   };
 }

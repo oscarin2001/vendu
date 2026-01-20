@@ -19,6 +19,7 @@ export const createWarehouseSchema = z.object({
     .max(100, "City must be less than 100 characters"),
   department: z.string().optional(),
   country: z.string().optional(),
+  openedAt: z.date().optional().nullable(), // Fecha de apertura de la bodega
 });
 
 /**

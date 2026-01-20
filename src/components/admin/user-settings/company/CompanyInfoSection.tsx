@@ -4,7 +4,7 @@ import { CompanyFormState } from "./types";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Building2, ChevronDown, Check, Coins, Lock, Info } from "lucide-react";
+import { Building2, ChevronDown, Check, Coins, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CompanyCountryField } from "./CompanyCountryField";
 import { CompanyDepartmentField } from "./CompanyDepartmentField";
@@ -46,36 +46,54 @@ export function CompanyInfoSection({
 }: CompanyInfoSectionProps) {
   return (
     <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      {/* Header compacto: muestra resumen cuando está colapsado */}
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 transition-all"
+        aria-expanded={expanded}
+        className="w-full flex items-center justify-between p-3 bg-transparent hover:bg-muted/5 transition-colors"
       >
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-primary/10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
             <Building2 className="h-5 w-5 text-primary" />
           </div>
+
           <div className="text-left">
-            <span className="font-semibold text-lg">
-              Informacion de la empresa
-            </span>
-            <p className="text-sm text-muted-foreground">
-              Actualiza datos fiscales y regionales de tu compania
-            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="font-semibold text-sm">
+                Información de la empresa
+              </span>
+            </div>
           </div>
         </div>
-        <ChevronDown
-          className={cn(
-            "h-5 w-5 transition-transform duration-300",
-            expanded ? "rotate-180" : ""
-          )}
-        />
+
+        {/* Resumen compacto cuando está colapsado */}
+        {!expanded ? (
+          <div className="flex items-center gap-3 ml-4">
+            <div className="text-sm text-muted-foreground truncate max-w-xs text-right">
+              <div className="font-medium">{data.name || "—"}</div>
+              <div className="text-xs text-muted-foreground">
+                {data.taxId
+                  ? `NIT: ${data.taxId}`
+                  : data.country
+                  ? data.country
+                  : ""}
+              </div>
+            </div>
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          </div>
+        ) : (
+          <ChevronDown
+            className={cn(
+              "h-5 w-5 transition-transform duration-300 text-muted-foreground",
+              expanded ? "rotate-180" : ""
+            )}
+          />
+        )}
       </button>
 
       {expanded && (
-        <div className="p-6 bg-card border-t space-y-6">
-          {/* Aviso de campos inmutables removed per request */}
-
+        <div className="p-4 bg-card border-t space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field>
               <FieldLabel className="flex items-center gap-2">
@@ -87,11 +105,16 @@ export function CompanyInfoSection({
                 disabled
                 className="bg-muted/50 cursor-not-allowed"
                 placeholder="Nombre de la empresa"
+                aria-describedby="company-name-permanent-note"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p
+                id="company-name-permanent-note"
+                className="text-xs text-muted-foreground mt-1"
+              >
                 Campo permanente definido en el registro
               </p>
             </Field>
+
             <Field>
               <FieldLabel>NIT</FieldLabel>
               <Input
@@ -100,31 +123,35 @@ export function CompanyInfoSection({
                 placeholder="123456789"
               />
             </Field>
+
             <Field>
-              <FieldLabel>Razon social</FieldLabel>
+              <FieldLabel>Razón social</FieldLabel>
               <Input
                 value={data.businessName}
                 onChange={(event) =>
                   onFieldChange("businessName", event.target.value)
                 }
-                placeholder="Razon social completa"
+                placeholder="Razón social completa"
               />
             </Field>
+
             <Field>
-              <FieldLabel>Direccion fiscal</FieldLabel>
+              <FieldLabel>Dirección fiscal</FieldLabel>
               <Input
                 value={data.fiscalAddress}
                 onChange={(event) =>
                   onFieldChange("fiscalAddress", event.target.value)
                 }
-                placeholder="Direccion completa"
+                placeholder="Dirección completa"
               />
             </Field>
+
             <CompanyCountryField
               value={data.country}
               onSelect={onCountrySelect}
               error={countryError}
             />
+
             <div className="space-y-2">
               <CompanyDepartmentField
                 value={data.department}
@@ -141,10 +168,10 @@ export function CompanyInfoSection({
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6 border-t">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t">
             <div className="text-sm text-muted-foreground flex items-center gap-2">
               <Check className="h-4 w-4 text-green-500" />
-              {lastUpdatedHint || "Ultima revision reciente"}
+              {lastUpdatedHint || "Última revisión reciente"}
             </div>
             <div className="flex gap-3">
               <Button
