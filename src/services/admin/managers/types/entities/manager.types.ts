@@ -17,6 +17,10 @@ export interface Manager {
   email: string;
   salary: number;
   hireDate: Date;
+  birthDate?: Date;
+  joinedAt?: Date;
+  contractEndAt?: Date;
+  homeAddress?: string;
   contractType: string;
   status: ManagerStatus;
   connectionStatus: ConnectionStatus;

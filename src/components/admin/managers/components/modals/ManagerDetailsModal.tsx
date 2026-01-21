@@ -24,6 +24,10 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Cake,
+  MapPin,
+  CalendarClock,
+  CalendarX,
 } from "lucide-react";
 import { Manager } from "@/services/admin/managers";
 import { format } from "date-fns";
@@ -188,6 +192,31 @@ export function ManagerDetailsModal({
                   </span>
                 </p>
               </div>
+
+              <div className="space-y-2 min-w-0">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Fecha de Nacimiento
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Cake className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {manager.birthDate
+                      ? format(manager.birthDate, "PPP", { locale: es })
+                      : "No especificada"}
+                  </span>
+                </p>
+              </div>
+              <div className="space-y-2 min-w-0">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Dirección Particular
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {manager.homeAddress || "No especificada"}
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
 
@@ -201,6 +230,30 @@ export function ManagerDetailsModal({
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Desde Cuándo Trabaja
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <CalendarClock className="h-4 w-4" />
+                  {manager.joinedAt
+                    ? format(manager.joinedAt, "PPP", { locale: es })
+                    : "No especificada"}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Hasta Cuándo (Fin Contrato)
+                </label>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <CalendarX className="h-4 w-4" />
+                  {manager.contractEndAt
+                    ? format(manager.contractEndAt, "PPP", { locale: es })
+                    : "Tiempo Indefinido"}
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">
                   Salario

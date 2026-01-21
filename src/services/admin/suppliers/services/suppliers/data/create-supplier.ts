@@ -40,6 +40,8 @@ export async function createSupplierService(
     notes: validatedData.notes,
     birthDate: validatedData.birthDate, // Fecha de nacimiento
     partnerSince: validatedData.partnerSince, // Desde cuándo trabaja con la empresa
+    contractEndAt: validatedData.contractEndAt,
+    isIndefinite: validatedData.isIndefinite,
     FK_company: company.PK_company,
     FK_createdBy: context?.employeeId,
   });

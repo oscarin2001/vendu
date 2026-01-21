@@ -95,6 +95,11 @@ export function ManagerForm({
         branchIds: formData.branchIds || [],
         contributionType: formData.contributionType,
         hireDate: formData.hireDate,
+        birthDate: formData.birthDate,
+        joinedAt: formData.joinedAt,
+        contractEndAt: formData.contractEndAt,
+        isIndefinite: formData.isIndefinite,
+        homeAddress: formData.homeAddress,
       };
       onSubmit(submitData);
     }
@@ -123,11 +128,13 @@ export function ManagerForm({
         firstName={formData.firstName}
         lastName={formData.lastName}
         ci={formData.ci}
+        homeAddress={formData.homeAddress}
         country={companyCountry ?? company?.country}
         errors={{
           firstName: errors.firstName,
           lastName: errors.lastName,
           ci: errors.ci,
+          homeAddress: errors.homeAddress,
         }}
         onChange={handleFieldChange}
       />
@@ -162,11 +169,18 @@ export function ManagerForm({
         salary={formData.salary}
         contributionType={formData.contributionType}
         hireDate={formData.hireDate || new Date()}
+        birthDate={formData.birthDate}
+        joinedAt={formData.joinedAt}
+        contractEndAt={formData.contractEndAt}
+        isIndefinite={formData.isIndefinite}
         country={companyCountry ?? company?.country}
         errors={{
           salary: errors.salary,
           contributionType: errors.contributionType,
           hireDate: errors.hireDate,
+          birthDate: errors.birthDate,
+          joinedAt: errors.joinedAt,
+          contractEndAt: errors.contractEndAt,
         }}
         onChange={handleFieldChange}
       />

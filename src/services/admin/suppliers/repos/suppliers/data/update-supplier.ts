@@ -15,6 +15,8 @@ export async function updateSupplier(
     notes?: string;
     birthDate?: Date | null;
     partnerSince?: Date | null;
+    contractEndAt?: Date | null;
+    isIndefinite?: boolean;
     FK_updatedBy?: number;
   },
 ) {

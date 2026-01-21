@@ -16,6 +16,8 @@ export const createSupplierSchema = z.object({
   notes: z.string().optional(),
   birthDate: z.date().optional().nullable(), // Fecha de nacimiento del proveedor
   partnerSince: z.date().optional().nullable(), // Desde cuándo trabaja con la empresa
+  contractEndAt: z.date().optional().nullable(), // Fecha fin de contrato (nulo = indefinido)
+  isIndefinite: z.boolean().optional(),
 });
 
 /**

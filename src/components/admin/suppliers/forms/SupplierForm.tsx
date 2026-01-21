@@ -48,6 +48,8 @@ interface SupplierFormData {
   notes?: string;
   birthDate?: Date | null; // Fecha de nacimiento del proveedor
   partnerSince?: Date | null; // Desde cuándo trabaja con la empresa
+  contractEndAt?: Date | null; // Fin de contrato
+  isIndefinite?: boolean; // Contrato por tiempo indefinido
 }
 
 interface SupplierAuditInfo {
@@ -100,6 +102,10 @@ export function SupplierForm({
     partnerSince: (initialData as any)?.partnerSince
       ? new Date((initialData as any).partnerSince)
       : null,
+    contractEndAt: (initialData as any)?.contractEndAt
+      ? new Date((initialData as any).contractEndAt)
+      : null,
+    isIndefinite: (initialData as any)?.isIndefinite || false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -493,6 +499,41 @@ export function SupplierForm({
                 Fecha de inicio de relación comercial
               </p>
             </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  Fin de Contrato
+                </Label>
+                <DatePicker
+                  date={formData.contractEndAt || undefined}
+                  onSelect={(date: Date | undefined) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contractEndAt: date || null,
+                    }))
+                  }
+                  placeholder="Fecha fin de contrato"
+                  disabled={formData.isIndefinite}
+                />
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="isIndefinite"
+                    checked={!!formData.isIndefinite}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isIndefinite: e.target.checked,
+                        contractEndAt: e.target.checked ? null : prev.contractEndAt,
+                      }))
+                    }
+                  />
+                  <label htmlFor="isIndefinite" className="text-xs">
+                    Contrato por tiempo indefinido
+                  </label>
+                </div>
+              </div>
           </div>
 
           {/* CI field */}

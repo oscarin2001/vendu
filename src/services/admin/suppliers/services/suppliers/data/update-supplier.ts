@@ -51,6 +51,12 @@ export async function updateSupplierService(
     ...(validatedData.partnerSince !== undefined && {
       partnerSince: validatedData.partnerSince,
     }),
+    ...(validatedData.contractEndAt !== undefined && {
+      contractEndAt: validatedData.contractEndAt,
+    }),
+    ...(validatedData.isIndefinite !== undefined && {
+      isIndefinite: validatedData.isIndefinite,
+    }),
     ...(validatedData.isActive !== undefined && {
       isActive: validatedData.isActive,
     }),

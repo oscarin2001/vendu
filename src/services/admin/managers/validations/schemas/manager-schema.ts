@@ -17,6 +17,11 @@ export const createManagerSchema = z.object({
   branchIds: z.array(z.number()).optional().default([]),
   contributionType: z.enum(["none", "contributes", "paid"]),
   hireDate: z.date().optional(),
+  birthDate: z.date().optional(),
+  joinedAt: z.date().optional(),
+  contractEndAt: z.date().optional(),
+  isIndefinite: z.boolean().optional(),
+  homeAddress: z.string().max(300).optional(),
 });
 
 /**

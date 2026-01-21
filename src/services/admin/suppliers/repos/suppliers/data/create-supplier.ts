@@ -13,6 +13,8 @@ export async function createSupplier(data: {
   notes?: string;
   birthDate?: Date | null;
   partnerSince?: Date | null;
+  contractEndAt?: Date | null;
+  isIndefinite?: boolean;
   FK_company?: number;
   FK_createdBy?: number;
 }) {

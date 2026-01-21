@@ -25,7 +25,7 @@ export async function updateManager(
   context?: UserContext,
 ) {
   // Separar los campos que van a diferentes tablas
-  const { branchIds, email, password, contributionType, ...restEmployeeData } =
+  const { branchIds, email, password, contributionType, isIndefinite, ...restEmployeeData } =
     data;
 
   // Verificar que la cédula de identidad no existe en otro empleado si se está actualizando
@@ -44,9 +44,24 @@ export async function updateManager(
     }
   }
 
+  // Manejar contractEndAt basado en isIndefinite
+  const contractData: Record<string, any> = {};
+  if (isIndefinite !== undefined) {
+    if (isIndefinite) {
+      contractData.contractEndAt = null;
+      contractData.contractType = "INDEFINIDO";
+    } else if (restEmployeeData.contractEndAt !== undefined) {
+      contractData.contractEndAt = restEmployeeData.contractEndAt;
+      contractData.contractType = "TEMPORAL";
+    }
+    // Remover contractEndAt de restEmployeeData si ya lo manejamos
+    delete restEmployeeData.contractEndAt;
+  }
+
   // Transformar contributionType a mayúsculas para coincidir con el enum de Prisma
   const employeeData = {
     ...restEmployeeData,
+    ...contractData,
     ...(contributionType && {
       contributionType: contributionType.toUpperCase() as
         | "NONE"

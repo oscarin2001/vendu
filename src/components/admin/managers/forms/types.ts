@@ -9,6 +9,11 @@ export interface SubmitData {
   branchIds?: number[];
   contributionType: "none" | "contributes" | "paid";
   hireDate?: Date;
+  birthDate?: Date;
+  joinedAt?: Date;
+  contractEndAt?: Date;
+  isIndefinite?: boolean;
+  homeAddress?: string;
 }
 
 export interface ManagerFormData extends SubmitData {
@@ -27,6 +32,10 @@ export interface FormErrors {
   branchIds?: string;
   contributionType?: string;
   hireDate?: string;
+  birthDate?: string;
+  joinedAt?: string;
+  contractEndAt?: string;
+  homeAddress?: string;
   general?: string;
 }
 
@@ -43,6 +52,11 @@ export interface ManagerFormProps {
     branchIds?: number[];
     contributionType?: "none" | "contributes" | "paid";
     hireDate?: Date;
+    birthDate?: Date;
+    joinedAt?: Date;
+    contractEndAt?: Date;
+    isIndefinite?: boolean;
+    homeAddress?: string;
   };
   branches: { id: number; name: string }[];
   onSubmit: (data: SubmitData) => void;

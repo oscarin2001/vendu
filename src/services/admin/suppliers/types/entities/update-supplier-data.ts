@@ -11,5 +11,7 @@ export interface UpdateSupplierData {
   notes?: string;
   birthDate?: Date | null; // Fecha de nacimiento del proveedor
   partnerSince?: Date | null; // Desde cuándo trabaja con la empresa
+  contractEndAt?: Date | null;
+  isIndefinite?: boolean;
   isActive?: boolean;
 }

@@ -21,6 +21,11 @@ export function useManagerFormState({
       initialData?.contributionType ||
       (!initialData?.salary || initialData.salary === 0 ? "none" : "paid"),
     hireDate: initialData?.hireDate || new Date(),
+    birthDate: initialData?.birthDate,
+    joinedAt: initialData?.joinedAt,
+    contractEndAt: initialData?.contractEndAt,
+    isIndefinite: initialData?.isIndefinite ?? !initialData?.contractEndAt,
+    homeAddress: initialData?.homeAddress || "",
   });
 
   return {

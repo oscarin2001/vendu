@@ -25,6 +25,8 @@ export async function getSuppliersByCompanyService(tenantId: string) {
     notes: supplier.notes,
     birthDate: supplier.birthDate, // Fecha de nacimiento del proveedor
     partnerSince: supplier.partnerSince, // Desde cuándo trabaja con la empresa
+    contractEndAt: supplier.contractEndAt,
+    isIndefinite: supplier.isIndefinite,
     isActive: supplier.isActive,
     managers: supplier.supplierManagers.map((sm: any) => ({
       id: sm.manager.PK_employee,

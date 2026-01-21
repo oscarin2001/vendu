@@ -93,8 +93,13 @@ export async function createManager(
           lastName: data.lastName,
           ci: data.ci,
           phone: data.phone,
+          homeAddress: data.homeAddress,
           salary: data.salary,
           hireDate: data.hireDate || new Date(),
+          birthDate: data.birthDate,
+          joinedAt: data.joinedAt,
+          contractEndAt: data.isIndefinite ? null : data.contractEndAt,
+          contractType: data.isIndefinite ? "INDEFINIDO" : (data.contractEndAt ? "TEMPORAL" : "INDEFINIDO"),
         },
       });
 

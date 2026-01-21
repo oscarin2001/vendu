@@ -12,11 +12,13 @@ interface PersonalInfoSectionProps {
   firstName: string;
   lastName: string;
   ci: string;
+  homeAddress?: string;
   country?: string;
   errors: {
     firstName?: string;
     lastName?: string;
     ci?: string;
+    homeAddress?: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -99,6 +101,22 @@ export function PersonalInfoSection({
           className={`h-9 max-w-[200px] ${errors.ci ? "border-red-500" : ""}`}
         />
         {errors.ci && <p className="text-xs text-red-500">{errors.ci}</p>}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="homeAddress" className="text-xs">
+          Dirección Particular
+        </Label>
+        <Input
+          id="homeAddress"
+          value={homeAddress || ""}
+          onChange={(e) => onChange("homeAddress", e.target.value)}
+          placeholder="Dirección personal"
+          className={`h-9 ${errors.homeAddress ? "border-red-500" : ""}`}
+        />
+        {errors.homeAddress && (
+          <p className="text-xs text-red-500">{errors.homeAddress}</p>
+        )}
       </div>
     </div>
   );

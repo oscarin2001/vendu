@@ -1307,6 +1307,8 @@ model tbsuppliers {
   notes          String?
   birthDate      DateTime? // Fecha de nacimiento del contacto/proveedor
   partnerSince   DateTime? // Desde cuándo trabaja con la empresa
+  contractEndAt  DateTime? // Fecha fin de contrato del proveedor (nulo = indefinido)
+  isIndefinite   Boolean   @default(false)
   isActive       Boolean   @default(true)
   FK_company     Int?      // Compañía a la que pertenece el proveedor
   deletedAt      DateTime? // Fecha de borrado lógico (soft-delete) para proveedores
