@@ -10,6 +10,7 @@ export interface SupplierFormData {
   city?: string;
   department?: string;
   country?: string;
+  isForeign?: boolean;
   notes?: string;
   birthDate?: Date | null;
   partnerSince?: Date | null;

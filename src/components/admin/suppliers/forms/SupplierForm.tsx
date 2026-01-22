@@ -47,6 +47,7 @@ export function SupplierForm({
       ? new Date(initialData.contractEndAt)
       : null,
     isIndefinite: initialData?.isIndefinite || false,
+    isForeign: initialData?.isForeign || false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -122,6 +123,11 @@ export function SupplierForm({
       department: formData.department?.trim() || undefined,
       notes: formData.notes?.trim() || undefined,
     };
+
+    // `isForeign` is a UI-only flag — do not send to the backend
+    if ((submitData as any).isForeign !== undefined) {
+      delete (submitData as any).isForeign;
+    }
 
     if (mode === "edit" && onEditRequest) {
       onEditRequest(submitData, changes);

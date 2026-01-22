@@ -135,6 +135,15 @@ export function SupplierEditFinalModal({
             )}
           </div>
 
+          <div className="p-3 bg-muted rounded-md">
+            <div className="text-sm">
+              <strong>País:</strong> {supplier.country || "-"}
+            </div>
+            <div className="text-sm mt-1">
+              <strong>Departamento:</strong> {supplier.department || "-"}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label className="flex items-center gap-3">
               <Checkbox

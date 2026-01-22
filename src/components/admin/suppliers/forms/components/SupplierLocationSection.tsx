@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -55,18 +56,44 @@ export function SupplierLocationSection({
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium text-muted-foreground">Ubicación</h3>
-      <div>
-        <Label htmlFor="country">País</Label>
-        <CountrySelect
-          value={formData.country}
-          onChange={(val) => onChange("country", val)}
-        />
-        {formData.country && companyCountry && formData.country !== companyCountry && (
-          <p className="text-xs text-yellow-600 mt-2">
-            Atención: este proveedor está configurado en otro país que la compañía. Esto puede afectar impuestos y logística.
-          </p>
+
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <Checkbox
+            id="isForeign"
+            checked={Boolean(formData.isForeign)}
+            onCheckedChange={(v) => onChange("isForeign", Boolean(v))}
+          />
+          <span>Proveedor de otro país</span>
+        </Label>
+
+        {formData.isForeign ? (
+          <div className="space-y-2">
+            <Label htmlFor="country">País (manual)</Label>
+            <Input
+              id="country"
+              value={formData.country || ""}
+              onChange={(e) => onChange("country", e.target.value.slice(0, 80))}
+              placeholder="Ej: México"
+              maxLength={80}
+            />
+          </div>
+        ) : (
+          <div>
+            <Label htmlFor="country">País</Label>
+            <CountrySelect
+              value={formData.country}
+              onChange={(val) => onChange("country", val)}
+            />
+            {formData.country && companyCountry && formData.country !== companyCountry && (
+              <p className="text-xs text-yellow-600 mt-2">
+                Atención: este proveedor está configurado en otro país que la compañía. Esto puede afectar impuestos y logística.
+              </p>
+            )}
+          </div>
         )}
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="city">Ciudad</Label>
@@ -83,21 +110,32 @@ export function SupplierLocationSection({
 
         <div className="space-y-2">
           <Label htmlFor="department">Departamento/Estado</Label>
-          <Select
-            value={formData.department || ""}
-            onValueChange={(value) => onChange("department", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar..." />
-            </SelectTrigger>
-            <SelectContent>
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {(!formData.isForeign && (formData.country || companyCountry) === "Bolivia") ? (
+            <Select
+              value={formData.department || ""}
+              onValueChange={(value) => onChange("department", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar..." />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              id="department"
+              value={formData.department || ""}
+              onChange={(e) => onChange("department", e.target.value.slice(0, 80))}
+              placeholder="Departamento / Estado"
+              maxLength={80}
+            />
+          )}
+          {errors.department && <p className="text-xs text-red-500">{errors.department}</p>}
         </div>
 
         <div className="col-span-2 space-y-2">
