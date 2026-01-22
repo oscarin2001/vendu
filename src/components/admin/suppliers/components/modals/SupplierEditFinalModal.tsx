@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
 import { Supplier } from "@/services/admin/suppliers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Lock, Type } from "lucide-react";
@@ -46,10 +46,16 @@ export function SupplierEditFinalModal({
   const [supplierName, setSupplierName] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
-  const [isIndefinite, setIsIndefinite] = useState<boolean>(supplier?.isIndefinite || false);
+  const [isIndefinite, setIsIndefinite] = useState<boolean>(supplier?.isIndefinite ?? true);
   const [contractEndAt, setContractEndAt] = useState<Date | null>(
     supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null,
   );
+
+  // sync when modal opens or supplier changes
+  useEffect(() => {
+    setIsIndefinite(supplier?.isIndefinite ?? true);
+    setContractEndAt(supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null);
+  }, [supplier, isOpen]);
 
   const handleConfirm = () => {
     let hasError = false;
