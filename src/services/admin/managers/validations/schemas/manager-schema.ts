@@ -6,8 +6,14 @@ import { z } from "zod";
 export const createManagerSchema = z.object({
   // Limit names to 20 characters to match UI limits
   // (min rules left as-is; UI/FIELD_LIMITS enforce min=2)
-  firstName: z.string().min(1, "First name is required").max(20, "First name must be at most 20 characters"),
-  lastName: z.string().min(1, "Last name is required").max(20, "Last name must be at most 20 characters"),
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .max(20, "First name must be at most 20 characters"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .max(20, "Last name must be at most 20 characters"),
   ci: z.string().min(1, "CI is required"),
   phone: z.string().optional(),
   email: z.string().email("Invalid email"),

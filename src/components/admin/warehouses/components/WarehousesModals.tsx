@@ -6,6 +6,7 @@ import { WarehouseServiceConfigModal } from "@/components/admin/warehouses/compo
 import { WarehouseDeleteInitialModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteInitialModal";
 import { WarehouseDeleteWarningModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteWarningModal";
 import { WarehouseDeleteFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteFinalModal";
+import { WarehouseEditFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseEditFinalModal";
 import { WarehouseForm } from "@/components/admin/warehouses/forms/WarehouseForm";
 import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import {
@@ -69,6 +70,10 @@ export function WarehousesModals({
   const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
   const [pendingEditData, setPendingEditData] = useState<any>(null);
   const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   const handleEditRequest = (data: any, changes: FieldChange[]) => {
     setPendingEditData(data);
@@ -77,12 +82,31 @@ export function WarehousesModals({
   };
 
   const handleConfirmEditWithReason = (reason: string) => {
-    if (pendingEditData) {
-      onSubmitEdit({ ...pendingEditData, _changeReason: reason });
-    }
+    if (!pendingEditData) return;
+    setPendingEditReason(reason);
     setIsChangeReasonOpen(false);
-    setPendingEditData(null);
-    setPendingChanges([]);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData) return;
+    setIsSubmittingEdit(true);
+    try {
+      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      setIsEditFinalOpen(false);
+      setPendingEditData(null);
+      setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      throw error;
+    } finally {
+      setIsSubmittingEdit(false);
+    }
   };
 
   const handleCancelChangeReason = () => {
@@ -145,6 +169,26 @@ export function WarehousesModals({
         changes={pendingChanges}
         entityName="bodega"
       />
+
+      {/* Final edit confirmation (name + password) */}
+      {selectedWarehouse && (
+        <WarehouseEditFinalModal
+          warehouse={selectedWarehouse}
+          isOpen={isEditFinalOpen}
+          onClose={() => {
+            setIsEditFinalOpen(false);
+            setEditFinalError(undefined);
+          }}
+          onPrevious={() => {
+            setIsEditFinalOpen(false);
+            setIsChangeReasonOpen(true);
+            setEditFinalError(undefined);
+          }}
+          onConfirm={handleConfirmEditFinal}
+          isLoading={isSubmittingEdit}
+          error={editFinalError}
+        />
+      )}
 
       {/* Details Modal */}
       <WarehouseDetailsModal

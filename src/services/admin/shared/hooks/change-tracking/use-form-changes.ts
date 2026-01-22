@@ -59,7 +59,7 @@ export function useFormChanges<T extends Record<string, unknown>>({
         changes: [],
         getChangeSummary: () => "",
         isFieldChanged: () => false,
-        getChangedData: () => ({} as Partial<T>),
+        getChangedData: () => ({}) as Partial<T>,
       };
     }
 

@@ -63,9 +63,7 @@ export function SupplierLocationSection({
             className={errors.city ? "border-red-500" : ""}
             maxLength={SUPPLIER_LIMITS.city.max}
           />
-          {errors.city && (
-            <p className="text-xs text-red-500">{errors.city}</p>
-          )}
+          {errors.city && <p className="text-xs text-red-500">{errors.city}</p>}
         </div>
 
         <div className="space-y-2">

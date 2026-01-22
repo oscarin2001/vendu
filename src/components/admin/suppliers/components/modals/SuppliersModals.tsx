@@ -6,6 +6,7 @@ import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-rea
 import { SupplierDeleteInitialModal } from "./SupplierDeleteInitialModal";
 import { SupplierDeleteWarningModal } from "./SupplierDeleteWarningModal";
 import { SupplierDeleteFinalModal } from "./SupplierDeleteFinalModal";
+import { SupplierEditFinalModal } from "./SupplierEditFinalModal";
 import { SupplierServiceConfigModal } from "./SupplierServiceConfigModal";
 import { SupplierStatusToggleModal } from "./SupplierStatusToggleModal";
 import { SupplierDetailsModal } from "./SupplierDetailsModal";
@@ -84,6 +85,9 @@ export function SuppliersModals({
   const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
   const [pendingEditData, setPendingEditData] = useState<any>(null);
   const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   const handleEditRequest = (data: any, changes: FieldChange[]) => {
@@ -94,12 +98,27 @@ export function SuppliersModals({
 
   const handleConfirmEditWithReason = async (reason: string) => {
     if (!pendingEditData) return;
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData) return;
     setIsSubmittingEdit(true);
     try {
-      await onSubmitEdit({ ...pendingEditData, _changeReason: reason });
-      setIsChangeReasonOpen(false);
+      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      setIsEditFinalOpen(false);
       setPendingEditData(null);
       setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      throw error;
     } finally {
       setIsSubmittingEdit(false);
     }
@@ -170,6 +189,26 @@ export function SuppliersModals({
         isLoading={isSubmittingEdit}
         entityName="proveedor"
       />
+
+      {/* Final edit confirmation (name + password) */}
+      {selectedSupplier && (
+        <SupplierEditFinalModal
+          supplier={selectedSupplier}
+          isOpen={isEditFinalOpen}
+          onClose={() => {
+            setIsEditFinalOpen(false);
+            setEditFinalError(undefined);
+          }}
+          onPrevious={() => {
+            setIsEditFinalOpen(false);
+            setIsChangeReasonOpen(true);
+            setEditFinalError(undefined);
+          }}
+          onConfirm={handleConfirmEditFinal}
+          isLoading={isSubmittingEdit}
+          error={editFinalError}
+        />
+      )}
 
       {/* Details Modal */}
       <SupplierDetailsModal

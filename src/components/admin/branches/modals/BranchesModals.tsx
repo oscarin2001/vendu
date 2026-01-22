@@ -8,6 +8,7 @@ import { BranchServiceConfigModal } from "@/components/admin/branches/modals/ser
 import { BranchDeleteInitialModal } from "@/components/admin/branches/modals/delete/BranchDeleteInitialModal";
 import { BranchDeleteWarningModal } from "@/components/admin/branches/modals/delete/BranchDeleteWarningModal";
 import { BranchDeleteFinalModal } from "@/components/admin/branches/modals/delete/BranchDeleteFinalModal";
+import { BranchEditFinalModal } from "@/components/admin/branches/modals/edit/BranchEditFinalModal";
 import {
   Dialog,
   DialogContent,
@@ -73,6 +74,9 @@ export function BranchesModals({
   const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
   const [pendingEditData, setPendingEditData] = useState<any>(null);
   const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   const handleEditRequest = (data: any, changes: FieldChange[]) => {
@@ -83,12 +87,29 @@ export function BranchesModals({
 
   const handleConfirmEditWithReason = async (reason: string) => {
     if (!pendingEditData) return;
+    // store reason and open final confirmation (name + password)
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData) return;
     setIsSubmittingEdit(true);
     try {
-      await onSubmitEdit({ ...pendingEditData, _changeReason: reason });
-      setIsChangeReasonOpen(false);
+      // send both reason and confirmation password to submit handler
+      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      setIsEditFinalOpen(false);
       setPendingEditData(null);
       setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      throw error;
     } finally {
       setIsSubmittingEdit(false);
     }
@@ -151,6 +172,26 @@ export function BranchesModals({
         isLoading={isSubmittingEdit}
         entityName="sucursal"
       />
+
+      {/* Final edit confirmation (name + password) */}
+      {selectedBranch && (
+        <BranchEditFinalModal
+          branch={selectedBranch}
+          isOpen={isEditFinalOpen}
+          onClose={() => {
+            setIsEditFinalOpen(false);
+            setEditFinalError(undefined);
+          }}
+          onPrevious={() => {
+            setIsEditFinalOpen(false);
+            setIsChangeReasonOpen(true);
+            setEditFinalError(undefined);
+          }}
+          onConfirm={handleConfirmEditFinal}
+          isLoading={isSubmittingEdit}
+          error={editFinalError}
+        />
+      )}
 
       {/* Details Modal */}
       {selectedBranch && (

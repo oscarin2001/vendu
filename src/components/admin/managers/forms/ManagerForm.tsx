@@ -156,8 +156,7 @@ export function ManagerForm({
   };
 
   // Determine if submit button should be enabled
-  const isSubmitDisabled =
-    isLoading || (mode === "edit" && !hasChanges);
+  const isSubmitDisabled = isLoading || (mode === "edit" && !hasChanges);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

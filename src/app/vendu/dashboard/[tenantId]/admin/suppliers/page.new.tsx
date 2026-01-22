@@ -33,7 +33,9 @@ export default function SuppliersPage() {
   } = useSuppliers(tenantId);
 
   // Modal states
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -43,8 +45,10 @@ export default function SuppliersPage() {
 
   // Delete flow states
   const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
-  const [isDeleteInitialModalOpen, setIsDeleteInitialModalOpen] = useState(false);
-  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(false);
+  const [isDeleteInitialModalOpen, setIsDeleteInitialModalOpen] =
+    useState(false);
+  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
+    useState(false);
   const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -141,8 +145,12 @@ export default function SuppliersPage() {
   const handleStatusToggleConfirm = async (supplierId: number) => {
     setIsTogglingStatus(true);
     try {
-      await updateSupplier(supplierId, { isActive: !selectedSupplier?.isActive });
-      toast.success(`Proveedor ${selectedSupplier?.isActive ? "desactivado" : "activado"}`);
+      await updateSupplier(supplierId, {
+        isActive: !selectedSupplier?.isActive,
+      });
+      toast.success(
+        `Proveedor ${selectedSupplier?.isActive ? "desactivado" : "activado"}`,
+      );
       setIsStatusToggleModalOpen(false);
     } catch (error) {
       toast.error("Error al cambiar estado");
@@ -175,8 +183,14 @@ export default function SuppliersPage() {
         onViewDetails={handleViewSupplier}
         onEdit={handleEditSupplier}
         onDelete={handleDeleteSupplier}
-        onConfigureService={(s) => { setSelectedSupplier(s); setIsConfigureModalOpen(true); }}
-        onToggleStatus={(s) => { setSelectedSupplier(s); setIsStatusToggleModalOpen(true); }}
+        onConfigureService={(s) => {
+          setSelectedSupplier(s);
+          setIsConfigureModalOpen(true);
+        }}
+        onToggleStatus={(s) => {
+          setSelectedSupplier(s);
+          setIsStatusToggleModalOpen(true);
+        }}
       />
 
       <SuppliersModals

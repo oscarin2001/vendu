@@ -1,6 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getAuditService } from "@/services/shared/audit";
+import { validateAdminPassword } from "@/services/admin/managers";
 import { UpdateManagerData } from "../../../validations/types/inferred.types";
 
 interface UserContext {
@@ -24,6 +26,39 @@ export async function updateManager(
   data: UpdateManagerData,
   context?: UserContext,
 ) {
+  const maybeData: any = { ...(data as any) };
+  // extract and remove confirm password and change reason if provided
+  const confirmPassword: string | undefined = maybeData._confirmPassword;
+  if (maybeData._confirmPassword) delete maybeData._confirmPassword;
+  const changeReason: string | undefined = maybeData._changeReason;
+  if (maybeData._changeReason) delete maybeData._changeReason;
+  if (confirmPassword) {
+    try {
+      await validateAdminPassword(
+        { tenantId, employeeId: context?.employeeId, password: confirmPassword }
+      );
+    } catch (err: any) {
+      const e = new Error(err?.message || "La contraseña no coincide");
+      e.name = "ValidationError";
+      throw e;
+    }
+  }
+  // fetch old values for audit
+  const oldEmployee = await prisma.tbemployee_profiles.findUnique({
+    where: { PK_employee: managerId },
+  });
+
+  const oldAuth = oldEmployee
+    ? await prisma.tbauth.findUnique({
+        where: { PK_auth: oldEmployee.FK_auth },
+        select: { username: true },
+      })
+    : null;
+
+  const oldManagerBranches = await prisma.tbmanager_branches.findMany({
+    where: { FK_manager: managerId },
+    select: { FK_branch: true },
+  });
   // Separar los campos que van a diferentes tablas
   const {
     branchIds,
@@ -152,6 +187,56 @@ export async function updateManager(
     where: { PK_auth: employee.FK_auth },
     select: { username: true },
   });
+
+  // Audit log: include change reason if provided
+  try {
+    const auditService = getAuditService(prisma);
+    const oldValue = {
+      firstName: oldEmployee?.firstName,
+      lastName: oldEmployee?.lastName,
+      ci: oldEmployee?.ci,
+      phone: oldEmployee?.phone,
+      salary: oldEmployee?.salary,
+      email: oldAuth?.username,
+      branchIds: oldManagerBranches.map((b) => b.FK_branch),
+    };
+
+    const finalManagerBranches = await prisma.tbmanager_branches.findMany({
+      where: { FK_manager: managerId },
+      select: { FK_branch: true },
+    });
+
+    const newValue: Record<string, any> = {
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      ci: employee.ci,
+      phone: employee.phone,
+      salary: employee.salary,
+      email: updatedAuth?.username,
+      branchIds: finalManagerBranches.map((b) => b.FK_branch),
+    };
+
+    if (changeReason) {
+      newValue._changeReason = changeReason;
+      newValue._changedAt = new Date().toISOString();
+    }
+
+    await auditService.logUpdate(
+      "MANAGER",
+      managerId,
+      oldValue,
+      newValue,
+      {
+        employeeId: context?.employeeId,
+        companyId: context?.companyId,
+        ipAddress: context?.ipAddress,
+        userAgent: context?.userAgent,
+      },
+    );
+  } catch (err) {
+    // audit failures should not block main operation
+    console.error("Manager audit log error:", err);
+  }
 
   return {
     id: employee.PK_employee,

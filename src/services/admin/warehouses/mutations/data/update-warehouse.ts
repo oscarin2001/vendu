@@ -1,7 +1,9 @@
 "use server";
 
 import { getAuditService } from "@/services/shared/audit";
+import { prisma } from "@/lib/prisma";
 import { updateWarehouse } from "../../repos/data/warehouse-crud-repository";
+import { validateAdminPassword } from "@/services/admin/managers";
 import {
   validateCompanyExists,
   validateWarehouseExists,
@@ -39,32 +41,60 @@ export async function updateWarehouseForCompany(
 
   const normalizedData = normalizeWarehouseInput(data);
 
+  // extract possible confirmation password and change reason, validate if provided
+  const maybeData: any = { ...(data as any) };
+  const confirmPassword: string | undefined = maybeData._confirmPassword;
+  const changeReason: string | undefined = maybeData._changeReason;
+  if (maybeData._confirmPassword) delete maybeData._confirmPassword;
+  if (maybeData._changeReason) delete maybeData._changeReason;
+  if (confirmPassword) {
+    try {
+      await validateAdminPassword({ tenantId, employeeId: context?.employeeId, password: confirmPassword });
+    } catch (err: any) {
+      const e = new Error(err?.message || "La contraseña no coincide");
+      e.name = "ValidationError";
+      throw e;
+    }
+  }
+
   const warehouse = await updateWarehouse(warehouseId, {
     ...normalizedData,
     updatedBy: context?.employeeId,
   });
 
-  // Audit log
+  // Audit log (include change reason if present)
   if (context?.employeeId) {
-    await getAuditService().log({
-      entity: "WAREHOUSE",
-      entityId: warehouse.PK_warehouse,
-      action: "UPDATE",
-      oldValue: {
-        name: existingWarehouse.name,
-        address: existingWarehouse.address,
-        city: existingWarehouse.city,
-      },
-      newValue: {
+    try {
+      const auditService = getAuditService(prisma);
+      const newValue: Record<string, any> = {
         name: warehouse.name,
         address: warehouse.address,
         city: warehouse.city,
-      },
-      employeeId: context.employeeId,
-      companyId: company.PK_company,
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-    });
+      };
+      if (changeReason) {
+        newValue._changeReason = changeReason;
+        newValue._changedAt = new Date().toISOString();
+      }
+
+      await auditService.logUpdate(
+        "WAREHOUSE",
+        warehouse.PK_warehouse,
+        {
+          name: existingWarehouse.name,
+          address: existingWarehouse.address,
+          city: existingWarehouse.city,
+        },
+        newValue,
+        {
+          employeeId: context.employeeId,
+          companyId: company.PK_company,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+        },
+      );
+    } catch (err) {
+      console.error("Warehouse audit log error:", err);
+    }
   }
 
   return {

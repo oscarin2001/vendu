@@ -122,7 +122,12 @@ export function PersonalInfoSection({
             id="birthDate"
             type="date"
             value={birthDate ? birthDate.toISOString().split("T")[0] : ""}
-            onChange={(e) => onChange("birthDate", e.target.value ? new Date(e.target.value) : undefined)}
+            onChange={(e) =>
+              onChange(
+                "birthDate",
+                e.target.value ? new Date(e.target.value) : undefined,
+              )
+            }
             className={`h-9 ${errors.birthDate ? "border-red-500" : ""}`}
           />
           {errors.birthDate && (

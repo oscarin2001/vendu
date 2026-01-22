@@ -10,6 +10,7 @@ import { ManagerStatusToggleModal } from "./ManagerStatusToggleModal";
 import { ManagerDeleteInitialModal } from "./delete/ManagerDeleteInitialModal";
 import { ManagerDeleteWarningModal } from "./delete/ManagerDeleteWarningModal";
 import { ManagerDeleteFinalModal } from "./delete/ManagerDeleteFinalModal";
+import { ManagerEditFinalModal } from "./ManagerEditFinalModal";
 import {
   Dialog,
   DialogContent,
@@ -76,6 +77,9 @@ export function ManagersModals({
   const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
   const [pendingEditData, setPendingEditData] = useState<any>(null);
   const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   // Handle edit request from form - opens change reason dialog
@@ -88,16 +92,26 @@ export function ManagersModals({
   // Handle confirmed edit with reason
   const handleConfirmEditWithReason = async (reason: string) => {
     if (!pendingEditData) return;
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
 
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData) return;
     setIsSubmittingEdit(true);
     try {
-      // Add change reason to the data
-      await onSubmitEdit({ ...pendingEditData, _changeReason: reason });
-      setIsChangeReasonOpen(false);
+      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      setIsEditFinalOpen(false);
       setPendingEditData(null);
       setPendingChanges([]);
-    } catch (error) {
-      // Error handled by parent
+      setPendingEditReason(null);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      // parent handles non-validation errors
     } finally {
       setIsSubmittingEdit(false);
     }
@@ -221,6 +235,26 @@ export function ManagersModals({
         isLoading={isSubmittingEdit}
         entityName="encargado"
       />
+
+      {/* Final edit confirmation (name + password) */}
+      {selectedManager && (
+        <ManagerEditFinalModal
+          manager={selectedManager}
+          isOpen={isEditFinalOpen}
+          onClose={() => {
+            setIsEditFinalOpen(false);
+            setEditFinalError(undefined);
+          }}
+          onPrevious={() => {
+            setIsEditFinalOpen(false);
+            setIsChangeReasonOpen(true);
+            setEditFinalError(undefined);
+          }}
+          onConfirm={handleConfirmEditFinal}
+          isLoading={isSubmittingEdit}
+          error={editFinalError}
+        />
+      )}
 
       {/* Details Modal */}
       <ManagerDetailsModal

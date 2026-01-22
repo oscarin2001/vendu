@@ -187,9 +187,9 @@ export function ContactInfoSection({
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
-                  onChange={(e) => onChange("confirmPassword", e.target.value)}
-                  placeholder="Repite la contraseña"
-                  maxLength={72}
+                onChange={(e) => onChange("confirmPassword", e.target.value)}
+                placeholder="Repite la contraseña"
+                maxLength={72}
                 className={`h-9 ${errors.confirmPassword ? "border-red-500" : ""}`}
               />
               <Button

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getAuditService } from "@/services/shared/audit";
+import { validateAdminPassword } from "@/services/admin/managers";
 import { UpdateBranchData } from "../../../validations/types/inferred.types";
 
 interface UserContext {
@@ -34,16 +35,53 @@ export async function updateBranch(
     throw new Error("Branch not found");
   }
 
+  // If client included a change reason, extract it and avoid sending it to Prisma
+  const maybeData: any = { ...(data as any) };
+  const changeReason: string | undefined = maybeData._changeReason;
+  if (maybeData._changeReason) delete maybeData._changeReason;
+
+  // If client provided a confirmation password, validate it and remove it
+  const confirmPassword: string | undefined = maybeData._confirmPassword;
+  if (maybeData._confirmPassword) delete maybeData._confirmPassword;
+  if (confirmPassword) {
+    // validate password against current employee when available
+    try {
+      await validateAdminPassword({ tenantId, employeeId: context?.employeeId, password: confirmPassword });
+    } catch (err: any) {
+      // Normalize validation error so frontend can detect it
+      const e = new Error(err?.message || "La contraseña no coincide");
+      e.name = "ValidationError";
+      throw e;
+    }
+  }
+
   const branch = await prisma.tbbranches.update({
     where: { PK_branch: branchId },
     data: {
-      ...data,
+      ...maybeData,
       FK_updatedBy: context?.employeeId,
     },
   });
 
   // Registrar auditoría
   const auditService = getAuditService(prisma);
+  // Prepare newValue for audit; include change reason if provided
+  const newValueForAudit: Record<string, unknown> = {
+    name: branch.name,
+    phone: branch.phone,
+    address: branch.address,
+    city: branch.city,
+    department: branch.department,
+    country: branch.country,
+    latitude: branch.latitude,
+    longitude: branch.longitude,
+    openedAt: branch.openedAt,
+  };
+  if (changeReason) {
+    newValueForAudit._changeReason = changeReason;
+    newValueForAudit._changedAt = new Date().toISOString();
+  }
+
   await auditService.logUpdate(
     "BRANCH",
     branchId,
@@ -58,17 +96,7 @@ export async function updateBranch(
       longitude: oldBranch.longitude,
       openedAt: oldBranch.openedAt,
     },
-    {
-      name: branch.name,
-      phone: branch.phone,
-      address: branch.address,
-      city: branch.city,
-      department: branch.department,
-      country: branch.country,
-      latitude: branch.latitude,
-      longitude: branch.longitude,
-      openedAt: branch.openedAt,
-    },
+    newValueForAudit,
     {
       employeeId: context?.employeeId,
       companyId: oldBranch.FK_company || undefined,
