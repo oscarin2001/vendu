@@ -128,12 +128,14 @@ export function ManagerForm({
         firstName={formData.firstName}
         lastName={formData.lastName}
         ci={formData.ci}
+        birthDate={formData.birthDate}
         homeAddress={formData.homeAddress}
         country={companyCountry ?? company?.country}
         errors={{
           firstName: errors.firstName,
           lastName: errors.lastName,
           ci: errors.ci,
+          birthDate: errors.birthDate,
           homeAddress: errors.homeAddress,
         }}
         onChange={handleFieldChange}
@@ -169,7 +171,6 @@ export function ManagerForm({
         salary={formData.salary}
         contributionType={formData.contributionType}
         hireDate={formData.hireDate || new Date()}
-        birthDate={formData.birthDate}
         joinedAt={formData.joinedAt}
         contractEndAt={formData.contractEndAt}
         isIndefinite={formData.isIndefinite}
@@ -178,7 +179,6 @@ export function ManagerForm({
           salary: errors.salary,
           contributionType: errors.contributionType,
           hireDate: errors.hireDate,
-          birthDate: errors.birthDate,
           joinedAt: errors.joinedAt,
           contractEndAt: errors.contractEndAt,
         }}

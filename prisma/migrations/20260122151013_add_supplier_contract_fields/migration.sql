@@ -5,8 +5,8 @@ CREATE TABLE "tbprivileges" (
     "privilegeCode" TEXT NOT NULL,
     "description" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME,
-    "actionHistory" JSONB
+    "FK_createdBy" INTEGER,
+    CONSTRAINT "tbprivileges_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -18,9 +18,12 @@ CREATE TABLE "tbauth" (
     "password" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "lastLogin" DATETIME,
+    "accountType" TEXT NOT NULL DEFAULT 'CUSTOMER',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "FK_createdBy" INTEGER,
     CONSTRAINT "tbauth_FK_privilege_fkey" FOREIGN KEY ("FK_privilege") REFERENCES "tbprivileges" ("PK_privilege") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "tbauth_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "tbauth_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbauth_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -34,14 +37,25 @@ CREATE TABLE "tbemployee_profiles" (
     "ci" TEXT NOT NULL,
     "phone" TEXT,
     "birthDate" DATETIME,
+    "birthYear" INTEGER,
     "salary" DECIMAL NOT NULL DEFAULT 0,
     "hireDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "joinedAt" DATETIME,
+    "contractEndAt" DATETIME,
     "contractType" TEXT NOT NULL DEFAULT 'INDEFINIDO',
+    "contributionType" TEXT NOT NULL DEFAULT 'NONE',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "homeAddress" TEXT,
     "deletedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "FK_createdBy" INTEGER,
+    "theme" TEXT DEFAULT 'SYSTEM',
+    "notifications" BOOLEAN DEFAULT true,
+    "language" TEXT DEFAULT 'es',
     CONSTRAINT "tbemployee_profiles_FK_auth_fkey" FOREIGN KEY ("FK_auth") REFERENCES "tbauth" ("PK_auth") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbemployee_profiles_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "tbemployee_profiles_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "tbemployee_profiles_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbemployee_profiles_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -60,6 +74,7 @@ CREATE TABLE "tbcustomer_profiles" (
     "totalSpent" DECIMAL NOT NULL DEFAULT 0,
     "ordersCount" INTEGER NOT NULL DEFAULT 0,
     "deletedAt" DATETIME,
+    "isGuest" BOOLEAN NOT NULL DEFAULT true,
     CONSTRAINT "tbcustomer_profiles_FK_auth_fkey" FOREIGN KEY ("FK_auth") REFERENCES "tbauth" ("PK_auth") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
@@ -86,7 +101,6 @@ CREATE TABLE "tbcash_sessions" (
 CREATE TABLE "tbdevices" (
     "PK_device" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "FK_auth" INTEGER NOT NULL,
-    "devices" JSONB NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
     CONSTRAINT "tbdevices_FK_auth_fkey" FOREIGN KEY ("FK_auth") REFERENCES "tbauth" ("PK_auth") ON DELETE RESTRICT ON UPDATE CASCADE
@@ -109,19 +123,67 @@ CREATE TABLE "tbbranches" (
     "PK_branch" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "FK_company" INTEGER,
     "name" TEXT NOT NULL,
-    "isWarehouse" BOOLEAN NOT NULL DEFAULT false,
     "FK_owner" INTEGER,
     "phone" TEXT,
     "address" TEXT NOT NULL,
     "city" TEXT NOT NULL,
     "department" TEXT,
+    "country" TEXT,
     "latitude" REAL,
     "longitude" REAL,
-    "openingHours" JSONB,
+    "openedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
-    CONSTRAINT "tbbranches_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE
+    "FK_createdBy" INTEGER,
+    "FK_updatedBy" INTEGER,
+    CONSTRAINT "tbbranches_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbbranches_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbbranches_FK_updatedBy_fkey" FOREIGN KEY ("FK_updatedBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbwarehouses" (
+    "PK_warehouse" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_company" INTEGER,
+    "name" TEXT NOT NULL,
+    "phone" TEXT,
+    "address" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "department" TEXT,
+    "country" TEXT,
+    "openedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME,
+    "FK_createdBy" INTEGER,
+    "FK_updatedBy" INTEGER,
+    CONSTRAINT "tbwarehouses_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbwarehouses_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbwarehouses_FK_updatedBy_fkey" FOREIGN KEY ("FK_updatedBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbmanager_warehouses" (
+    "PK_manager_warehouse" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_employee" INTEGER NOT NULL,
+    "FK_warehouse" INTEGER NOT NULL,
+    "assignedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "FK_assignedBy" INTEGER,
+    CONSTRAINT "tbmanager_warehouses_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbmanager_warehouses_FK_warehouse_fkey" FOREIGN KEY ("FK_warehouse") REFERENCES "tbwarehouses" ("PK_warehouse") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbmanager_warehouses_FK_assignedBy_fkey" FOREIGN KEY ("FK_assignedBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbwarehouse_branches" (
+    "PK_warehouse_branch" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_warehouse" INTEGER NOT NULL,
+    "FK_branch" INTEGER NOT NULL,
+    "isPrimary" BOOLEAN NOT NULL DEFAULT false,
+    "assignedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "FK_assignedBy" INTEGER,
+    CONSTRAINT "tbwarehouse_branches_FK_warehouse_fkey" FOREIGN KEY ("FK_warehouse") REFERENCES "tbwarehouses" ("PK_warehouse") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbwarehouse_branches_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbwarehouse_branches_FK_assignedBy_fkey" FOREIGN KEY ("FK_assignedBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -135,8 +197,44 @@ CREATE TABLE "tbbranchspecialdays" (
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbbranchspecialdays_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbbranch_hours" (
+    "PK_branch_hour" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_branch" INTEGER NOT NULL,
+    "day_of_week" INTEGER NOT NULL,
+    "opening_time" TEXT,
+    "closing_time" TEXT,
+    "is_closed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME,
+    CONSTRAINT "tbbranch_hours_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbcash_session_actions" (
+    "PK_action" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_session" INTEGER NOT NULL,
+    "action" TEXT NOT NULL,
+    "amount" DECIMAL,
+    "details" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tbcash_session_actions_FK_session_fkey" FOREIGN KEY ("FK_session") REFERENCES "tbcash_sessions" ("PK_session") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbdevice_details" (
+    "PK_device_detail" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_device" INTEGER NOT NULL,
+    "device_type" TEXT NOT NULL,
+    "browser" TEXT,
+    "os" TEXT,
+    "user_agent" TEXT,
+    "ip_address" TEXT,
+    "last_seen" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tbdevice_details_FK_device_fkey" FOREIGN KEY ("FK_device") REFERENCES "tbdevices" ("PK_device") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -149,7 +247,6 @@ CREATE TABLE "tbattendances" (
     "device" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "actionHistory" JSONB,
     CONSTRAINT "tbattendances_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -167,7 +264,6 @@ CREATE TABLE "tbpayrolls" (
     "paymentDate" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbpayrolls_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -176,8 +272,7 @@ CREATE TABLE "tbgenders" (
     "PK_gender" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "gender" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME,
-    "actionHistory" JSONB
+    "updatedAt" DATETIME
 );
 
 -- CreateTable
@@ -190,7 +285,6 @@ CREATE TABLE "tbcategories" (
     "description" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbcategories_FK_gender_fkey" FOREIGN KEY ("FK_gender") REFERENCES "tbgenders" ("PK_gender") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbcategories_FK_parent_fkey" FOREIGN KEY ("FK_parent") REFERENCES "tbcategories" ("PK_category") ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -246,7 +340,6 @@ CREATE TABLE "tbproducts" (
     "deletedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbproducts_FK_brand_fkey" FOREIGN KEY ("FK_brand") REFERENCES "tbbrands" ("PK_brand") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "tbproducts_FK_season_fkey" FOREIGN KEY ("FK_season") REFERENCES "tbseasons" ("PK_season") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "tbproducts_FK_gender_fkey" FOREIGN KEY ("FK_gender") REFERENCES "tbgenders" ("PK_gender") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -269,9 +362,9 @@ CREATE TABLE "tbproductvariants" (
     "sku" TEXT NOT NULL,
     "price" DECIMAL,
     "imageUrl" TEXT,
-    "stockQuantity" INTEGER NOT NULL DEFAULT 0,
-    "reservedQuantity" INTEGER NOT NULL DEFAULT 0,
     "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "featured" BOOLEAN NOT NULL DEFAULT false,
+    "discountPrice" DECIMAL,
     "publishDate" DATETIME,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "deletedAt" DATETIME,
@@ -284,8 +377,49 @@ CREATE TABLE "tbproductvariants" (
 CREATE TABLE "tbcompanies" (
     "PK_company" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "taxId" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "taxIdPath" TEXT,
+    "businessName" TEXT,
+    "fiscalAddress" TEXT,
+    "country" TEXT,
+    "department" TEXT,
+    "commerceType" TEXT,
+    "description" TEXT,
+    "vision" TEXT,
+    "mission" TEXT,
+    "openedAt" DATETIME,
+    "tosRead" BOOLEAN NOT NULL DEFAULT false,
+    "tosReadAt" DATETIME,
+    "tosAccepted" BOOLEAN NOT NULL DEFAULT false,
+    "tosAcceptedAt" DATETIME,
+    "tosAcceptedIp" TEXT,
+    "tosAcceptedUa" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "FK_createdBy" INTEGER,
+    CONSTRAINT "tbcompanies_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbsubscriptions" (
+    "PK_subscription" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_company" INTEGER NOT NULL,
+    "planType" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "nextBillingDate" DATETIME NOT NULL,
+    CONSTRAINT "tbsubscriptions_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbcompany_settings_history" (
+    "PK_history" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_company" INTEGER NOT NULL,
+    "FK_changedBy" INTEGER,
+    "changedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "oldValues" JSONB,
+    "newValues" JSONB,
+    "reason" TEXT,
+    "changeType" TEXT NOT NULL DEFAULT 'UPDATE'
 );
 
 -- CreateTable
@@ -297,8 +431,12 @@ CREATE TABLE "tbaudit_logs" (
     "oldValue" JSONB,
     "newValue" JSONB,
     "FK_employee" INTEGER,
+    "FK_company" INTEGER,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "tbaudit_logs_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    CONSTRAINT "tbaudit_logs_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbaudit_logs_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -400,7 +538,6 @@ CREATE TABLE "tbwarehouse_entry" (
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbwarehouse_entry_FK_purchase_fkey" FOREIGN KEY ("FK_purchase") REFERENCES "tbpurchases" ("PK_purchase") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "tbwarehouse_entry_FK_employee_processor_fkey" FOREIGN KEY ("FK_employee_processor") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbwarehouse_entry_FK_productvariant_fkey" FOREIGN KEY ("FK_productvariant") REFERENCES "tbproductvariants" ("PK_variant") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -530,7 +667,6 @@ CREATE TABLE "tbpayments" (
     "status" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbpayments_FK_order_fkey" FOREIGN KEY ("FK_order") REFERENCES "tborders" ("PK_order") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -545,7 +681,6 @@ CREATE TABLE "tbshipments" (
     "deliveredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbshipments_FK_order_fkey" FOREIGN KEY ("FK_order") REFERENCES "tborders" ("PK_order") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -574,11 +709,13 @@ CREATE TABLE "tbreservations" (
     "expiresAt" DATETIME NOT NULL,
     "isDelivery" BOOLEAN NOT NULL DEFAULT false,
     "shippingAddress" TEXT,
+    "FK_shippingAddress" INTEGER,
     "notes" TEXT,
     "updatedByEmployee" INTEGER,
     "waitingList" JSONB,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
+    CONSTRAINT "tbreservations_FK_shippingAddress_fkey" FOREIGN KEY ("FK_shippingAddress") REFERENCES "tbaddresses" ("PK_address") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "tbreservations_FK_customer_fkey" FOREIGN KEY ("FK_customer") REFERENCES "tbcustomer_profiles" ("PK_customer") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbreservations_FK_variant_fkey" FOREIGN KEY ("FK_variant") REFERENCES "tbproductvariants" ("PK_variant") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbreservations_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -596,7 +733,6 @@ CREATE TABLE "tbstockmovements" (
     "reason" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbstockmovements_FK_productvariant_fkey" FOREIGN KEY ("FK_productvariant") REFERENCES "tbproductvariants" ("PK_variant") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbstockmovements_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbstockmovements_FK_purchase_fkey" FOREIGN KEY ("FK_purchase") REFERENCES "tbpurchases" ("PK_purchase") ON DELETE SET NULL ON UPDATE CASCADE
@@ -605,7 +741,6 @@ CREATE TABLE "tbstockmovements" (
 -- CreateTable
 CREATE TABLE "tbsuppliers" (
     "PK_supplier" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "supplierNumber" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "phone" TEXT,
@@ -613,12 +748,43 @@ CREATE TABLE "tbsuppliers" (
     "address" TEXT,
     "city" TEXT,
     "department" TEXT,
+    "country" TEXT,
+    "ci" TEXT,
     "notes" TEXT,
+    "birthDate" DATETIME,
+    "partnerSince" DATETIME,
+    "contractEndAt" DATETIME,
+    "isIndefinite" BOOLEAN NOT NULL DEFAULT false,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "FK_company" INTEGER,
     "deletedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB
+    "FK_createdBy" INTEGER,
+    "FK_updatedBy" INTEGER,
+    CONSTRAINT "tbsuppliers_FK_company_fkey" FOREIGN KEY ("FK_company") REFERENCES "tbcompanies" ("PK_company") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbsuppliers_FK_createdBy_fkey" FOREIGN KEY ("FK_createdBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tbsuppliers_FK_updatedBy_fkey" FOREIGN KEY ("FK_updatedBy") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbsupplier_managers" (
+    "PK_supplier_manager" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_supplier" INTEGER NOT NULL,
+    "FK_manager" INTEGER NOT NULL,
+    "assignedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tbsupplier_managers_FK_supplier_fkey" FOREIGN KEY ("FK_supplier") REFERENCES "tbsuppliers" ("PK_supplier") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "tbsupplier_managers_FK_manager_fkey" FOREIGN KEY ("FK_manager") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbsupplier_branches" (
+    "PK_supplier_branch" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_supplier" INTEGER NOT NULL,
+    "FK_branch" INTEGER NOT NULL,
+    "assignedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tbsupplier_branches_FK_supplier_fkey" FOREIGN KEY ("FK_supplier") REFERENCES "tbsuppliers" ("PK_supplier") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "tbsupplier_branches_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -635,7 +801,6 @@ CREATE TABLE "tbpurchases" (
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME,
-    "actionHistory" JSONB,
     CONSTRAINT "tbpurchases_FK_supplier_fkey" FOREIGN KEY ("FK_supplier") REFERENCES "tbsuppliers" ("PK_supplier") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "tbpurchases_FK_employee_fkey" FOREIGN KEY ("FK_employee") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -688,6 +853,29 @@ CREATE TABLE "tbexpenses" (
     CONSTRAINT "tbexpenses_FK_session_fkey" FOREIGN KEY ("FK_session") REFERENCES "tbcash_sessions" ("PK_session") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "tbcart_items" (
+    "PK_cartItem" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_customer" INTEGER NOT NULL,
+    "FK_variant" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "guestToken" TEXT,
+    "expiresAt" DATETIME,
+    CONSTRAINT "tbcart_items_FK_customer_fkey" FOREIGN KEY ("FK_customer") REFERENCES "tbcustomer_profiles" ("PK_customer") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbcart_items_FK_variant_fkey" FOREIGN KEY ("FK_variant") REFERENCES "tbproductvariants" ("PK_variant") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "tbmanager_branches" (
+    "PK_manager_branch" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "FK_manager" INTEGER NOT NULL,
+    "FK_branch" INTEGER NOT NULL,
+    "assignedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tbmanager_branches_FK_manager_fkey" FOREIGN KEY ("FK_manager") REFERENCES "tbemployee_profiles" ("PK_employee") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "tbmanager_branches_FK_branch_fkey" FOREIGN KEY ("FK_branch") REFERENCES "tbbranches" ("PK_branch") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "tbprivileges_privilegeName_key" ON "tbprivileges"("privilegeName");
 
@@ -710,6 +898,9 @@ CREATE UNIQUE INDEX "tbcustomer_profiles_FK_auth_key" ON "tbcustomer_profiles"("
 CREATE UNIQUE INDEX "tbcustomer_profiles_phone_key" ON "tbcustomer_profiles"("phone");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "tbcustomer_profiles_email_key" ON "tbcustomer_profiles"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "tbcash_sessions_FK_branch_status_key" ON "tbcash_sessions"("FK_branch", "status");
 
 -- CreateIndex
@@ -717,6 +908,15 @@ CREATE UNIQUE INDEX "tbdevices_FK_auth_key" ON "tbdevices"("FK_auth");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tbpushsubscriptions_endpoint_key" ON "tbpushsubscriptions"("endpoint");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbmanager_warehouses_FK_employee_FK_warehouse_key" ON "tbmanager_warehouses"("FK_employee", "FK_warehouse");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbwarehouse_branches_FK_warehouse_FK_branch_key" ON "tbwarehouse_branches"("FK_warehouse", "FK_branch");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbbranch_hours_FK_branch_day_of_week_key" ON "tbbranch_hours"("FK_branch", "day_of_week");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tbgenders_gender_key" ON "tbgenders"("gender");
@@ -737,7 +937,46 @@ CREATE UNIQUE INDEX "tbproducts_sku_key" ON "tbproducts"("sku");
 CREATE UNIQUE INDEX "tbproducts_slug_key" ON "tbproducts"("slug");
 
 -- CreateIndex
+CREATE INDEX "tbproducts_FK_brand_FK_season_isActive_idx" ON "tbproducts"("FK_brand", "FK_season", "isActive");
+
+-- CreateIndex
+CREATE INDEX "tbproducts_slug_idx" ON "tbproducts"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "tbproductvariants_sku_key" ON "tbproductvariants"("sku");
+
+-- CreateIndex
+CREATE INDEX "tbproductvariants_FK_product_isPublished_isActive_idx" ON "tbproductvariants"("FK_product", "isPublished", "isActive");
+
+-- CreateIndex
+CREATE INDEX "tbproductvariants_sku_idx" ON "tbproductvariants"("sku");
+
+-- CreateIndex
+CREATE INDEX "tbproductvariants_isPublished_featured_isActive_idx" ON "tbproductvariants"("isPublished", "featured", "isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbcompanies_slug_key" ON "tbcompanies"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbcompanies_name_key" ON "tbcompanies"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbsubscriptions_FK_company_key" ON "tbsubscriptions"("FK_company");
+
+-- CreateIndex
+CREATE INDEX "tbcompany_settings_history_FK_company_idx" ON "tbcompany_settings_history"("FK_company");
+
+-- CreateIndex
+CREATE INDEX "tbcompany_settings_history_changedAt_idx" ON "tbcompany_settings_history"("changedAt");
+
+-- CreateIndex
+CREATE INDEX "tbaudit_logs_entity_entityId_idx" ON "tbaudit_logs"("entity", "entityId");
+
+-- CreateIndex
+CREATE INDEX "tbaudit_logs_FK_employee_idx" ON "tbaudit_logs"("FK_employee");
+
+-- CreateIndex
+CREATE INDEX "tbaudit_logs_createdAt_idx" ON "tbaudit_logs"("createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tbpermissions_code_key" ON "tbpermissions"("code");
@@ -776,10 +1015,40 @@ CREATE UNIQUE INDEX "tbshipments_trackingNumber_key" ON "tbshipments"("trackingN
 CREATE INDEX "tbstockmovements_createdAt_idx" ON "tbstockmovements"("createdAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tbsuppliers_supplierNumber_key" ON "tbsuppliers"("supplierNumber");
+CREATE INDEX "tbsupplier_managers_FK_supplier_idx" ON "tbsupplier_managers"("FK_supplier");
+
+-- CreateIndex
+CREATE INDEX "tbsupplier_managers_FK_manager_idx" ON "tbsupplier_managers"("FK_manager");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbsupplier_managers_FK_supplier_FK_manager_key" ON "tbsupplier_managers"("FK_supplier", "FK_manager");
+
+-- CreateIndex
+CREATE INDEX "tbsupplier_branches_FK_supplier_idx" ON "tbsupplier_branches"("FK_supplier");
+
+-- CreateIndex
+CREATE INDEX "tbsupplier_branches_FK_branch_idx" ON "tbsupplier_branches"("FK_branch");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbsupplier_branches_FK_supplier_FK_branch_key" ON "tbsupplier_branches"("FK_supplier", "FK_branch");
 
 -- CreateIndex
 CREATE INDEX "tbpurchases_purchaseDate_idx" ON "tbpurchases"("purchaseDate");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tbshifts_schedule_FK_employee_date_key" ON "tbshifts_schedule"("FK_employee", "date");
+
+-- CreateIndex
+CREATE INDEX "tbcart_items_FK_customer_createdAt_idx" ON "tbcart_items"("FK_customer", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbcart_items_FK_customer_FK_variant_key" ON "tbcart_items"("FK_customer", "FK_variant");
+
+-- CreateIndex
+CREATE INDEX "tbmanager_branches_FK_manager_idx" ON "tbmanager_branches"("FK_manager");
+
+-- CreateIndex
+CREATE INDEX "tbmanager_branches_FK_branch_idx" ON "tbmanager_branches"("FK_branch");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tbmanager_branches_FK_manager_FK_branch_key" ON "tbmanager_branches"("FK_manager", "FK_branch");

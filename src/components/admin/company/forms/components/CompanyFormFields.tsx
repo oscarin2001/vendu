@@ -70,7 +70,9 @@ export function CompanyFormFields({
             placeholder="Ej: Bolivia"
             required
             disabled={mode !== "create"}
-            className={mode !== "create" ? "h-9 bg-muted cursor-not-allowed" : "h-9"}
+            className={
+              mode !== "create" ? "h-9 bg-muted cursor-not-allowed" : "h-9"
+            }
           />
         </div>
 
@@ -89,8 +91,8 @@ export function CompanyFormFields({
         {isLoading
           ? "Guardando..."
           : mode === "create"
-          ? "Crear Empresa"
-          : "Guardar Cambios"}
+            ? "Crear Empresa"
+            : "Guardar Cambios"}
       </Button>
     </form>
   );

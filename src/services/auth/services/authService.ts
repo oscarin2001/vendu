@@ -30,6 +30,10 @@ export async function createUser(payload: CreateUserPayload) {
   if (password.length < 8) {
     throw new Error("La contraseña debe tener al menos 8 caracteres");
   }
+  // Prevent bcrypt silent truncation: limit to 72 bytes/characters
+  if (password.length > 72) {
+    throw new Error("La contraseña no puede exceder 72 caracteres");
+  }
 
   // Check existing
   const existing = await findUserByUsername(username);

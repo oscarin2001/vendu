@@ -21,7 +21,6 @@ interface EmploymentInfoSectionProps {
   salary?: number;
   contributionType: "none" | "contributes" | "paid";
   hireDate: Date;
-  birthDate?: Date;
   joinedAt?: Date;
   contractEndAt?: Date;
   isIndefinite?: boolean;
@@ -30,7 +29,6 @@ interface EmploymentInfoSectionProps {
     salary?: string;
     contributionType?: string;
     hireDate?: string;
-    birthDate?: string;
     joinedAt?: string;
     contractEndAt?: string;
   };
@@ -41,7 +39,6 @@ export function EmploymentInfoSection({
   salary,
   contributionType,
   hireDate,
-  birthDate,
   joinedAt,
   contractEndAt,
   isIndefinite,
@@ -71,29 +68,8 @@ export function EmploymentInfoSection({
     <div className="space-y-3">
       <h3 className="text-sm font-medium">Información Laboral</h3>
 
-      {/* Row 1: Fecha de Nacimiento y Desde Cuando Trabaja */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <Label htmlFor="birthDate" className="text-xs">
-            Fecha de Nacimiento
-          </Label>
-          <Input
-            id="birthDate"
-            type="date"
-            value={birthDate ? birthDate.toISOString().split("T")[0] : ""}
-            onChange={(e) =>
-              onChange(
-                "birthDate",
-                e.target.value ? new Date(e.target.value) : undefined,
-              )
-            }
-            className={`h-9 ${errors.birthDate ? "border-red-500" : ""}`}
-          />
-          {errors.birthDate && (
-            <p className="text-xs text-red-500">{errors.birthDate}</p>
-          )}
-        </div>
-
+      {/* Row 1: Desde Cuando Trabaja */}
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-3">
         <div className="space-y-1">
           <Label htmlFor="joinedAt" className="text-xs">
             Desde Cuándo Trabaja
@@ -125,7 +101,9 @@ export function EmploymentInfoSection({
           <Input
             id="contractEndAt"
             type="date"
-            value={contractEndAt ? contractEndAt.toISOString().split("T")[0] : ""}
+            value={
+              contractEndAt ? contractEndAt.toISOString().split("T")[0] : ""
+            }
             onChange={(e) =>
               onChange(
                 "contractEndAt",

@@ -57,9 +57,12 @@ export function useManagers(tenantId: string) {
     if (!data.email?.trim()) return "El correo electrónico es requerido";
     if (!data.password?.trim()) return "La contraseña es requerida";
 
-    // Password validation: 8 chars min, at least one uppercase
+    // Password validation: 8 chars min, at least one uppercase, max 72
     if (data.password.length < 8) {
       return "La contraseña debe tener al menos 8 caracteres";
+    }
+    if (data.password.length > 72) {
+      return "La contraseña no puede exceder 72 caracteres";
     }
     if (!/[A-Z]/.test(data.password)) {
       return "La contraseña debe contener al menos una mayúscula";

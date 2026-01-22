@@ -134,7 +134,9 @@ export function SupplierDetailsModal({
                   {(supplier.contractEndAt || supplier.isIndefinite) && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Fin de contrato:</span>
+                      <span className="text-muted-foreground">
+                        Fin de contrato:
+                      </span>
                       <span className="font-medium">
                         {supplier.contractEndAt
                           ? formatDateOnly(supplier.contractEndAt)

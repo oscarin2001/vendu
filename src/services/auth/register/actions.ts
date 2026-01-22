@@ -25,6 +25,9 @@ export async function registerAction(prevState: any, formData: FormData) {
   if (password.length < 8) {
     return { error: "La contraseña debe tener al menos 8 caracteres" };
   }
+  if (password.length > 72) {
+    return { error: "La contraseña no puede exceder 72 caracteres" };
+  }
 
   try {
     const { user, privilegeCode } = await createUser({

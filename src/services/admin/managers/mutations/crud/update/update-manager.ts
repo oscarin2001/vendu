@@ -25,8 +25,14 @@ export async function updateManager(
   context?: UserContext,
 ) {
   // Separar los campos que van a diferentes tablas
-  const { branchIds, email, password, contributionType, isIndefinite, ...restEmployeeData } =
-    data;
+  const {
+    branchIds,
+    email,
+    password,
+    contributionType,
+    isIndefinite,
+    ...restEmployeeData
+  } = data;
 
   // Verificar que la cédula de identidad no existe en otro empleado si se está actualizando
   if (restEmployeeData.ci !== undefined) {

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import {
   filterNameInput,
   filterCIInput,
+  filterAddressInput,
   FIELD_LIMITS,
 } from "@/services/admin/shared/validations";
 
@@ -12,21 +13,25 @@ interface PersonalInfoSectionProps {
   firstName: string;
   lastName: string;
   ci: string;
+  birthDate?: Date;
   homeAddress?: string;
   country?: string;
   errors: {
     firstName?: string;
     lastName?: string;
     ci?: string;
+    birthDate?: string;
     homeAddress?: string;
   };
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: any) => void;
 }
 
 export function PersonalInfoSection({
   firstName,
   lastName,
   ci,
+  birthDate,
+  homeAddress,
   country,
   errors,
   onChange,
@@ -41,6 +46,11 @@ export function PersonalInfoSection({
 
   const handleCIChange = (value: string) => {
     onChange("ci", filterCIInput(value, country));
+  };
+
+  const handleHomeAddressChange = (value: string) => {
+    const filtered = filterAddressInput(value, FIELD_LIMITS.homeAddress.max);
+    onChange("homeAddress", filtered);
   };
 
   return (
@@ -103,6 +113,24 @@ export function PersonalInfoSection({
         {errors.ci && <p className="text-xs text-red-500">{errors.ci}</p>}
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="birthDate" className="text-xs">
+            Fecha de Nacimiento
+          </Label>
+          <Input
+            id="birthDate"
+            type="date"
+            value={birthDate ? birthDate.toISOString().split("T")[0] : ""}
+            onChange={(e) => onChange("birthDate", e.target.value ? new Date(e.target.value) : undefined)}
+            className={`h-9 ${errors.birthDate ? "border-red-500" : ""}`}
+          />
+          {errors.birthDate && (
+            <p className="text-xs text-red-500">{errors.birthDate}</p>
+          )}
+        </div>
+      </div>
+
       <div className="space-y-1">
         <Label htmlFor="homeAddress" className="text-xs">
           Dirección Particular
@@ -110,7 +138,8 @@ export function PersonalInfoSection({
         <Input
           id="homeAddress"
           value={homeAddress || ""}
-          onChange={(e) => onChange("homeAddress", e.target.value)}
+          onChange={(e) => handleHomeAddressChange(e.target.value)}
+          maxLength={FIELD_LIMITS.homeAddress.max}
           placeholder="Dirección personal"
           className={`h-9 ${errors.homeAddress ? "border-red-500" : ""}`}
         />

@@ -99,7 +99,11 @@ export async function createManager(
           birthDate: data.birthDate,
           joinedAt: data.joinedAt,
           contractEndAt: data.isIndefinite ? null : data.contractEndAt,
-          contractType: data.isIndefinite ? "INDEFINIDO" : (data.contractEndAt ? "TEMPORAL" : "INDEFINIDO"),
+          contractType: data.isIndefinite
+            ? "INDEFINIDO"
+            : data.contractEndAt
+              ? "TEMPORAL"
+              : "INDEFINIDO",
         },
       });
 

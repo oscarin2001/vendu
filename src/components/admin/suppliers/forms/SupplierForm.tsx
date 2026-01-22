@@ -500,40 +500,42 @@ export function SupplierForm({
               </p>
             </div>
 
-              <div className="space-y-1">
-                <Label className="text-xs flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  Fin de Contrato
-                </Label>
-                <DatePicker
-                  date={formData.contractEndAt || undefined}
-                  onSelect={(date: Date | undefined) =>
+            <div className="space-y-1">
+              <Label className="text-xs flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                Fin de Contrato
+              </Label>
+              <DatePicker
+                date={formData.contractEndAt || undefined}
+                onSelect={(date: Date | undefined) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    contractEndAt: date || null,
+                  }))
+                }
+                placeholder="Fecha fin de contrato"
+                disabled={formData.isIndefinite}
+              />
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="isIndefinite"
+                  checked={!!formData.isIndefinite}
+                  onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      contractEndAt: date || null,
+                      isIndefinite: e.target.checked,
+                      contractEndAt: e.target.checked
+                        ? null
+                        : prev.contractEndAt,
                     }))
                   }
-                  placeholder="Fecha fin de contrato"
-                  disabled={formData.isIndefinite}
                 />
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="isIndefinite"
-                    checked={!!formData.isIndefinite}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isIndefinite: e.target.checked,
-                        contractEndAt: e.target.checked ? null : prev.contractEndAt,
-                      }))
-                    }
-                  />
-                  <label htmlFor="isIndefinite" className="text-xs">
-                    Contrato por tiempo indefinido
-                  </label>
-                </div>
+                <label htmlFor="isIndefinite" className="text-xs">
+                  Contrato por tiempo indefinido
+                </label>
               </div>
+            </div>
           </div>
 
           {/* CI field */}

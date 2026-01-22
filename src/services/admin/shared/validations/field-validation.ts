@@ -10,8 +10,8 @@ export const FIELD_LIMITS = {
   // Names
   warehouseName: { min: 2, max: 50, label: "nombre de bodega" },
   branchName: { min: 2, max: 50, label: "nombre de sucursal" },
-  firstName: { min: 2, max: 30, label: "nombre" },
-  lastName: { min: 2, max: 30, label: "apellido" },
+  firstName: { min: 2, max: 20, label: "nombre" },
+  lastName: { min: 2, max: 20, label: "apellido" },
 
   // Location
   address: { min: 5, max: 100, label: "dirección" },
@@ -20,6 +20,7 @@ export const FIELD_LIMITS = {
 
   // Other
   notes: { min: 0, max: 500, label: "notas" },
+  homeAddress: { min: 0, max: 300, label: "dirección personal" },
 } as const;
 
 /**

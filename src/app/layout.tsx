@@ -1,18 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Using system font stacks instead of Google Fonts to avoid network fetch during build
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,9 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

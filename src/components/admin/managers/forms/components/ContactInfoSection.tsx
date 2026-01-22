@@ -114,6 +114,7 @@ export function ContactInfoSection({
                     onChange("email", `${username}@${companySlug}.com`);
                   }}
                   placeholder="usuario"
+                  maxLength={64}
                   className={`h-9 pl-9 pr-2 rounded-r-none border-r-0 ${errors.email ? "border-red-500" : ""}`}
                 />
               </div>
@@ -131,6 +132,7 @@ export function ContactInfoSection({
                 value={email}
                 onChange={(e) => onChange("email", e.target.value)}
                 placeholder="correo@empresa.com"
+                maxLength={254}
                 className={`h-9 pl-9 ${errors.email ? "border-red-500" : ""}`}
               />
             </div>
@@ -153,7 +155,8 @@ export function ContactInfoSection({
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => onChange("password", e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
+                maxLength={72}
                 className={`h-9 ${errors.password ? "border-red-500" : ""}`}
               />
               <Button
@@ -184,8 +187,9 @@ export function ContactInfoSection({
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e) => onChange("confirmPassword", e.target.value)}
-                placeholder="Repite la contraseña"
+                  onChange={(e) => onChange("confirmPassword", e.target.value)}
+                  placeholder="Repite la contraseña"
+                  maxLength={72}
                 className={`h-9 ${errors.confirmPassword ? "border-red-500" : ""}`}
               />
               <Button
