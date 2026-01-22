@@ -5,12 +5,8 @@ import { useParams } from "next/navigation";
 import { BranchesMetrics } from "@/components/admin/branches/metrics";
 import { BranchesFilters } from "@/components/admin/branches/shared/components";
 import { BranchesTable } from "@/components/admin/branches/tables/BranchesTable";
-import { BranchDetailsModal } from "@/components/admin/branches/modals/details/BranchDetailsModal";
-import { BranchServiceConfigModal } from "@/components/admin/branches/modals/service/BranchServiceConfigModal";
-import { BranchDeleteInitialModal } from "@/components/admin/branches/modals/delete/BranchDeleteInitialModal";
-import { BranchDeleteWarningModal } from "@/components/admin/branches/modals/delete/BranchDeleteWarningModal";
-import { BranchDeleteFinalModal } from "@/components/admin/branches/modals/delete/BranchDeleteFinalModal";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
+import { BranchesModals } from "@/components/admin/branches/modals/BranchesModals";
 import { AuditHistory } from "@/components/admin/shared/audit";
 import {
   Dialog,
@@ -190,103 +186,38 @@ export function BranchesPageContent() {
         onViewHistory={handleViewHistory}
       />
 
-      {/* Create Modal */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Crear Sucursal</DialogTitle>
-          </DialogHeader>
-          <BranchForm
-            onSubmit={async (data) => {
-              await createBranch(data);
-              setIsCreateModalOpen(false);
-            }}
-            mode="create"
-            companyCountry={company?.country}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Editar Sucursal</DialogTitle>
-          </DialogHeader>
-          {selectedBranch && (
-            <BranchForm
-              initialData={{
-                name: selectedBranch.name,
-                phone: selectedBranch.phone || "",
-                address: selectedBranch.address,
-                city: selectedBranch.city,
-                department: selectedBranch.department || "",
-                country: selectedBranch.country || "",
-              }}
-              onSubmit={async (data) => {
-                await updateBranch(selectedBranch.id, data);
-                setIsEditModalOpen(false);
-                setSelectedBranch(null);
-              }}
-              mode="edit"
-              companyCountry={company?.country}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Details Modal */}
-      {selectedBranch && (
-        <BranchDetailsModal
-          branch={selectedBranch}
-          isOpen={isDetailsModalOpen}
-          onClose={() => {
-            setIsDetailsModalOpen(false);
-            setSelectedBranch(null);
-          }}
-        />
-      )}
-
-      {/* Service Configuration Modal */}
-      {selectedBranch && (
-        <BranchServiceConfigModal
-          branch={selectedBranch}
-          isOpen={isConfigureModalOpen}
-          onClose={() => {
-            setIsConfigureModalOpen(false);
-            setSelectedBranch(null);
-          }}
-          tenantId={tenantId}
-          onSuccess={refresh}
-        />
-      )}
-
-      {/* Delete Modals */}
-      {selectedBranch && (
-        <>
-          <BranchDeleteInitialModal
-            branch={selectedBranch}
-            isOpen={isDeleteDialogOpen}
-            onClose={handleDeleteCancel}
-            onNext={handleDeleteNextStep}
-          />
-          <BranchDeleteWarningModal
-            branch={selectedBranch}
-            isOpen={isDeleteWarningModalOpen}
-            onClose={handleDeleteCancel}
-            onNext={handleDeleteNextStep}
-            onPrevious={handleDeletePreviousStep}
-          />
-          <BranchDeleteFinalModal
-            branch={selectedBranch}
-            isOpen={isDeleteFinalModalOpen}
-            onClose={handleDeleteCancel}
-            onPrevious={handleDeletePreviousStep}
-            onConfirm={handleConfirmDelete}
-            isLoading={isDeleting}
-          />
-        </>
-      )}
+      <BranchesModals
+        selectedBranch={selectedBranch}
+        tenantId={tenantId}
+        companyCountry={company?.country}
+        isCreateModalOpen={isCreateModalOpen}
+        isEditModalOpen={isEditModalOpen}
+        isDetailsModalOpen={isDetailsModalOpen}
+        isConfigureModalOpen={isConfigureModalOpen}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        isDeleteWarningModalOpen={isDeleteWarningModalOpen}
+        isDeleteFinalModalOpen={isDeleteFinalModalOpen}
+        isDeleting={isDeleting}
+        onCreateModalChange={setIsCreateModalOpen}
+        onEditModalChange={setIsEditModalOpen}
+        onDetailsModalChange={setIsDetailsModalOpen}
+        onConfigureModalChange={setIsConfigureModalOpen}
+        onDeleteNext={handleDeleteNextStep}
+        onDeletePrevious={handleDeletePreviousStep}
+        onDeleteCancel={handleDeleteCancel}
+        onSubmitCreate={async (data: any) => {
+          await createBranch(data);
+          setIsCreateModalOpen(false);
+        }}
+        onSubmitEdit={async (data: any) => {
+          if (!selectedBranch) return;
+          await updateBranch(selectedBranch.id, data);
+          setIsEditModalOpen(false);
+          setSelectedBranch(null);
+        }}
+        onConfirmDelete={handleConfirmDelete}
+        onRefresh={refresh}
+      />
 
       {/* Audit History Modal */}
       {selectedBranch && (
