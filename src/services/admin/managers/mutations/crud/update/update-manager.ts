@@ -34,9 +34,11 @@ export async function updateManager(
   if (maybeData._changeReason) delete maybeData._changeReason;
   if (confirmPassword) {
     try {
-      await validateAdminPassword(
-        { tenantId, employeeId: context?.employeeId, password: confirmPassword }
-      );
+      await validateAdminPassword({
+        tenantId,
+        employeeId: context?.employeeId,
+        password: confirmPassword,
+      });
     } catch (err: any) {
       const e = new Error(err?.message || "La contraseña no coincide");
       e.name = "ValidationError";
@@ -221,18 +223,12 @@ export async function updateManager(
       newValue._changedAt = new Date().toISOString();
     }
 
-    await auditService.logUpdate(
-      "MANAGER",
-      managerId,
-      oldValue,
-      newValue,
-      {
-        employeeId: context?.employeeId,
-        companyId: context?.companyId,
-        ipAddress: context?.ipAddress,
-        userAgent: context?.userAgent,
-      },
-    );
+    await auditService.logUpdate("MANAGER", managerId, oldValue, newValue, {
+      employeeId: context?.employeeId,
+      companyId: context?.companyId,
+      ipAddress: context?.ipAddress,
+      userAgent: context?.userAgent,
+    });
   } catch (err) {
     // audit failures should not block main operation
     console.error("Manager audit log error:", err);

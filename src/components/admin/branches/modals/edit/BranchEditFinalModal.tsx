@@ -10,7 +10,10 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Branch } from "@/services/admin/branches";
 import { useBranchDeleteFinal } from "../delete/hooks/useBranchDeleteFinal";
-import { BranchNameConfirmation, PasswordConfirmation } from "../delete/components";
+import {
+  BranchNameConfirmation,
+  PasswordConfirmation,
+} from "../delete/components";
 
 interface BranchEditFinalModalProps {
   branch: Branch | null;
@@ -80,9 +83,7 @@ export function BranchEditFinalModal({
                 error={passwordError}
                 onEnterPress={validateAndConfirm}
               />
-              {error && (
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              )}
+              {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
             </div>
           </div>
         </DialogHeader>

@@ -47,7 +47,11 @@ export async function updateSupplierService(
     if (!company) throw new Error("Company not found");
 
     try {
-      await validateAdminPassword({ tenantId: company.slug, employeeId: context?.employeeId, password: confirmPassword });
+      await validateAdminPassword({
+        tenantId: company.slug,
+        employeeId: context?.employeeId,
+        password: confirmPassword,
+      });
     } catch (err: any) {
       const e = new Error(err?.message || "La contraseña no coincide");
       e.name = "ValidationError";
@@ -135,13 +139,9 @@ export async function updateSupplierService(
       newValue._changedAt = new Date().toISOString();
     }
 
-    await auditService.logUpdate(
-      "SUPPLIER",
-      supplierId,
-      oldValue,
-      newValue,
-      { employeeId: context?.employeeId },
-    );
+    await auditService.logUpdate("SUPPLIER", supplierId, oldValue, newValue, {
+      employeeId: context?.employeeId,
+    });
   } catch (err) {
     console.error("Supplier audit log error:", err);
   }

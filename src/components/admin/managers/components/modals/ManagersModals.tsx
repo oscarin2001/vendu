@@ -77,9 +77,13 @@ export function ManagersModals({
   const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
   const [pendingEditData, setPendingEditData] = useState<any>(null);
   const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
-  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(
+    null,
+  );
   const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
-  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(
+    undefined,
+  );
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   // Handle edit request from form - opens change reason dialog
@@ -101,7 +105,11 @@ export function ManagersModals({
     if (!pendingEditData) return;
     setIsSubmittingEdit(true);
     try {
-      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      await onSubmitEdit({
+        ...pendingEditData,
+        _changeReason: pendingEditReason,
+        _confirmPassword: password,
+      });
       setIsEditFinalOpen(false);
       setPendingEditData(null);
       setPendingChanges([]);

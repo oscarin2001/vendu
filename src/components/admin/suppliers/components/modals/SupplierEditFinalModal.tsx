@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import {
@@ -46,7 +44,9 @@ export function SupplierEditFinalModal({
   const [supplierName, setSupplierName] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
-  const [isIndefinite, setIsIndefinite] = useState<boolean>(supplier?.isIndefinite ?? true);
+  const [isIndefinite, setIsIndefinite] = useState<boolean>(
+    supplier?.isIndefinite ?? true,
+  );
   const [contractEndAt, setContractEndAt] = useState<Date | null>(
     supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null,
   );
@@ -54,7 +54,9 @@ export function SupplierEditFinalModal({
   // sync when modal opens or supplier changes
   useEffect(() => {
     setIsIndefinite(supplier?.isIndefinite ?? true);
-    setContractEndAt(supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null);
+    setContractEndAt(
+      supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null,
+    );
   }, [supplier, isOpen]);
 
   const handleConfirm = () => {
@@ -99,7 +101,9 @@ export function SupplierEditFinalModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">Confirmación de Edición</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Confirmación de Edición
+          </DialogTitle>
           <div className="text-muted-foreground text-sm space-y-4">
             <div className="font-medium">
               Para confirmar los cambios en el proveedor, escribe el nombre
@@ -111,7 +115,8 @@ export function SupplierEditFinalModal({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="supplierName" className="flex items-center gap-2">
-              <Type className="h-4 w-4" /> Escribe el nombre completo del proveedor
+              <Type className="h-4 w-4" /> Escribe el nombre completo del
+              proveedor
             </Label>
             <Input
               id="supplierName"
@@ -125,7 +130,9 @@ export function SupplierEditFinalModal({
                 if (e.key === "Enter") handleConfirm();
               }}
             />
-            {nameError && <p className="text-sm text-red-600 mt-1">{nameError}</p>}
+            {nameError && (
+              <p className="text-sm text-red-600 mt-1">{nameError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -173,7 +180,10 @@ export function SupplierEditFinalModal({
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancelar
           </Button>
-          <Button onClick={handleConfirm} disabled={isLoading || !password.trim() || !supplierName.trim()}>
+          <Button
+            onClick={handleConfirm}
+            disabled={isLoading || !password.trim() || !supplierName.trim()}
+          >
             {isLoading ? "Confirmando..." : "Confirmar edición"}
           </Button>
         </DialogFooter>

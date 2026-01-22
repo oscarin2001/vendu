@@ -46,7 +46,11 @@ export async function updateBranch(
   if (confirmPassword) {
     // validate password against current employee when available
     try {
-      await validateAdminPassword({ tenantId, employeeId: context?.employeeId, password: confirmPassword });
+      await validateAdminPassword({
+        tenantId,
+        employeeId: context?.employeeId,
+        password: confirmPassword,
+      });
     } catch (err: any) {
       // Normalize validation error so frontend can detect it
       const e = new Error(err?.message || "La contraseña no coincide");

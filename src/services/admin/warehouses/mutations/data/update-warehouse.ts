@@ -31,12 +31,12 @@ export async function updateWarehouseForCompany(
   tenantId: string,
   warehouseId: number,
   data: UpdateWarehouseData,
-  context?: UserContext
+  context?: UserContext,
 ): Promise<Warehouse> {
   const company = await validateCompanyExists(tenantId);
   const existingWarehouse = await validateWarehouseExists(
     warehouseId,
-    company.PK_company
+    company.PK_company,
   );
 
   const normalizedData = normalizeWarehouseInput(data);
@@ -49,7 +49,11 @@ export async function updateWarehouseForCompany(
   if (maybeData._changeReason) delete maybeData._changeReason;
   if (confirmPassword) {
     try {
-      await validateAdminPassword({ tenantId, employeeId: context?.employeeId, password: confirmPassword });
+      await validateAdminPassword({
+        tenantId,
+        employeeId: context?.employeeId,
+        password: confirmPassword,
+      });
     } catch (err: any) {
       const e = new Error(err?.message || "La contraseña no coincide");
       e.name = "ValidationError";

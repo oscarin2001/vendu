@@ -84,7 +84,9 @@ export function ManagerEditFinalModal({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="managerName">Confirma el nombre del encargado</Label>
+            <Label htmlFor="managerName">
+              Confirma el nombre del encargado
+            </Label>
             <Input
               id="managerName"
               value={managerNameInput}

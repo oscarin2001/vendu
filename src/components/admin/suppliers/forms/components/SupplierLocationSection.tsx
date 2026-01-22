@@ -16,6 +16,7 @@ import {
   filterCityInput,
 } from "@/services/admin/shared/validations";
 import { SUPPLIER_LIMITS, SupplierFormData } from "../types";
+import { CountrySelect } from "@/components/ui/country-select";
 
 interface LocationSectionProps {
   formData: SupplierFormData;
@@ -33,12 +34,14 @@ export function SupplierLocationSection({
   const [departments, setDepartments] = useState<string[]>([]);
 
   useEffect(() => {
-    const depts = getDepartmentsForCountry(companyCountry || "");
+    // Prefer the supplier country when present, otherwise fall back to company country
+    const selectedCountry = formData.country || companyCountry || "";
+    const depts = getDepartmentsForCountry(selectedCountry);
     setDepartments(depts);
     if (formData.department && !depts.includes(formData.department)) {
       onChange("department", "");
     }
-  }, [companyCountry]);
+  }, [companyCountry, formData.country]);
 
   const handleCityChange = (value: string) => {
     const filtered = filterCityInput(value);
@@ -52,6 +55,18 @@ export function SupplierLocationSection({
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium text-muted-foreground">Ubicación</h3>
+      <div>
+        <Label htmlFor="country">País</Label>
+        <CountrySelect
+          value={formData.country}
+          onChange={(val) => onChange("country", val)}
+        />
+        {formData.country && companyCountry && formData.country !== companyCountry && (
+          <p className="text-xs text-yellow-600 mt-2">
+            Atención: este proveedor está configurado en otro país que la compañía. Esto puede afectar impuestos y logística.
+          </p>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="city">Ciudad</Label>
