@@ -103,11 +103,11 @@ export function SuppliersModals({
     setIsEditFinalOpen(true);
   };
 
-  const handleConfirmEditFinal = async (password: string) => {
+  const handleConfirmEditFinal = async (password: string, overrides?: { isIndefinite?: boolean; contractEndAt?: Date | null }) => {
     if (!pendingEditData) return;
     setIsSubmittingEdit(true);
     try {
-      await onSubmitEdit({ ...pendingEditData, _changeReason: pendingEditReason, _confirmPassword: password });
+      await onSubmitEdit({ ...pendingEditData, ...(overrides || {}), _changeReason: pendingEditReason, _confirmPassword: password });
       setIsEditFinalOpen(false);
       setPendingEditData(null);
       setPendingChanges([]);

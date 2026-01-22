@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Lock, Type } from "lucide-react";
+import { PasswordConfirmation } from "@/components/admin/branches/modals/delete/components";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 import { useState } from "react";
 
@@ -102,24 +103,27 @@ export function WarehouseEditFinalModal({
               onChange={(e) => setWarehouseName(e.target.value)}
               placeholder={`Escribe "${warehouse.name}"`}
               className={nameError ? "border-red-500" : ""}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleConfirm();
+              }}
             />
-            {nameError && <p className="text-sm text-red-500">{nameError}</p>}
+            {nameError && (
+              <span className="text-sm text-red-600 flex items-center gap-1">
+                {nameError}
+              </span>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password" className="flex items-center gap-2">
               <Lock className="h-4 w-4" /> Contraseña de administrador
             </Label>
-            <Input
-              id="password"
-              type="password"
+            <PasswordConfirmation
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingresa tu contraseña"
-              className={passwordError ? "border-red-500" : ""}
+              onChange={setPassword}
+              error={passwordError || error}
+              onEnterPress={handleConfirm}
             />
-            {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
-            {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
         </div>
 

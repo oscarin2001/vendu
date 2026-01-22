@@ -14,9 +14,28 @@ export const createSupplierSchema = z.object({
   country: z.string().optional(),
   ci: z.string().max(20).optional(),
   notes: z.string().optional(),
-  birthDate: z.date().optional().nullable(), // Fecha de nacimiento del proveedor
-  partnerSince: z.date().optional().nullable(), // Desde cuándo trabaja con la empresa
-  contractEndAt: z.date().optional().nullable(), // Fecha fin de contrato (nulo = indefinido)
+  birthDate: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      const d = new Date(arg);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return arg;
+  }, z.date().optional().nullable()), // Fecha de nacimiento del proveedor
+  partnerSince: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      const d = new Date(arg);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return arg;
+  }, z.date().optional().nullable()), // Desde cuándo trabaja con la empresa
+  contractEndAt: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      if (arg.trim() === "") return null;
+      const d = new Date(arg);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return arg;
+  }, z.date().optional().nullable()), // Fecha fin de contrato (nulo = indefinido)
   isIndefinite: z.boolean().optional(),
 });
 

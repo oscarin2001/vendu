@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import {
@@ -13,13 +15,20 @@ import { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Lock, Type } from "lucide-react";
+import { PasswordConfirmation } from "@/components/admin/branches/modals/delete/components";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface SupplierEditFinalModalProps {
   supplier: Supplier | null;
   isOpen: boolean;
   onClose: () => void;
   onPrevious: () => void;
-  onConfirm: (password: string) => void;
+  // onConfirm returns password and optional overrides for contract fields
+  onConfirm: (
+    password: string,
+    overrides?: { isIndefinite?: boolean; contractEndAt?: Date | null },
+  ) => void;
   isLoading: boolean;
   error?: string;
 }
@@ -37,6 +46,10 @@ export function SupplierEditFinalModal({
   const [supplierName, setSupplierName] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [isIndefinite, setIsIndefinite] = useState<boolean>(supplier?.isIndefinite || false);
+  const [contractEndAt, setContractEndAt] = useState<Date | null>(
+    supplier?.contractEndAt ? new Date(supplier.contractEndAt) : null,
+  );
 
   const handleConfirm = () => {
     let hasError = false;
@@ -62,7 +75,7 @@ export function SupplierEditFinalModal({
     }
 
     if (!hasError) {
-      onConfirm(password);
+      onConfirm(password, { isIndefinite, contractEndAt });
     }
   };
 
@@ -80,9 +93,7 @@ export function SupplierEditFinalModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            Confirmación de Edición
-          </DialogTitle>
+          <DialogTitle className="flex items-center gap-2">Confirmación de Edición</DialogTitle>
           <div className="text-muted-foreground text-sm space-y-4">
             <div className="font-medium">
               Para confirmar los cambios en el proveedor, escribe el nombre
@@ -94,8 +105,7 @@ export function SupplierEditFinalModal({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="supplierName" className="flex items-center gap-2">
-              <Type className="h-4 w-4" />
-              Escribe el nombre completo del proveedor
+              <Type className="h-4 w-4" /> Escribe el nombre completo del proveedor
             </Label>
             <Input
               id="supplierName"
@@ -105,26 +115,48 @@ export function SupplierEditFinalModal({
               onChange={(e) => setSupplierName(e.target.value)}
               className={nameError ? "border-red-500" : ""}
               disabled={isLoading}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleConfirm();
+              }}
             />
             {nameError && <p className="text-sm text-red-600 mt-1">{nameError}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              Contraseña de confirmación
+            <Label className="flex items-center gap-3">
+              <Checkbox
+                id="isIndefinite"
+                checked={isIndefinite}
+                onCheckedChange={(v) => {
+                  const checked = Boolean(v);
+                  setIsIndefinite(checked);
+                  if (checked) setContractEndAt(null);
+                }}
+              />
+              <span>Contrato por tiempo indefinido</span>
             </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Ingresa tu contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={passwordError ? "border-red-500" : ""}
-              disabled={isLoading}
-            />
-            {passwordError && (<p className="text-sm text-red-600 mt-1">{passwordError}</p>)}
-            {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+
+            <div className="space-y-1">
+              <Label htmlFor="contractEndAt">Fecha fin de contrato</Label>
+              <DatePicker
+                date={contractEndAt || undefined}
+                onSelect={(d) => setContractEndAt(d || null)}
+                placeholder="Fecha de fin"
+                disabled={isIndefinite || isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Contraseña de confirmación
+              </Label>
+              <PasswordConfirmation
+                value={password}
+                onChange={setPassword}
+                error={passwordError || error}
+                onEnterPress={handleConfirm}
+              />
+            </div>
           </div>
         </div>
 
@@ -135,10 +167,7 @@ export function SupplierEditFinalModal({
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={isLoading || !password.trim() || !supplierName.trim()}
-          >
+          <Button onClick={handleConfirm} disabled={isLoading || !password.trim() || !supplierName.trim()}>
             {isLoading ? "Confirmando..." : "Confirmar edición"}
           </Button>
         </DialogFooter>

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
+import { PasswordConfirmation } from "@/components/admin/branches/modals/delete/components";
 import { Manager } from "@/services/admin/managers";
 import { useState } from "react";
 
@@ -90,6 +91,9 @@ export function ManagerEditFinalModal({
               onChange={(e) => setManagerNameInput(e.target.value)}
               placeholder={`Escribe: ${managerName}`}
               className={nameError ? "border-red-500" : ""}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleConfirm();
+              }}
             />
             {nameError && <p className="text-sm text-red-500">{nameError}</p>}
           </div>
@@ -99,16 +103,12 @@ export function ManagerEditFinalModal({
               <Lock className="h-4 w-4 inline mr-1" />
               Contraseña de administrador
             </Label>
-            <Input
-              id="password"
-              type="password"
+            <PasswordConfirmation
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingresa tu contraseña"
-              className={passwordError ? "border-red-500" : ""}
+              onChange={setPassword}
+              error={passwordError || error}
+              onEnterPress={handleConfirm}
             />
-            {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
-            {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
         </div>
 
