@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Warehouse, Lock, Calendar } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useFormChanges } from "@/services/admin/shared/hooks/change-tracking";
 import {
   getDepartmentsForCountry,
   FIELD_LIMITS,
@@ -28,37 +29,12 @@ import {
   getPhoneStartDigitsHint,
 } from "@/services/admin/shared/validations";
 import { getCountryConfigByName } from "@/services/admin/config/types/countries";
-
-interface WarehouseFormData {
-  name: string;
-  phone: string;
-  address: string;
-  city: string;
-  department: string;
-  country: string;
-  openedAt: Date | null; // Fecha de apertura de la bodega
-}
-
-interface WarehouseAuditInfo {
-  id: number;
-  createdAt: Date;
-  updatedAt?: Date;
-  createdBy?: { id: number; name: string };
-  updatedBy?: { id: number; name: string };
-}
-
-interface WarehouseFormProps {
-  initialData?: Partial<WarehouseFormData>;
-  onSubmit: (data: WarehouseFormData) => void;
-  isLoading?: boolean;
-  mode: "create" | "edit";
-  warehouseInfo?: WarehouseAuditInfo;
-  companyCountry?: string;
-}
+import { WarehouseFormProps, WarehouseFormData } from "./types";
 
 export function WarehouseForm({
   initialData,
   onSubmit,
+  onEditRequest,
   isLoading,
   mode,
   warehouseInfo,
@@ -84,6 +60,16 @@ export function WarehouseForm({
   const phonePrefix = phoneConfig?.phone.prefix ?? "591";
   const phoneLocalLength = phoneConfig?.phone.local ?? 8;
 
+  // Track changes for edit mode
+  const { hasChanges, changes } = useFormChanges({
+    initialData: initialData || null,
+    currentData: formData,
+  });
+
+  // Expose for parent
+  (WarehouseForm as any).currentChanges = changes;
+  (WarehouseForm as any).hasChanges = hasChanges;
+
   useEffect(() => {
     const depts = getDepartmentsForCountry(formData.country);
     setDepartments(depts);
@@ -106,8 +92,16 @@ export function WarehouseForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) onSubmit(formData);
+    if (!validateForm()) return;
+
+    if (mode === "edit" && onEditRequest) {
+      onEditRequest(formData, changes);
+    } else {
+      onSubmit(formData);
+    }
   };
+
+  const isSubmitDisabled = isLoading || (mode === "edit" && !hasChanges);
 
   const handleChange = (field: keyof WarehouseFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -355,10 +349,19 @@ export function WarehouseForm({
         <Button type="button" variant="outline" size="sm">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading} size="sm">
-          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
+        <Button type="submit" disabled={isSubmitDisabled} size="sm">
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+              ? "Crear"
+              : hasChanges
+                ? "Guardar cambios"
+                : "Sin cambios"}
         </Button>
       </div>
     </form>
   );
 }
+
+WarehouseForm.getChanges = () => (WarehouseForm as any).currentChanges || [];
+WarehouseForm.getHasChanges = () => (WarehouseForm as any).hasChanges || false;

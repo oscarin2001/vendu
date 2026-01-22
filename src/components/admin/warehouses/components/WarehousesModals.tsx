@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { WarehouseDetailsModal } from "@/components/admin/warehouses/components/modals/WarehouseDetailsModal";
 import { WarehouseServiceConfigModal } from "@/components/admin/warehouses/components/modals/WarehouseServiceConfigModal";
 import { WarehouseDeleteInitialModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteInitialModal";
 import { WarehouseDeleteWarningModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteWarningModal";
 import { WarehouseDeleteFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteFinalModal";
 import { WarehouseForm } from "@/components/admin/warehouses/forms/WarehouseForm";
+import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Warehouse } from "@/services/admin/warehouses/types/warehouse.types";
+import type { FieldChange } from "@/services/admin/shared/hooks/change-tracking";
 
 interface WarehousesModalsProps {
   selectedWarehouse: Warehouse | null;
@@ -63,6 +66,31 @@ export function WarehousesModals({
   onSubmitEdit,
   onRefresh,
 }: WarehousesModalsProps) {
+  const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState<any>(null);
+  const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+
+  const handleEditRequest = (data: any, changes: FieldChange[]) => {
+    setPendingEditData(data);
+    setPendingChanges(changes);
+    setIsChangeReasonOpen(true);
+  };
+
+  const handleConfirmEditWithReason = (reason: string) => {
+    if (pendingEditData) {
+      onSubmitEdit({ ...pendingEditData, _changeReason: reason });
+    }
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
+
+  const handleCancelChangeReason = () => {
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
+
   return (
     <>
       {/* Create Modal */}
@@ -96,6 +124,7 @@ export function WarehousesModals({
                 country: selectedWarehouse.country || companyCountry,
               }}
               onSubmit={onSubmitEdit}
+              onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={companyCountry}
               warehouseInfo={{
@@ -107,6 +136,15 @@ export function WarehousesModals({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Change Reason Dialog */}
+      <ChangeReasonDialog
+        isOpen={isChangeReasonOpen}
+        onClose={handleCancelChangeReason}
+        onConfirm={handleConfirmEditWithReason}
+        changes={pendingChanges}
+        entityName="bodega"
+      />
 
       {/* Details Modal */}
       <WarehouseDetailsModal

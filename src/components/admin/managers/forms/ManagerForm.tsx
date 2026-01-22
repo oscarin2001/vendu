@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { useCompany } from "@/services/admin/company";
+import { useFormChanges } from "@/services/admin/shared/hooks/change-tracking";
 import {
   PersonalInfoSection,
   ContactInfoSection,
@@ -18,6 +19,7 @@ export function ManagerForm({
   initialData,
   branches,
   onSubmit,
+  onEditRequest,
   isLoading,
   mode = "create",
   companyCountry,
@@ -35,6 +37,48 @@ export function ManagerForm({
     setFormData,
   } = useManagerFormState({ initialData, mode });
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Track changes for edit mode
+  const { hasChanges, changes } = useFormChanges({
+    initialData: initialData
+      ? {
+          firstName: initialData.firstName,
+          lastName: initialData.lastName,
+          ci: initialData.ci,
+          phone: initialData.phone,
+          email: initialData.email,
+          salary: initialData.salary,
+          branchIds: initialData.branchIds,
+          contributionType: initialData.contributionType,
+          hireDate: initialData.hireDate,
+          birthDate: initialData.birthDate,
+          joinedAt: initialData.joinedAt,
+          contractEndAt: initialData.contractEndAt,
+          isIndefinite: initialData.isIndefinite,
+          homeAddress: initialData.homeAddress,
+        }
+      : null,
+    currentData: {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      ci: formData.ci,
+      phone: formData.phone,
+      email: formData.email,
+      salary: formData.salary,
+      branchIds: formData.branchIds,
+      contributionType: formData.contributionType,
+      hireDate: formData.hireDate,
+      birthDate: formData.birthDate,
+      joinedAt: formData.joinedAt,
+      contractEndAt: formData.contractEndAt,
+      isIndefinite: formData.isIndefinite,
+      homeAddress: formData.homeAddress,
+    },
+  });
+
+  // Expose changes for parent component
+  (ManagerForm as any).currentChanges = changes;
+  (ManagerForm as any).hasChanges = hasChanges;
 
   // Update email domain when company loads in create mode
   useEffect(() => {
@@ -101,9 +145,19 @@ export function ManagerForm({
         isIndefinite: formData.isIndefinite,
         homeAddress: formData.homeAddress,
       };
-      onSubmit(submitData);
+
+      // In edit mode, delegate to parent to handle change reason dialog
+      if (mode === "edit" && onEditRequest) {
+        onEditRequest(submitData, changes);
+      } else {
+        onSubmit(submitData);
+      }
     }
   };
+
+  // Determine if submit button should be enabled
+  const isSubmitDisabled =
+    isLoading || (mode === "edit" && !hasChanges);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -195,10 +249,20 @@ export function ManagerForm({
         <Button type="button" variant="outline" size="sm">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading} size="sm">
-          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
+        <Button type="submit" disabled={isSubmitDisabled} size="sm">
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+              ? "Crear"
+              : hasChanges
+                ? "Guardar cambios"
+                : "Sin cambios"}
         </Button>
       </div>
     </form>
   );
 }
+
+// Export changes getter for parent components
+ManagerForm.getChanges = () => (ManagerForm as any).currentChanges || [];
+ManagerForm.getHasChanges = () => (ManagerForm as any).hasChanges || false;

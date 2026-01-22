@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { ManagerForm } from "@/components/admin/managers/forms/ManagerForm";
+import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import { useCompany } from "@/services/admin/company";
 import { ManagerServiceConfigModal } from "./ManagerServiceConfigModal";
 import { ManagerDetailsModal } from "./ManagerDetailsModal";
@@ -16,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
 import { Manager } from "@/services/admin/managers";
-import { useState } from "react";
+import type { FieldChange } from "@/services/admin/shared/hooks/change-tracking";
 
 interface ManagersModalsProps {
   selectedManager: Manager | null;
@@ -69,6 +71,43 @@ export function ManagersModals({
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+
+  // Change reason dialog state for edit
+  const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState<any>(null);
+  const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+
+  // Handle edit request from form - opens change reason dialog
+  const handleEditRequest = (data: any, changes: FieldChange[]) => {
+    setPendingEditData(data);
+    setPendingChanges(changes);
+    setIsChangeReasonOpen(true);
+  };
+
+  // Handle confirmed edit with reason
+  const handleConfirmEditWithReason = async (reason: string) => {
+    if (!pendingEditData) return;
+
+    setIsSubmittingEdit(true);
+    try {
+      // Add change reason to the data
+      await onSubmitEdit({ ...pendingEditData, _changeReason: reason });
+      setIsChangeReasonOpen(false);
+      setPendingEditData(null);
+      setPendingChanges([]);
+    } catch (error) {
+      // Error handled by parent
+    } finally {
+      setIsSubmittingEdit(false);
+    }
+  };
+
+  const handleCloseChangeReason = () => {
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
 
   const handleDeleteStart = () => {
     setDeleteStep("initial");
@@ -156,15 +195,32 @@ export function ManagersModals({
                 branchIds: selectedManager.branches?.map((b) => b.id) || [],
                 contributionType: selectedManager.contributionType,
                 hireDate: selectedManager.hireDate,
+                birthDate: selectedManager.birthDate,
+                joinedAt: selectedManager.joinedAt,
+                contractEndAt: selectedManager.contractEndAt,
+                isIndefinite: selectedManager.contractType === "indefinite",
+                homeAddress: selectedManager.homeAddress,
               }}
               branches={branches}
               onSubmit={onSubmitEdit}
+              onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={company?.country}
             />
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Change Reason Dialog for Edit */}
+      <ChangeReasonDialog
+        isOpen={isChangeReasonOpen}
+        onClose={handleCloseChangeReason}
+        onConfirm={handleConfirmEditWithReason}
+        title="Confirmar cambios en Encargado"
+        changes={pendingChanges}
+        isLoading={isSubmittingEdit}
+        entityName="encargado"
+      />
 
       {/* Details Modal */}
       <ManagerDetailsModal

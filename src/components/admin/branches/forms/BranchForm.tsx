@@ -15,9 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Lock, Calendar } from "lucide-react";
 import { BranchAuditInfo } from "./components";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useFormChanges } from "@/services/admin/shared/hooks/change-tracking";
 import {
   getDepartmentsForCountry,
   FIELD_LIMITS,
@@ -31,37 +30,12 @@ import {
   getPhoneStartDigitsHint,
 } from "@/services/admin/shared/validations";
 import { getCountryConfigByName } from "@/services/admin/config/types/countries";
-
-interface BranchFormData {
-  name: string;
-  phone: string;
-  address: string;
-  city: string;
-  department: string;
-  country: string;
-  openedAt: Date | null; // Fecha de apertura de la sucursal
-}
-
-interface BranchAuditInfoType {
-  id: number;
-  createdAt: Date;
-  updatedAt?: Date;
-  createdBy?: { id: number; name: string };
-  updatedBy?: { id: number; name: string };
-}
-
-interface BranchFormProps {
-  initialData?: Partial<BranchFormData>;
-  onSubmit: (data: BranchFormData) => void;
-  isLoading?: boolean;
-  mode: "create" | "edit";
-  branchInfo?: BranchAuditInfoType;
-  companyCountry?: string;
-}
+import { BranchFormProps, BranchFormData } from "./types";
 
 export function BranchForm({
   initialData,
   onSubmit,
+  onEditRequest,
   isLoading,
   mode,
   branchInfo,
@@ -87,6 +61,16 @@ export function BranchForm({
   const phonePrefix = phoneConfig?.phone.prefix ?? "591";
   const phoneLocalLength = phoneConfig?.phone.local ?? 8;
 
+  // Track changes for edit mode
+  const { hasChanges, changes } = useFormChanges({
+    initialData: initialData || null,
+    currentData: formData,
+  });
+
+  // Expose for parent
+  (BranchForm as any).currentChanges = changes;
+  (BranchForm as any).hasChanges = hasChanges;
+
   useEffect(() => {
     const depts = getDepartmentsForCountry(formData.country);
     setDepartments(depts);
@@ -109,8 +93,16 @@ export function BranchForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) onSubmit(formData);
+    if (!validateForm()) return;
+
+    if (mode === "edit" && onEditRequest) {
+      onEditRequest(formData, changes);
+    } else {
+      onSubmit(formData);
+    }
   };
+
+  const isSubmitDisabled = isLoading || (mode === "edit" && !hasChanges);
 
   const handleChange = (field: keyof BranchFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -322,10 +314,19 @@ export function BranchForm({
         <Button type="button" variant="outline" size="sm">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading} size="sm">
-          {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
+        <Button type="submit" disabled={isSubmitDisabled} size="sm">
+          {isLoading
+            ? "Guardando..."
+            : mode === "create"
+              ? "Crear"
+              : hasChanges
+                ? "Guardar cambios"
+                : "Sin cambios"}
         </Button>
       </div>
     </form>
   );
 }
+
+BranchForm.getChanges = () => (BranchForm as any).currentChanges || [];
+BranchForm.getHasChanges = () => (BranchForm as any).hasChanges || false;
