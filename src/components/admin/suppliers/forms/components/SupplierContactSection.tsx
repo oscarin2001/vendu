@@ -68,14 +68,17 @@ export function SupplierContactSection({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Teléfono</Label>
-          <PhoneInput
-            value={formData.phone || ""}
-            onChange={(val) => handlePhoneChange(val)}
-            fixedCountryCode={!formData.isForeign ? phonePrefix : undefined}
-            fixedLocalMax={phoneLocalLength}
-            hideCountrySelect={!!formData.isForeign}
-            showValidation
-          />
+                  <PhoneInput
+                    value={formData.phone || ""}
+                    onChange={(val) => handlePhoneChange(val)}
+                    fixedCountryCode={!formData.isForeign ? phonePrefix : undefined}
+                    fixedLocalMax={phoneLocalLength}
+                    // When supplier is foreign, show the country selector so user
+                    // can pick the correct international prefix. When not foreign,
+                    // hide selector and lock to company prefix.
+                    hideCountrySelect={!formData.isForeign}
+                    showValidation
+                  />
           {errors.phone && (
             <p className="text-xs text-red-500">{errors.phone}</p>
           )}
