@@ -28,31 +28,37 @@ export function SupplierForm({
   const phonePrefix = countryConfig?.phone.prefix ?? "591";
   const phoneLocalLength = countryConfig?.phone.local ?? 8;
 
-  const [formData, setFormData] = useState<SupplierFormData>({
-    firstName: initialData?.firstName || "",
-    lastName: initialData?.lastName || "",
-    ci: initialData?.ci || "",
-    phone: initialData?.phone || "",
-    email: initialData?.email || "",
-    address: initialData?.address || "",
-    city: initialData?.city || "",
-    department: initialData?.department || "",
-    country: fixedCountry,
-    notes: initialData?.notes || "",
-    birthDate: initialData?.birthDate ? new Date(initialData.birthDate) : null,
-    partnerSince: initialData?.partnerSince
-      ? new Date(initialData.partnerSince)
-      : null,
-    contractEndAt: initialData?.contractEndAt
-      ? new Date(initialData.contractEndAt)
-      : null,
-    isIndefinite: initialData?.isIndefinite || false,
-    isForeign: initialData?.isForeign || false,
+  const [formData, setFormData] = useState<SupplierFormData>(() => {
+    const initialCountry = initialData?.country || fixedCountry;
+    const computedIsForeign =
+      initialData?.isForeign ??
+      (initialData?.country && companyCountry
+        ? initialData.country !== companyCountry
+        : false);
+
+    return {
+      firstName: initialData?.firstName || "",
+      lastName: initialData?.lastName || "",
+      ci: initialData?.ci || "",
+      phone: initialData?.phone || "",
+      email: initialData?.email || "",
+      address: initialData?.address || "",
+      city: initialData?.city || "",
+      department: initialData?.department || "",
+      country: initialCountry,
+      notes: initialData?.notes || "",
+      birthDate: initialData?.birthDate ? new Date(initialData.birthDate) : null,
+      partnerSince: initialData?.partnerSince
+        ? new Date(initialData.partnerSince)
+        : null,
+      contractEndAt: initialData?.contractEndAt
+        ? new Date(initialData.contractEndAt)
+        : null,
+      isIndefinite: initialData?.isIndefinite || false,
+      isForeign: computedIsForeign,
+    } as SupplierFormData;
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Track changes for edit mode
   const { hasChanges, changes } = useFormChanges({
     initialData: initialData || null,
     currentData: formData,

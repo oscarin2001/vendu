@@ -25,7 +25,11 @@ export function SupplierContactSection({
   onChange,
   setError,
 }: ContactSectionProps) {
-  const countryConfig = getCountryConfigByName(companyCountry);
+  // Determine which country to use for phone formatting:
+  // - If supplier is marked foreign, prefer supplier.country
+  // - otherwise use companyCountry
+  const phoneCountry = formData.isForeign ? formData.country || companyCountry : companyCountry || formData.country;
+  const countryConfig = getCountryConfigByName(phoneCountry);
   const phonePrefix = countryConfig?.phone.prefix ?? "591";
   const phoneLocalLength = countryConfig?.phone.local ?? 8;
 
@@ -67,9 +71,9 @@ export function SupplierContactSection({
           <PhoneInput
             value={formData.phone || ""}
             onChange={(val) => handlePhoneChange(val)}
-            fixedCountryCode={phonePrefix}
+            fixedCountryCode={!formData.isForeign ? phonePrefix : undefined}
             fixedLocalMax={phoneLocalLength}
-            hideCountrySelect
+            hideCountrySelect={!!formData.isForeign}
             showValidation
           />
           {errors.phone && (
