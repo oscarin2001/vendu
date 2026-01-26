@@ -166,6 +166,13 @@ export function BranchesModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={companyCountry}
+              branchInfo={{
+                id: selectedBranch.id,
+                createdAt: selectedBranch.createdAt,
+                updatedAt: selectedBranch.updatedAt,
+                createdBy: selectedBranch.createdBy,
+                updatedBy: selectedBranch.updatedBy,
+              }}
               onCancel={() => onEditModalChange(false)}
             />
           )}

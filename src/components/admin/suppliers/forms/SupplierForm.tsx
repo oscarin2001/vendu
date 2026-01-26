@@ -22,6 +22,7 @@ export function SupplierForm({
   isLoading,
   mode,
   companyCountry,
+  supplierInfo,
   onCancel,
 }: SupplierFormProps) {
   const fixedCountry = companyCountry || initialData?.country;
@@ -189,6 +190,60 @@ export function SupplierForm({
       <SupplierContractSection formData={formData} onChange={handleChange} />
 
       <SupplierNotesSection formData={formData} onChange={handleChange} />
+
+      {supplierInfo && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Información del Sistema</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">ID:</span>{" "}
+                <span className="font-medium">{supplierInfo.id}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Creado:</span>{" "}
+                <span className="font-medium">
+                  {new Date(supplierInfo.createdAt).toLocaleDateString("es-ES", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              {supplierInfo.createdBy && (
+                <div>
+                  <span className="text-muted-foreground">Creado por:</span>{" "}
+                  <span className="font-medium">{supplierInfo.createdBy.name}</span>
+                </div>
+              )}
+              {supplierInfo.updatedAt && (
+                <div>
+                  <span className="text-muted-foreground">Modificado:</span>{" "}
+                  <span className="font-medium">
+                    {new Date(supplierInfo.updatedAt).toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+              {supplierInfo.updatedBy && (
+                <div>
+                  <span className="text-muted-foreground">Modificado por:</span>{" "}
+                  <span className="font-medium">{supplierInfo.updatedBy.name}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button

@@ -187,6 +187,13 @@ export function SuppliersModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={companyCountry}
+              supplierInfo={{
+                id: selectedSupplier.id,
+                createdAt: selectedSupplier.createdAt,
+                updatedAt: selectedSupplier.updatedAt,
+                createdBy: selectedSupplier.createdBy,
+                updatedBy: selectedSupplier.updatedBy,
+              }}
               onCancel={() => onEditModalChange(false)}
             />
           )}
