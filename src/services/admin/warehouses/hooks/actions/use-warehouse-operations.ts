@@ -47,7 +47,7 @@ export function useWarehouseOperations(
     setIsCreating(true);
     try {
       await createWarehouseForCompany(tenantId, data, context);
-      toast.success("Warehouse created successfully");
+      toast.success("Bodega creada exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -70,7 +70,7 @@ export function useWarehouseOperations(
     setIsUpdating(true);
     try {
       await updateWarehouseForCompany(tenantId, warehouseId, data, context);
-      toast.success("Warehouse updated successfully");
+      toast.success("Bodega actualizada exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -94,7 +94,7 @@ export function useWarehouseOperations(
     try {
       // Note: Password validation would be handled at a higher level
       await deleteWarehouseForCompany(tenantId, warehouseId, context);
-      toast.success("Warehouse deleted successfully");
+      toast.success("Bodega eliminada exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -116,7 +116,7 @@ export function useWarehouseOperations(
   ) => {
     try {
       await assignManagerToWarehouse(tenantId, warehouseId, managerId, context);
-      toast.success("Manager assigned successfully");
+      toast.success("Encargado asignado exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -141,7 +141,7 @@ export function useWarehouseOperations(
         managerId,
         context
       );
-      toast.success("Manager removed successfully");
+      toast.success("Encargado removido exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -168,7 +168,7 @@ export function useWarehouseOperations(
         isPrimary,
         context
       );
-      toast.success("Warehouse assigned to branch successfully");
+      toast.success("Bodega asignada a la sucursal exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(

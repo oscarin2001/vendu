@@ -35,7 +35,7 @@ export function useWarehouseOperations(
   ) => {
     try {
       const result = await createWarehouse(tenantId, data, context);
-      toast.success("Warehouse created successfully");
+      toast.success("Bodega creada exitosamente");
       onWarehouseChange?.();
       return result;
     } catch (error) {
@@ -58,7 +58,7 @@ export function useWarehouseOperations(
         data,
         context
       );
-      toast.success("Warehouse updated successfully");
+      toast.success("Bodega actualizada exitosamente");
       onWarehouseChange?.();
       return result;
     } catch (error) {
@@ -107,7 +107,7 @@ export function useWarehouseOperations(
         managerId,
         context
       );
-      toast.success("Manager assigned successfully");
+      toast.success("Encargado asignado exitosamente");
       onWarehouseChange?.();
       return result;
     } catch (error) {
@@ -130,7 +130,7 @@ export function useWarehouseOperations(
         managerId,
         context
       );
-      toast.success("Manager removed successfully");
+      toast.success("Encargado removido exitosamente");
       onWarehouseChange?.();
       return result;
     } catch (error) {
@@ -155,7 +155,7 @@ export function useWarehouseOperations(
         isPrimary,
         context
       );
-      toast.success("Warehouse assigned to branch successfully");
+      toast.success("Bodega asignada a la sucursal exitosamente");
       onWarehouseChange?.();
       return result;
     } catch (error) {
