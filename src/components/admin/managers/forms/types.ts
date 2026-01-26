@@ -69,4 +69,11 @@ export interface ManagerFormProps {
   isLoading?: boolean;
   mode?: "create" | "edit";
   onCancel?: () => void;
+  managerInfo?: {
+    id: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+    createdBy?: { id: number; name: string };
+    updatedBy?: { id: number; name: string };
+  };
 }

@@ -229,6 +229,13 @@ export function ManagersModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={company?.country}
+              managerInfo={{
+                id: selectedManager.id,
+                createdAt: selectedManager.createdAt,
+                updatedAt: selectedManager.updatedAt,
+                createdBy: selectedManager.createdBy,
+                updatedBy: selectedManager.updatedBy,
+              }}
               onCancel={() => onEditModalChange(false)}
             />
           )}

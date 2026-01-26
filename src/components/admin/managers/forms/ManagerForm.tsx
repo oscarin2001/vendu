@@ -23,6 +23,7 @@ export function ManagerForm({
   isLoading,
   mode = "create",
   companyCountry,
+  managerInfo,
   onCancel,
 }: ManagerFormProps) {
   const { company } = useCompany(tenantId);
@@ -242,6 +243,61 @@ export function ManagerForm({
       {errors.general && (
         <div className="text-center">
           <p className="text-xs text-red-500">{errors.general}</p>
+        </div>
+      )}
+
+      {managerInfo && (
+        <div>
+          <div className="pt-4" />
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Información del Sistema</div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">ID:</span>{" "}
+                <span className="font-medium">{managerInfo.id}</span>
+              </div>
+              {managerInfo.createdAt && (
+                <div>
+                  <span className="text-muted-foreground">Creado:</span>{" "}
+                  <span className="font-medium">
+                    {new Date(managerInfo.createdAt).toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+              {managerInfo.createdBy && (
+                <div>
+                  <span className="text-muted-foreground">Creado por:</span>{" "}
+                  <span className="font-medium">{managerInfo.createdBy.name}</span>
+                </div>
+              )}
+              {managerInfo.updatedAt && (
+                <div>
+                  <span className="text-muted-foreground">Modificado:</span>{" "}
+                  <span className="font-medium">
+                    {new Date(managerInfo.updatedAt).toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+              {managerInfo.updatedBy && (
+                <div>
+                  <span className="text-muted-foreground">Modificado por:</span>{" "}
+                  <span className="font-medium">{managerInfo.updatedBy.name}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
