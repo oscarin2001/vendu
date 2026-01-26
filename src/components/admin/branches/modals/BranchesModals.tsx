@@ -141,6 +141,7 @@ export function BranchesModals({
             onSubmit={onSubmitCreate}
             mode="create"
             companyCountry={companyCountry}
+            onCancel={() => onCreateModalChange(false)}
           />
         </DialogContent>
       </Dialog>
@@ -165,6 +166,7 @@ export function BranchesModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={companyCountry}
+              onCancel={() => onEditModalChange(false)}
             />
           )}
         </DialogContent>

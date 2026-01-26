@@ -26,4 +26,5 @@ export interface WarehouseFormProps {
   mode: "create" | "edit";
   warehouseInfo?: WarehouseAuditInfo;
   companyCountry?: string;
+  onCancel?: () => void;
 }

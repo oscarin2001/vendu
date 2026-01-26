@@ -22,6 +22,7 @@ export function SupplierForm({
   isLoading,
   mode,
   companyCountry,
+  onCancel,
 }: SupplierFormProps) {
   const fixedCountry = companyCountry || initialData?.country;
   const countryConfig = getCountryConfigByName(fixedCountry);
@@ -190,7 +191,12 @@ export function SupplierForm({
       <SupplierNotesSection formData={formData} onChange={handleChange} />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onCancel?.()}
+        >
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">

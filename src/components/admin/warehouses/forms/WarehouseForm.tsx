@@ -39,6 +39,7 @@ export function WarehouseForm({
   mode,
   warehouseInfo,
   companyCountry,
+  onCancel,
 }: WarehouseFormProps) {
   const defaultCountry = initialData?.country || companyCountry || "";
   const [formData, setFormData] = useState<WarehouseFormData>({
@@ -346,7 +347,7 @@ export function WarehouseForm({
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm">
+        <Button type="button" variant="outline" size="sm" onClick={() => onCancel?.()}>
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">

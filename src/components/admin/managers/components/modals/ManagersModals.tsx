@@ -194,6 +194,7 @@ export function ManagersModals({
             onSubmit={onSubmitCreate}
             mode="create"
             companyCountry={company?.country}
+            onCancel={() => onCreateModalChange(false)}
           />
         </DialogContent>
       </Dialog>
@@ -228,6 +229,7 @@ export function ManagersModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={company?.country}
+              onCancel={() => onEditModalChange(false)}
             />
           )}
         </DialogContent>

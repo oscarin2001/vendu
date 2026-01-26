@@ -135,6 +135,7 @@ export function WarehousesModals({
             onSubmit={onSubmitCreate}
             mode="create"
             companyCountry={companyCountry}
+            onCancel={() => onCreateModalChange(false)}
           />
         </DialogContent>
       </Dialog>
@@ -164,6 +165,7 @@ export function WarehousesModals({
                 createdAt: selectedWarehouse.createdAt,
                 updatedAt: selectedWarehouse.updatedAt,
               }}
+              onCancel={() => onEditModalChange(false)}
             />
           )}
         </DialogContent>

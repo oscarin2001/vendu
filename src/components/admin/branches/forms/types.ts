@@ -26,4 +26,5 @@ export interface BranchFormProps {
   mode: "create" | "edit";
   branchInfo?: BranchAuditInfoType;
   companyCountry?: string;
+  onCancel?: () => void;
 }

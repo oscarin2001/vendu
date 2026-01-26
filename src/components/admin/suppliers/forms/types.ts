@@ -34,6 +34,7 @@ export interface SupplierFormProps {
   mode: "create" | "edit";
   supplierInfo?: SupplierAuditInfo;
   companyCountry?: string;
+  onCancel?: () => void;
 }
 
 export const SUPPLIER_LIMITS = {

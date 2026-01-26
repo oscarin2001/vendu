@@ -23,6 +23,7 @@ export function ManagerForm({
   isLoading,
   mode = "create",
   companyCountry,
+  onCancel,
 }: ManagerFormProps) {
   const { company } = useCompany(tenantId);
   const { validateField } = useManagerFormValidation(
@@ -245,7 +246,7 @@ export function ManagerForm({
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm">
+        <Button type="button" variant="outline" size="sm" onClick={() => onCancel?.()}>
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">

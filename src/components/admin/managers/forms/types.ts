@@ -68,4 +68,5 @@ export interface ManagerFormProps {
   onEditRequest?: (data: SubmitData, changes: FieldChange[]) => void;
   isLoading?: boolean;
   mode?: "create" | "edit";
+  onCancel?: () => void;
 }

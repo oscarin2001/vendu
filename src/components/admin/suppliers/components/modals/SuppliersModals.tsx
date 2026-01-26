@@ -154,6 +154,7 @@ export function SuppliersModals({
             onSubmit={onSubmitCreate}
             mode="create"
             companyCountry={companyCountry}
+            onCancel={() => onCreateModalChange(false)}
           />
         </DialogContent>
       </Dialog>
@@ -186,6 +187,7 @@ export function SuppliersModals({
               onEditRequest={handleEditRequest}
               mode="edit"
               companyCountry={companyCountry}
+              onCancel={() => onEditModalChange(false)}
             />
           )}
         </DialogContent>

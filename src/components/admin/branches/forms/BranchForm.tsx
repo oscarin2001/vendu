@@ -40,6 +40,7 @@ export function BranchForm({
   mode,
   branchInfo,
   companyCountry,
+  onCancel,
 }: BranchFormProps) {
   const defaultCountry = initialData?.country || companyCountry || "";
   const [formData, setFormData] = useState<BranchFormData>({
@@ -311,7 +312,7 @@ export function BranchForm({
       {branchInfo && <BranchAuditInfo branchInfo={branchInfo} />}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm">
+        <Button type="button" variant="outline" size="sm" onClick={() => (onCancel?.())}>
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">
