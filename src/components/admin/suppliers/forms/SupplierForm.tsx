@@ -47,7 +47,9 @@ export function SupplierForm({
       department: initialData?.department || "",
       country: initialCountry,
       notes: initialData?.notes || "",
-      birthDate: initialData?.birthDate ? new Date(initialData.birthDate) : null,
+      birthDate: initialData?.birthDate
+        ? new Date(initialData.birthDate)
+        : null,
       partnerSince: initialData?.partnerSince
         ? new Date(initialData.partnerSince)
         : null,

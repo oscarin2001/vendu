@@ -85,11 +85,14 @@ export function SupplierLocationSection({
               value={formData.country}
               onChange={(val) => onChange("country", val)}
             />
-            {formData.country && companyCountry && formData.country !== companyCountry && (
-              <p className="text-xs text-yellow-600 mt-2">
-                Atención: este proveedor está configurado en otro país que la compañía. Esto puede afectar impuestos y logística.
-              </p>
-            )}
+            {formData.country &&
+              companyCountry &&
+              formData.country !== companyCountry && (
+                <p className="text-xs text-yellow-600 mt-2">
+                  Atención: este proveedor está configurado en otro país que la
+                  compañía. Esto puede afectar impuestos y logística.
+                </p>
+              )}
           </div>
         )}
       </div>
@@ -110,7 +113,8 @@ export function SupplierLocationSection({
 
         <div className="space-y-2">
           <Label htmlFor="department">Departamento/Estado</Label>
-          {(!formData.isForeign && (formData.country || companyCountry) === "Bolivia") ? (
+          {!formData.isForeign &&
+          (formData.country || companyCountry) === "Bolivia" ? (
             <Select
               value={formData.department || ""}
               onValueChange={(value) => onChange("department", value)}
@@ -130,12 +134,16 @@ export function SupplierLocationSection({
             <Input
               id="department"
               value={formData.department || ""}
-              onChange={(e) => onChange("department", e.target.value.slice(0, 80))}
+              onChange={(e) =>
+                onChange("department", e.target.value.slice(0, 80))
+              }
               placeholder="Departamento / Estado"
               maxLength={80}
             />
           )}
-          {errors.department && <p className="text-xs text-red-500">{errors.department}</p>}
+          {errors.department && (
+            <p className="text-xs text-red-500">{errors.department}</p>
+          )}
         </div>
 
         <div className="col-span-2 space-y-2">

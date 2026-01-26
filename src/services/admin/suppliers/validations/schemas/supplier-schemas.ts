@@ -10,8 +10,16 @@ export const createSupplierSchema = z.object({
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   address: z.string().optional(),
   city: z.string().optional(),
-  department: z.string().min(2, "Departamento muy corto").max(80, "Departamento muy largo").optional(),
-  country: z.string().min(2, "País muy corto").max(80, "País muy largo").optional(),
+  department: z
+    .string()
+    .min(2, "Departamento muy corto")
+    .max(80, "Departamento muy largo")
+    .optional(),
+  country: z
+    .string()
+    .min(2, "País muy corto")
+    .max(80, "País muy largo")
+    .optional(),
   ci: z.string().max(20).optional(),
   notes: z.string().optional(),
   birthDate: z.preprocess((arg) => {
