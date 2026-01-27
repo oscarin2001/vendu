@@ -81,7 +81,7 @@ export async function updateManager(
     contributionType,
     isIndefinite,
     ...restEmployeeData
-  } = data;
+  } = maybeData;
 
   // Verificar que la cédula de identidad no existe en otro empleado si se está actualizando
   if (restEmployeeData.ci !== undefined) {
@@ -165,12 +165,12 @@ export async function updateManager(
 
     // Sucursales a desasignar (están en current pero no en branchIds)
     const branchesToUnassign = currentBranchIds.filter(
-      (id) => !branchIds.includes(id),
+      (id: number) => !branchIds.includes(id),
     );
 
     // Sucursales a asignar (están en branchIds pero no en current)
     const branchesToAssign = branchIds.filter(
-      (id) => !currentBranchIds.includes(id),
+      (id: number) => !currentBranchIds.includes(id),
     );
 
     // Desasignar sucursales que ya no están en la lista
@@ -187,7 +187,7 @@ export async function updateManager(
 
     // Asignar sucursales nuevas
     if (branchesToAssign.length > 0) {
-      const managerBranchData = branchesToAssign.map((branchId) => ({
+      const managerBranchData = branchesToAssign.map((branchId: number) => ({
         FK_manager: managerId,
         FK_branch: branchId,
       }));

@@ -29,6 +29,7 @@ import {
   CalendarClock,
   CalendarX,
 } from "lucide-react";
+import { TrendingUp, Users } from "lucide-react";
 import { Manager } from "@/services/admin/managers";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -138,8 +139,25 @@ export function ManagerDetailsModal({
             Información completa del encargado {manager.fullName}
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-6 mt-4">
+          <div className="min-w-0">
+            <h3
+              className="text-lg font-semibold text-gray-900 truncate"
+              title={manager.fullName}
+            >
+              {manager.fullName}
+            </h3>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <Badge variant="secondary" className="text-xs">
+                ID: {manager.id}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                Encargado
+              </Badge>
+            </div>
+          </div>
+
+          <Separator />
           {/* Información Personal */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -385,6 +403,29 @@ export function ManagerDetailsModal({
           {/* Información del Sistema - Componente compartido */}
           <Separator />
           <ManagerAuditSection manager={manager} />
+
+          {/* Manager Overview */}
+          <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg p-4 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                  Resumen Operativo
+                </h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Información rápida del encargado y su cobertura
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600">
+                  {manager.branches?.length || 0}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Sucursales Asignadas
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end pt-4">

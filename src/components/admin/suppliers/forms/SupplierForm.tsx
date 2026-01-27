@@ -122,6 +122,7 @@ export function SupplierForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.debug("SupplierForm: handleSubmit called", { mode, formData });
     if (!validateForm()) return;
 
     const submitData = {
@@ -260,7 +261,10 @@ export function SupplierForm({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => onCancel?.()}
+          onClick={() => {
+            console.debug("SupplierForm: cancel clicked");
+            onCancel?.();
+          }}
         >
           Cancelar
         </Button>

@@ -43,9 +43,9 @@ export function SupplierContactSection({
     }
 
     if (localDigits.length > 0) {
-      const filtered = filterPhoneFirstDigit(localDigits, companyCountry || "");
+      const filtered = filterPhoneFirstDigit(localDigits, phoneCountry || "");
       if (filtered !== localDigits) {
-        const hint = getPhoneStartDigitsHint(companyCountry || "");
+        const hint = getPhoneStartDigitsHint(phoneCountry || "");
         setError("phone", hint || "Dígito inicial inválido");
         onChange("phone", phonePrefix + filtered);
         return;

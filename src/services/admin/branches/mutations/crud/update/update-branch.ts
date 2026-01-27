@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAuditService } from "@/services/shared/audit";
 import { validateAdminPassword } from "@/services/admin/managers";
+import { getAuthCookie } from "@/services/auth/adapters";
 import { UpdateBranchData } from "../../../validations/types/inferred.types";
 
 interface UserContext {
@@ -47,9 +48,21 @@ export async function updateBranch(
   if (confirmPassword) {
     // validate password against current employee when available
     try {
+      // Resolve employeeId from provided context or from the authenticated
+      // session cookie so validation runs against the real logged-in user.
+      let employeeIdToValidate = context?.employeeId;
+      if (!employeeIdToValidate) {
+        try {
+          const auth = await getAuthCookie();
+          if (auth?.userId) employeeIdToValidate = auth.userId;
+        } catch (err) {
+          // fallback: continue and let validateAdminPassword apply its own fallbacks
+        }
+      }
+
       await validateAdminPassword({
         tenantId,
-        employeeId: context?.employeeId,
+        employeeId: employeeIdToValidate,
         password: confirmPassword,
       });
     } catch (err: any) {
@@ -105,9 +118,6 @@ export async function updateBranch(
     {
       employeeId: context?.employeeId,
       companyId: oldBranch.FK_company || undefined,
-     openedAt: branch.openedAt,
-     createdAt: branch.createdAt,
-     updatedAt: branch.updatedAt || undefined,
       ipAddress: context?.ipAddress,
       userAgent: context?.userAgent,
     },
@@ -123,8 +133,8 @@ export async function updateBranch(
     country: branch.country,
     latitude: branch.latitude,
     longitude: branch.longitude,
-      openedAt: branch.openedAt,
-      createdAt: branch.createdAt,
-      updatedAt: branch.updatedAt || undefined,
-    };
+    openedAt: branch.openedAt,
+    createdAt: branch.createdAt,
+    updatedAt: branch.updatedAt || undefined,
+  };
 }

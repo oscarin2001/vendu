@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -98,20 +99,14 @@ export function EmploymentInfoSection({
           <Label htmlFor="contractEndAt" className="text-xs">
             Hasta Cuándo (Fin Contrato)
           </Label>
-          <Input
-            id="contractEndAt"
-            type="date"
-            value={
-              contractEndAt ? contractEndAt.toISOString().split("T")[0] : ""
-            }
-            onChange={(e) =>
-              onChange(
-                "contractEndAt",
-                e.target.value ? new Date(e.target.value) : undefined,
-              )
-            }
+          <DatePicker
+            date={contractEndAt || undefined}
+            onSelect={(d) => onChange("contractEndAt", d ? d : undefined)}
+            placeholder="Selecciona fecha de fin"
             disabled={isIndefinite}
-            className={`h-9 ${errors.contractEndAt ? "border-red-500" : ""} ${isIndefinite ? "bg-muted" : ""}`}
+            className={`${errors.contractEndAt ? "border-red-500" : ""} ${isIndefinite ? "bg-muted" : ""}`}
+            fromYear={1950}
+            toYear={new Date().getFullYear() + 10}
           />
           {errors.contractEndAt && (
             <p className="text-xs text-red-500">{errors.contractEndAt}</p>

@@ -14,7 +14,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Truck, Lock, Calendar, Handshake } from "lucide-react";
-import { PhoneInput } from "@/components/ui/phone-input";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   getDepartmentsForCountry,
@@ -327,13 +326,10 @@ export function SupplierForm({
               <Label htmlFor="phone" className="text-xs">
                 Teléfono
               </Label>
-              <PhoneInput
+              <Input
+                id="phone"
                 value={formData.phone || ""}
-                onChange={handlePhoneChange}
-                fixedCountryCode={phonePrefix}
-                fixedLocalMax={phoneLocalLength}
-                hideCountrySelect
-                showValidation
+                onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder={`${phoneLocalLength} dígitos`}
                 className={`h-9 ${errors.phone ? "border-red-500" : ""}`}
               />

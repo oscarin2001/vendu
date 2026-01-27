@@ -5,7 +5,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,6 +20,11 @@ import {
   FileText,
   Cake,
   Handshake,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Supplier } from "@/services/admin/suppliers";
 import { SupplierAuditSection } from "./sections";
@@ -53,36 +60,62 @@ export function SupplierDetailsModal({
 }: SupplierDetailsModalProps) {
   if (!supplier) return null;
 
+  const getStatusBadge = (active: boolean) => {
+    if (active) {
+      return (
+        <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-2 py-1 rounded">
+          <CheckCircle className="w-3 h-3" /> Activo
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-2 py-1 rounded">
+        <XCircle className="w-3 h-3" /> Inactivo
+      </span>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
-              <Truck className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+              <Truck className="h-5 w-5 text-orange-600 flex-shrink-0" />
             </div>
             <div className="min-w-0 flex-1">
-              <span
-                className="text-lg block truncate"
+              <h3
+                className="text-lg font-semibold text-gray-900 truncate"
                 title={supplier.fullName}
               >
                 {supplier.fullName}
-              </span>
-              <Badge
-                variant={supplier.isActive ? "default" : "secondary"}
-                className="mt-1"
-              >
-                {supplier.isActive ? "Activo" : "Inactivo"}
-              </Badge>
+              </h3>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="secondary" className="text-xs">
+                  ID: {supplier.id}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Proveedor
+                </Badge>
+                <div className="mt-1">
+                  {getStatusBadge(Boolean(supplier.isActive))}
+                </div>
+              </div>
             </div>
           </DialogTitle>
+          <DialogDescription
+            className="truncate"
+            title={`Información completa del proveedor ${supplier.fullName}`}
+          >
+            Información completa del proveedor {supplier.fullName}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
           {/* Contact Information */}
           <div className="space-y-3">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <Phone className="h-4 w-4" />
+              <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
               Información de Contacto
             </h4>
             <div className="grid grid-cols-2 gap-4 text-sm pl-6">
@@ -94,13 +127,13 @@ export function SupplierDetailsModal({
               )}
               {supplier.phone && (
                 <div className="flex items-center gap-2 min-w-0">
-                  <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   <span className="truncate">{supplier.phone}</span>
                 </div>
               )}
               {supplier.email && (
                 <div className="flex items-center gap-2 min-w-0">
-                  <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Mail className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   <span className="truncate" title={supplier.email}>
                     {supplier.email}
                   </span>
@@ -115,13 +148,13 @@ export function SupplierDetailsModal({
               <Separator />
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <Handshake className="h-4 w-4" />
+                  <Handshake className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   Información Personal y de Asociación
                 </h4>
                 <div className="grid grid-cols-2 gap-4 text-sm pl-6">
                   {supplier.birthDate && (
                     <div className="flex items-center gap-2">
-                      <Cake className="h-4 w-4 text-pink-500" />
+                      <Cake className="h-4 w-4 text-pink-500 flex-shrink-0" />
                       <span className="text-muted-foreground">
                         Fecha de Nacimiento:
                       </span>
@@ -132,7 +165,7 @@ export function SupplierDetailsModal({
                   )}
                   {(supplier.contractEndAt || supplier.isIndefinite) && (
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       <span className="text-muted-foreground">
                         Fin de contrato:
                       </span>
@@ -164,13 +197,13 @@ export function SupplierDetailsModal({
           {/* Location Information */}
           <div className="space-y-3">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-4 w-4 text-gray-500 flex-shrink-0" />
               Ubicación
             </h4>
             <div className="grid grid-cols-2 gap-4 text-sm pl-6">
               {supplier.address && (
                 <div className="col-span-2 flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <span>{supplier.address}</span>
                 </div>
               )}
@@ -200,7 +233,7 @@ export function SupplierDetailsModal({
               <Separator />
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
+                  <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   Notas
                 </h4>
                 <p className="text-sm text-muted-foreground pl-6">
@@ -216,7 +249,7 @@ export function SupplierDetailsModal({
               <Separator />
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <User className="h-4 w-4" />
+                  <User className="h-4 w-4 text-orange-600 flex-shrink-0" />
                   Gerentes Asignados
                 </h4>
                 <div className="flex flex-wrap gap-2 pl-6">
@@ -234,6 +267,9 @@ export function SupplierDetailsModal({
 
           {/* System Information - Componente compartido */}
           <SupplierAuditSection supplier={supplier} />
+        </div>
+        <div className="flex justify-end pt-4">
+          <Button onClick={onClose}>Cerrar</Button>
         </div>
       </DialogContent>
     </Dialog>
