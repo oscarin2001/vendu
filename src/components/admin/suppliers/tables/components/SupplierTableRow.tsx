@@ -47,7 +47,7 @@ export function SupplierTableRow({
     // Si el proveedor está activo y tiene encargados asignados, está aportando
     if (supplier.isActive && supplier.managers.length > 0) {
       return {
-        z push text: "Aporta",
+        text: "Aporta",
         variant: "default" as const,
         icon: TrendingUp,
         color: "text-white",
