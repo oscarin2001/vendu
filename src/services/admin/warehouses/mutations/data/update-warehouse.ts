@@ -4,6 +4,7 @@ import { getAuditService } from "@/services/shared/audit";
 import { prisma } from "@/lib/prisma";
 import { updateWarehouse } from "../../repos/data/warehouse-crud-repository";
 import { validateAdminPassword } from "@/services/admin/managers";
+import { getAuthCookie } from "@/services/auth/adapters";
 import {
   validateCompanyExists,
   validateWarehouseExists,
@@ -49,9 +50,21 @@ export async function updateWarehouseForCompany(
   if (maybeData._changeReason) delete maybeData._changeReason;
   if (confirmPassword) {
     try {
+      // Resolve employeeId from provided context or from the authenticated
+      // session cookie so validation runs against the real logged-in user.
+      let employeeIdToValidate = context?.employeeId;
+      if (!employeeIdToValidate) {
+        try {
+          const auth = await getAuthCookie();
+          if (auth?.userId) employeeIdToValidate = auth.userId;
+        } catch (err) {
+          // fallback: continue and let validateAdminPassword apply its own fallbacks
+        }
+      }
+
       await validateAdminPassword({
         tenantId,
-        employeeId: context?.employeeId,
+        employeeId: employeeIdToValidate,
         password: confirmPassword,
       });
     } catch (err: any) {
@@ -63,6 +76,7 @@ export async function updateWarehouseForCompany(
 
   const warehouse = await updateWarehouse(warehouseId, {
     ...normalizedData,
+    openedAt: (data as any).openedAt,
     updatedBy: context?.employeeId,
   });
 
@@ -109,6 +123,7 @@ export async function updateWarehouseForCompany(
     city: warehouse.city,
     department: warehouse.department ?? undefined,
     country: warehouse.country ?? undefined,
+    openedAt: warehouse.openedAt,
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
   };

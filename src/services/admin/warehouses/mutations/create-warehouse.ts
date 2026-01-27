@@ -86,6 +86,7 @@ export async function createWarehouse(
     city: warehouse.city,
     department: warehouse.department,
     country: warehouse.country,
+    openedAt: warehouse.openedAt,
     createdAt: warehouse.createdAt,
     updatedAt: warehouse.updatedAt || undefined,
   };

@@ -47,7 +47,8 @@ export async function updateWarehouse(
     department?: string;
     country?: string;
     updatedBy?: number;
-  }
+    openedAt?: Date | string | null;
+  },
 ) {
   const updateData: any = {
     ...data,
@@ -55,6 +56,11 @@ export async function updateWarehouse(
 
   if (data.updatedBy !== undefined) {
     updateData.FK_updatedBy = data.updatedBy;
+  }
+
+  // Map openedAt explicitly if provided
+  if (data.openedAt !== undefined) {
+    updateData.openedAt = data.openedAt;
   }
 
   delete updateData.updatedBy;

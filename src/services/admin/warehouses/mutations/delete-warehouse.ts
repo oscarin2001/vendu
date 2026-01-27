@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAuditService } from "@/services/shared/audit";
 import { validateAdminPassword } from "@/services/admin/managers";
+import { getAuthCookie } from "@/services/auth/adapters";
 
 interface UserContext {
   employeeId?: number;
@@ -26,10 +27,26 @@ export async function deleteWarehouse(
   password: string,
   context?: UserContext,
 ) {
-  // Validate password of the current user
+  // If no explicit employee context is provided, try to resolve the
+  // authenticated user from the server cookie (session) so password
+  // validation is always performed against the real logged-in user.
+  let employeeIdToValidate = context?.employeeId;
+
+  if (!employeeIdToValidate) {
+    try {
+      const auth = await getAuthCookie();
+      if (auth?.userId) {
+        employeeIdToValidate = auth.userId;
+      }
+    } catch (err) {
+      // ignore and fallback to existing behavior (will try other admin fallbacks)
+    }
+  }
+
+  // Validate password of the current user (resolved from context or cookie)
   await validateAdminPassword({
     tenantId,
-    employeeId: context?.employeeId,
+    employeeId: employeeIdToValidate,
     password,
   });
 

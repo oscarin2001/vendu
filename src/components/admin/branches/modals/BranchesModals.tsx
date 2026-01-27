@@ -133,7 +133,7 @@ export function BranchesModals({
     <>
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={onCreateModalChange}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Crear Sucursal</DialogTitle>
           </DialogHeader>
@@ -148,7 +148,7 @@ export function BranchesModals({
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={onEditModalChange}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Sucursal</DialogTitle>
           </DialogHeader>

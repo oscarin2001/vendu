@@ -133,15 +133,9 @@ export function BranchesPageContent() {
 
     setIsDeleting(true);
     try {
-      // TODO: Get real user context from authentication
-      const userContext = {
-        employeeId: 1, // Mock user ID
-        companyId: 1, // Mock company ID
-        ipAddress: "127.0.0.1", // Mock IP
-        userAgent: "Mock User Agent",
-      };
-
-      await deleteBranch(selectedBranch.id, password, userContext);
+      // Do not send mocked user context. Server will resolve the
+      // authenticated user from the cookie for password validation.
+      await deleteBranch(selectedBranch.id, password);
       handleDeleteCancel(); // Close all modals
     } catch (error) {
       // Error is handled by the hook

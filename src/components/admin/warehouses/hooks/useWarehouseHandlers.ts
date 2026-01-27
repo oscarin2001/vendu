@@ -14,14 +14,14 @@ export function useWarehouseHandlers({
   const { createWarehouse, updateWarehouse, deleteWarehouse } =
     useWarehouseOperations(tenantId, refresh);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(
-    null
+    null,
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
   const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">(
-    "initial"
+    "initial",
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -73,14 +73,9 @@ export function useWarehouseHandlers({
 
     setIsDeleting(true);
     try {
-      const userContext = {
-        employeeId: 1,
-        companyId: 1,
-        ipAddress: "127.0.0.1",
-        userAgent: "Mock User Agent",
-      };
-
-      await deleteWarehouse(selectedWarehouse.id, password, userContext);
+      // Do not send mocked user context. Server will resolve the
+      // authenticated user from the cookie for password validation.
+      await deleteWarehouse(selectedWarehouse.id, password);
       setIsDeleteModalOpen(false);
       setSelectedWarehouse(null);
       setAdminPassword("");
@@ -124,14 +119,9 @@ export function useWarehouseHandlers({
     if (!selectedWarehouse) return;
 
     try {
-      await updateWarehouse(selectedWarehouse.id, {
-        name: data.name,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        department: data.department,
-        country: data.country,
-      });
+      // Forward full data (including _confirmPassword and _changeReason)
+      // so server-side validation can validate the admin password when provided.
+      await updateWarehouse(selectedWarehouse.id, data);
       setIsEditModalOpen(false);
       setSelectedWarehouse(null);
       refresh();
