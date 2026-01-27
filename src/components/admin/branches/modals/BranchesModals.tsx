@@ -161,6 +161,7 @@ export function BranchesModals({
                 city: selectedBranch.city,
                 department: selectedBranch.department || "",
                 country: selectedBranch.country || "",
+                openedAt: selectedBranch.openedAt || null,
               }}
               onSubmit={onSubmitEdit}
               onEditRequest={handleEditRequest}

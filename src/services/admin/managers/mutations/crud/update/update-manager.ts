@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAuditService } from "@/services/shared/audit";
 import { validateAdminPassword } from "@/services/admin/managers";
+import { getAuthCookie } from "@/services/auth/adapters";
 import { UpdateManagerData } from "../../../validations/types/inferred.types";
 
 interface UserContext {
@@ -34,9 +35,20 @@ export async function updateManager(
   if (maybeData._changeReason) delete maybeData._changeReason;
   if (confirmPassword) {
     try {
+      // Resolve employeeId from provided context or from session cookie
+      let employeeIdToValidate = context?.employeeId;
+      if (!employeeIdToValidate) {
+        try {
+          const auth = await getAuthCookie();
+          if (auth?.userId) employeeIdToValidate = auth.userId;
+        } catch (err) {
+          // ignore and let validateAdminPassword fallback
+        }
+      }
+
       await validateAdminPassword({
         tenantId,
-        employeeId: context?.employeeId,
+        employeeId: employeeIdToValidate,
         password: confirmPassword,
       });
     } catch (err: any) {
@@ -218,6 +230,8 @@ export async function updateManager(
       salary: employee.salary,
       email: updatedAuth?.username,
       branchIds: finalManagerBranches.map((b) => b.FK_branch),
+      joinedAt: employee.joinedAt,
+      contractEndAt: employee.contractEndAt,
     };
 
     if (changeReason) {
@@ -245,5 +259,11 @@ export async function updateManager(
     salary: Number(employee.salary),
     email: updatedAuth?.username,
     branchIds: branchIds || [],
+    hireDate: employee.hireDate,
+    joinedAt: employee.joinedAt || null,
+    contractEndAt: employee.contractEndAt || null,
+    contractType: employee.contractType,
+    createdAt: employee.createdAt,
+    updatedAt: employee.updatedAt || undefined,
   };
 }

@@ -129,5 +129,10 @@ export async function createManager(
     lastName: result.employee.lastName,
     email: result.auth.username,
     branchIds: data.branchIds || [],
+    hireDate: result.employee.hireDate,
+    joinedAt: result.employee.joinedAt || null,
+    contractEndAt: result.employee.contractEndAt || null,
+    contractType: result.employee.contractType,
+    createdAt: result.employee.createdAt,
   };
 }

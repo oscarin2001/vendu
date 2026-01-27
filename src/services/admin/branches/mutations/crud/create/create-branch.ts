@@ -82,6 +82,7 @@ export async function createBranch(
     country: branch.country,
     latitude: branch.latitude,
     longitude: branch.longitude,
+    openedAt: branch.openedAt,
     createdAt: branch.createdAt,
   };
 }

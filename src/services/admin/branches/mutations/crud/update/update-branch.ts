@@ -17,6 +17,7 @@ interface UserContext {
  * @param tenantId - The company slug/tenant identifier
  * @param branchId - The branch ID to update
  * @param data - Branch update data
+ import { getAuthCookie } from "@/services/auth/adapters";
  * @param context - User context for auditing
  * @returns Updated branch information
  */
@@ -104,6 +105,9 @@ export async function updateBranch(
     {
       employeeId: context?.employeeId,
       companyId: oldBranch.FK_company || undefined,
+     openedAt: branch.openedAt,
+     createdAt: branch.createdAt,
+     updatedAt: branch.updatedAt || undefined,
       ipAddress: context?.ipAddress,
       userAgent: context?.userAgent,
     },
@@ -119,5 +123,8 @@ export async function updateBranch(
     country: branch.country,
     latitude: branch.latitude,
     longitude: branch.longitude,
-  };
+      openedAt: branch.openedAt,
+      createdAt: branch.createdAt,
+      updatedAt: branch.updatedAt || undefined,
+    };
 }

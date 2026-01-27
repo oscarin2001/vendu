@@ -155,6 +155,7 @@ export function WarehousesModals({
                 city: selectedWarehouse.city,
                 department: selectedWarehouse.department || "",
                 country: selectedWarehouse.country || companyCountry,
+                openedAt: selectedWarehouse.openedAt || null,
               }}
               onSubmit={onSubmitEdit}
               onEditRequest={handleEditRequest}
