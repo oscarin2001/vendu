@@ -38,6 +38,7 @@ import {
   removeWarehouseFromBranch,
 } from "@/services/admin/warehouses";
 import { toast } from "sonner";
+import { WarehouseAuditSection } from "./sections";
 
 interface WarehouseDetailsModalProps {
   warehouse: WarehouseType | null;
@@ -396,46 +397,8 @@ export function WarehouseDetailsModal({
 
           <Separator />
 
-          {/* System Information */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <Hash className="h-4 w-4" />
-              Información del Sistema
-            </h4>
-
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-muted-foreground" />
-                <span>ID: {warehouse.id}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Creado: {formatDate(warehouse.createdAt)}</span>
-              </div>
-
-              {warehouse.createdBy && (
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>Creado por: {warehouse.createdBy.name}</span>
-                </div>
-              )}
-
-              {warehouse.updatedAt && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Modificado: {formatDate(warehouse.updatedAt)}</span>
-                </div>
-              )}
-
-              {warehouse.updatedBy && (
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>Modificado por: {warehouse.updatedBy.name}</span>
-                </div>
-              )}
-            </div>
-          </div>
+          {/* System Information - Componente compartido */}
+          <WarehouseAuditSection warehouse={warehouse} />
 
           {/* Warehouse Overview */}
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4 border">

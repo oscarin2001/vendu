@@ -25,7 +25,7 @@ export async function findCompanyBySlug(slug: string) {
  */
 export async function findWarehouseByIdAndCompany(
   warehouseId: number,
-  companyId: number
+  companyId: number,
 ) {
   return await prisma.tbwarehouses.findFirst({
     where: {
@@ -55,7 +55,7 @@ export async function findWarehousesByCompany(companyId: number) {
  */
 export async function findWarehouseWithRelationsByIdAndCompany(
   warehouseId: number,
-  companyId: number
+  companyId: number,
 ) {
   return await prisma.tbwarehouses.findFirst({
     where: {
@@ -79,6 +79,20 @@ export async function findWarehouseWithRelationsByIdAndCompany(
       warehouseBranches: {
         include: {
           branch: true,
+        },
+      },
+      createdBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      updatedBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
         },
       },
     },
@@ -110,6 +124,20 @@ export async function findWarehousesWithRelationsByCompany(companyId: number) {
       warehouseBranches: {
         include: {
           branch: true,
+        },
+      },
+      createdBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      updatedBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
         },
       },
     },

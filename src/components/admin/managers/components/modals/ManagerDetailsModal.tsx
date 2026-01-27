@@ -32,6 +32,7 @@ import {
 import { Manager } from "@/services/admin/managers";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { ManagerAuditSection } from "./sections";
 
 interface ManagerDetailsModalProps {
   manager: Manager | null;
@@ -381,52 +382,9 @@ export function ManagerDetailsModal({
             )}
           </div>
 
-          {/* Información de Creación */}
-          {(manager.createdAt || manager.updatedAt) && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Información del Sistema
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  {manager.createdAt && (
-                    <div>
-                      <p className="text-muted-foreground">Creado</p>
-                      <p className="font-medium">
-                        {format(manager.createdAt, "PPP 'a las' p", {
-                          locale: es,
-                        })}
-                      </p>
-                      {manager.createdBy && (
-                        <p className="text-xs text-muted-foreground">
-                          por {manager.createdBy.name}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {manager.updatedAt && (
-                    <div>
-                      <p className="text-muted-foreground">
-                        Última actualización
-                      </p>
-                      <p className="font-medium">
-                        {format(manager.updatedAt, "PPP 'a las' p", {
-                          locale: es,
-                        })}
-                      </p>
-                      {manager.updatedBy && (
-                        <p className="text-xs text-muted-foreground">
-                          por {manager.updatedBy.name}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+          {/* Información del Sistema - Componente compartido */}
+          <Separator />
+          <ManagerAuditSection manager={manager} />
         </div>
 
         <div className="flex justify-end pt-4">

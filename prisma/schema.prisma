@@ -266,7 +266,9 @@ model tbemployee_profiles {
   homeAddress     String?
   deletedAt    DateTime? // Fecha de borrado lógico (soft-delete)
   createdAt    DateTime    @default(now())
+  updatedAt    DateTime?   @updatedAt // Fecha de última actualización
   FK_createdBy Int? // Usuario que creó el perfil del empleado
+  FK_updatedBy Int? // Usuario que actualizó el perfil del empleado
 
   // Configuraciones del sistema
   theme         Theme?    @default(SYSTEM)
@@ -327,6 +329,8 @@ model tbemployee_profiles {
   // Relación de auditoría para el propio perfil
   createdBy tbemployee_profiles? @relation("EmployeeCreatedBy", fields: [FK_createdBy], references: [PK_employee])
   employeesCreated tbemployee_profiles[] @relation("EmployeeCreatedBy")
+  updatedBy tbemployee_profiles? @relation("EmployeeUpdatedBy", fields: [FK_updatedBy], references: [PK_employee])
+  employeesUpdated tbemployee_profiles[] @relation("EmployeeUpdatedBy")
 }
 
 model tbcustomer_profiles {

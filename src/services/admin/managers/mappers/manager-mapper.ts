@@ -51,13 +51,18 @@ export function mapManagerFromDB(manager: any): Manager {
     },
     isActive,
     createdAt: manager.createdAt,
-    updatedAt: undefined, // tbemployee_profiles no tiene updatedAt
+    updatedAt: manager.updatedAt ?? undefined,
     createdBy: manager.createdBy
       ? {
           id: manager.createdBy.PK_employee,
           name: `${manager.createdBy.firstName} ${manager.createdBy.lastName}`,
         }
       : undefined,
-    updatedBy: undefined, // tbemployee_profiles no tiene relación updatedBy
+    updatedBy: manager.updatedBy
+      ? {
+          id: manager.updatedBy.PK_employee,
+          name: `${manager.updatedBy.firstName} ${manager.updatedBy.lastName}`,
+        }
+      : undefined,
   };
 }

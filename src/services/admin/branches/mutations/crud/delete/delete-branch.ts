@@ -24,10 +24,14 @@ export async function deleteBranch(
   tenantId: string,
   branchId: number,
   password: string,
-  context?: UserContext
+  context?: UserContext,
 ) {
-  // Validate admin password first
-  await validateAdminPassword(tenantId, "", password);
+  // Validate password of the current user
+  await validateAdminPassword({
+    tenantId,
+    employeeId: context?.employeeId,
+    password,
+  });
 
   // Obtener valores anteriores para auditoría
   const oldBranch = await prisma.tbbranches.findUnique({
@@ -74,7 +78,7 @@ export async function deleteBranch(
       companyId: oldBranch.FK_company || undefined,
       ipAddress: context?.ipAddress,
       userAgent: context?.userAgent,
-    }
+    },
   );
 
   return { success: true };

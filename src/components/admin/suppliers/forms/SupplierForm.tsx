@@ -205,39 +205,49 @@ export function SupplierForm({
               <div>
                 <span className="text-muted-foreground">Creado:</span>{" "}
                 <span className="font-medium">
-                  {new Date(supplierInfo.createdAt).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {new Date(supplierInfo.createdAt).toLocaleDateString(
+                    "es-ES",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
                 </span>
               </div>
               {supplierInfo.createdBy && (
                 <div>
                   <span className="text-muted-foreground">Creado por:</span>{" "}
-                  <span className="font-medium">{supplierInfo.createdBy.name}</span>
+                  <span className="font-medium">
+                    {supplierInfo.createdBy.name}
+                  </span>
                 </div>
               )}
               {supplierInfo.updatedAt && (
                 <div>
                   <span className="text-muted-foreground">Modificado:</span>{" "}
                   <span className="font-medium">
-                    {new Date(supplierInfo.updatedAt).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(supplierInfo.updatedAt).toLocaleDateString(
+                      "es-ES",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
                   </span>
                 </div>
               )}
               {supplierInfo.updatedBy && (
                 <div>
                   <span className="text-muted-foreground">Modificado por:</span>{" "}
-                  <span className="font-medium">{supplierInfo.updatedBy.name}</span>
+                  <span className="font-medium">
+                    {supplierInfo.updatedBy.name}
+                  </span>
                 </div>
               )}
             </div>

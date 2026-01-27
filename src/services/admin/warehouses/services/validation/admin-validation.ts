@@ -2,14 +2,22 @@
 
 import { validateAdminPassword } from "@/services/admin/managers";
 
+interface ValidateWarehousePasswordParams {
+  tenantId: string;
+  password: string;
+  employeeId?: number;
+}
+
 /**
  * Validate admin password for warehouse operations
- * @param tenantId - Company slug
- * @param password - Admin password
+ * @param params - Validation parameters including tenantId, password and employeeId
  */
 export async function validateWarehouseAdminPassword(
-  tenantId: string,
-  password: string
+  params: ValidateWarehousePasswordParams,
 ) {
-  await validateAdminPassword(tenantId, "", password);
+  await validateAdminPassword({
+    tenantId: params.tenantId,
+    employeeId: params.employeeId,
+    password: params.password,
+  });
 }

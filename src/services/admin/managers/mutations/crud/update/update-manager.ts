@@ -111,6 +111,8 @@ export async function updateManager(
         | "CONTRIBUTES"
         | "PAID",
     }),
+    // Agregar quién actualizó el registro
+    ...(context?.employeeId && { FK_updatedBy: context.employeeId }),
   };
 
   // Actualizar los datos básicos del empleado

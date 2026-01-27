@@ -347,7 +347,12 @@ export function WarehouseForm({
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => onCancel?.()}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onCancel?.()}
+        >
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">

@@ -24,10 +24,14 @@ export async function deleteWarehouse(
   tenantId: string,
   warehouseId: number,
   password: string,
-  context?: UserContext
+  context?: UserContext,
 ) {
-  // Validate admin password first
-  await validateAdminPassword(tenantId, "", password);
+  // Validate password of the current user
+  await validateAdminPassword({
+    tenantId,
+    employeeId: context?.employeeId,
+    password,
+  });
 
   const company = await prisma.tbcompanies.findUnique({
     where: { slug: tenantId },
@@ -59,7 +63,7 @@ export async function deleteWarehouse(
 
   if (managerAssignments > 0 || branchAssignments > 0) {
     throw new Error(
-      "No se puede eliminar la bodega con asignaciones activas. Remueva todas las asignaciones de gerentes y sucursales primero."
+      "No se puede eliminar la bodega con asignaciones activas. Remueva todas las asignaciones de gerentes y sucursales primero.",
     );
   }
 

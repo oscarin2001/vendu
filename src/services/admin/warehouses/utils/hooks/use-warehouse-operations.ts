@@ -27,11 +27,11 @@ interface UserContext {
  */
 export function useWarehouseOperations(
   tenantId: string,
-  onWarehouseChange?: () => void
+  onWarehouseChange?: () => void,
 ) {
   const handleCreateWarehouse = async (
     data: Parameters<typeof createWarehouse>[1],
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await createWarehouse(tenantId, data, context);
@@ -49,14 +49,14 @@ export function useWarehouseOperations(
   const handleUpdateWarehouse = async (
     warehouseId: number,
     data: Parameters<typeof updateWarehouse>[2],
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await updateWarehouse(
         tenantId,
         warehouseId,
         data,
-        context
+        context,
       );
       toast.success("Bodega actualizada exitosamente");
       onWarehouseChange?.();
@@ -72,7 +72,7 @@ export function useWarehouseOperations(
   const handleDeleteWarehouse = async (
     warehouseId: number,
     password: string,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       await deleteWarehouse(tenantId, warehouseId, password, context);
@@ -86,7 +86,7 @@ export function useWarehouseOperations(
       // Mostrar mensaje específico para asignaciones activas
       if (message.includes("asignaciones activas")) {
         toast.error(
-          "No se puede eliminar la bodega porque tiene asignaciones activas. Remueva primero todos los gerentes y sucursales asignadas desde 'Gestionar Bodega'."
+          "No se puede eliminar la bodega porque tiene asignaciones activas. Remueva primero todos los gerentes y sucursales asignadas desde 'Gestionar Bodega'.",
         );
       } else {
         toast.error(message);
@@ -98,14 +98,14 @@ export function useWarehouseOperations(
   const handleAssignManager = async (
     warehouseId: number,
     managerId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await assignManagerToWarehouse(
         tenantId,
         warehouseId,
         managerId,
-        context
+        context,
       );
       toast.success("Encargado asignado exitosamente");
       onWarehouseChange?.();
@@ -121,14 +121,14 @@ export function useWarehouseOperations(
   const handleRemoveManager = async (
     warehouseId: number,
     managerId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await removeManagerFromWarehouse(
         tenantId,
         warehouseId,
         managerId,
-        context
+        context,
       );
       toast.success("Encargado removido exitosamente");
       onWarehouseChange?.();
@@ -145,7 +145,7 @@ export function useWarehouseOperations(
     warehouseId: number,
     branchId: number,
     isPrimary: boolean = false,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await assignWarehouseToBranch(
@@ -153,7 +153,7 @@ export function useWarehouseOperations(
         warehouseId,
         branchId,
         isPrimary,
-        context
+        context,
       );
       toast.success("Bodega asignada a la sucursal exitosamente");
       onWarehouseChange?.();
@@ -171,14 +171,14 @@ export function useWarehouseOperations(
   const handleRemoveBranch = async (
     warehouseId: number,
     branchId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       const result = await removeWarehouseFromBranch(
         tenantId,
         warehouseId,
         branchId,
-        context
+        context,
       );
       toast.success("Warehouse removed from branch successfully");
       onWarehouseChange?.();

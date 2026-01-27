@@ -15,13 +15,12 @@ import {
   Mail,
   User,
   Calendar,
-  Hash,
   FileText,
   Cake,
   Handshake,
-  Clock,
 } from "lucide-react";
 import { Supplier } from "@/services/admin/suppliers";
+import { SupplierAuditSection } from "./sections";
 
 interface SupplierDetailsModalProps {
   supplier: Supplier | null;
@@ -233,47 +232,8 @@ export function SupplierDetailsModal({
 
           <Separator />
 
-          {/* System Information */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <Hash className="h-4 w-4" />
-              Información del Sistema
-            </h4>
-            <div className="grid grid-cols-2 gap-4 text-sm pl-6">
-              <div className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-muted-foreground" />
-                <span>ID: {supplier.id}</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-green-500" />
-                  <span className="text-muted-foreground">Creado:</span>
-                  <span>{formatDate(supplier.createdAt)}</span>
-                </div>
-                {supplier.createdBy && (
-                  <div className="text-xs text-muted-foreground ml-6">
-                    Por: {supplier.createdBy.name}
-                  </div>
-                )}
-              </div>
-              {supplier.updatedAt && (
-                <div className="space-y-1 col-span-2">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    <span className="text-muted-foreground">
-                      Última Modificación:
-                    </span>
-                    <span>{formatDate(supplier.updatedAt)}</span>
-                  </div>
-                  {supplier.updatedBy && (
-                    <div className="text-xs text-muted-foreground ml-6">
-                      Por: {supplier.updatedBy.name}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          {/* System Information - Componente compartido */}
+          <SupplierAuditSection supplier={supplier} />
         </div>
       </DialogContent>
     </Dialog>

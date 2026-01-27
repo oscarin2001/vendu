@@ -17,8 +17,21 @@ export function transformWarehouse(dbWarehouse: any): Warehouse {
     city: dbWarehouse.city,
     department: dbWarehouse.department,
     country: dbWarehouse.country,
+    openedAt: dbWarehouse.openedAt || undefined,
     createdAt: dbWarehouse.createdAt,
     updatedAt: dbWarehouse.updatedAt || undefined,
+    createdBy: dbWarehouse.createdBy
+      ? {
+          id: dbWarehouse.createdBy.PK_employee,
+          name: `${dbWarehouse.createdBy.firstName} ${dbWarehouse.createdBy.lastName}`,
+        }
+      : undefined,
+    updatedBy: dbWarehouse.updatedBy
+      ? {
+          id: dbWarehouse.updatedBy.PK_employee,
+          name: `${dbWarehouse.updatedBy.firstName} ${dbWarehouse.updatedBy.lastName}`,
+        }
+      : undefined,
   };
 }
 
@@ -28,7 +41,7 @@ export function transformWarehouse(dbWarehouse: any): Warehouse {
  * @returns Domain warehouse entity with relations
  */
 export function transformWarehouseWithRelations(
-  dbWarehouse: any
+  dbWarehouse: any,
 ): WarehouseWithRelations {
   return {
     ...transformWarehouse(dbWarehouse),
@@ -62,7 +75,7 @@ export function transformWarehouses(dbWarehouses: any[]): Warehouse[] {
  * @returns Array of domain warehouse entities with relations
  */
 export function transformWarehousesWithRelations(
-  dbWarehouses: any[]
+  dbWarehouses: any[],
 ): WarehouseWithRelations[] {
   return dbWarehouses.map(transformWarehouseWithRelations);
 }

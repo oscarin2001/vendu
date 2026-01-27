@@ -25,8 +25,12 @@ export async function deleteManager(
   password: string,
   context?: UserContext,
 ) {
-  // Validate admin password first
-  await validateAdminPassword(tenantId, "", password);
+  // Validate password of the current user
+  await validateAdminPassword({
+    tenantId,
+    employeeId: context?.employeeId,
+    password,
+  });
 
   const auditService = getAuditService(prisma);
 

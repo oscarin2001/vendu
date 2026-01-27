@@ -31,7 +31,7 @@ interface UserContext {
  */
 export function useWarehouseOperations(
   tenantId: string,
-  onSuccess?: () => void
+  onSuccess?: () => void,
 ) {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -42,7 +42,7 @@ export function useWarehouseOperations(
    */
   const createWarehouse = async (
     data: CreateWarehouseData,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     setIsCreating(true);
     try {
@@ -51,7 +51,7 @@ export function useWarehouseOperations(
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create warehouse"
+        error instanceof Error ? error.message : "Failed to create warehouse",
       );
       throw error;
     } finally {
@@ -65,7 +65,7 @@ export function useWarehouseOperations(
   const updateWarehouse = async (
     warehouseId: number,
     data: UpdateWarehouseData,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     setIsUpdating(true);
     try {
@@ -74,7 +74,7 @@ export function useWarehouseOperations(
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update warehouse"
+        error instanceof Error ? error.message : "Failed to update warehouse",
       );
       throw error;
     } finally {
@@ -88,7 +88,7 @@ export function useWarehouseOperations(
   const deleteWarehouse = async (
     warehouseId: number,
     password: string,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     setIsDeleting(true);
     try {
@@ -98,7 +98,7 @@ export function useWarehouseOperations(
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete warehouse"
+        error instanceof Error ? error.message : "Failed to delete warehouse",
       );
       throw error;
     } finally {
@@ -112,7 +112,7 @@ export function useWarehouseOperations(
   const assignManager = async (
     warehouseId: number,
     managerId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       await assignManagerToWarehouse(tenantId, warehouseId, managerId, context);
@@ -120,7 +120,7 @@ export function useWarehouseOperations(
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to assign manager"
+        error instanceof Error ? error.message : "Failed to assign manager",
       );
       throw error;
     }
@@ -132,20 +132,20 @@ export function useWarehouseOperations(
   const removeManager = async (
     warehouseId: number,
     managerId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       await removeManagerFromWarehouse(
         tenantId,
         warehouseId,
         managerId,
-        context
+        context,
       );
       toast.success("Encargado removido exitosamente");
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to remove manager"
+        error instanceof Error ? error.message : "Failed to remove manager",
       );
       throw error;
     }
@@ -158,7 +158,7 @@ export function useWarehouseOperations(
     warehouseId: number,
     branchId: number,
     isPrimary: boolean = false,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       await assignWarehouseToBranch(
@@ -166,7 +166,7 @@ export function useWarehouseOperations(
         warehouseId,
         branchId,
         isPrimary,
-        context
+        context,
       );
       toast.success("Bodega asignada a la sucursal exitosamente");
       onSuccess?.();
@@ -174,7 +174,7 @@ export function useWarehouseOperations(
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to assign warehouse to branch"
+          : "Failed to assign warehouse to branch",
       );
       throw error;
     }
@@ -186,7 +186,7 @@ export function useWarehouseOperations(
   const removeFromBranch = async (
     warehouseId: number,
     branchId: number,
-    context?: UserContext
+    context?: UserContext,
   ) => {
     try {
       await removeWarehouseFromBranch(tenantId, warehouseId, branchId, context);
@@ -196,7 +196,7 @@ export function useWarehouseOperations(
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to remove warehouse from branch"
+          : "Failed to remove warehouse from branch",
       );
       throw error;
     }

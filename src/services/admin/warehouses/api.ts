@@ -55,7 +55,7 @@ export async function getWarehouseById(tenantId: string, warehouseId: number) {
 export async function createWarehouse(
   tenantId: string,
   data: CreateWarehouseData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await createWarehouseForCompany(tenantId, data, context);
 }
@@ -72,7 +72,7 @@ export async function updateWarehouse(
   tenantId: string,
   warehouseId: number,
   data: UpdateWarehouseData,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await updateWarehouseForCompany(tenantId, warehouseId, data, context);
 }
@@ -89,10 +89,14 @@ export async function deleteWarehouse(
   tenantId: string,
   warehouseId: number,
   password: string,
-  context?: UserContext
+  context?: UserContext,
 ) {
-  // Validate admin password first
-  await validateWarehouseAdminPassword(tenantId, password);
+  // Validate password of the current user
+  await validateWarehouseAdminPassword({
+    tenantId,
+    employeeId: context?.employeeId,
+    password,
+  });
 
   return await deleteWarehouseForCompany(tenantId, warehouseId, context);
 }
@@ -109,13 +113,13 @@ export async function assignManagerToWarehouse(
   tenantId: string,
   warehouseId: number,
   managerId: number,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await mutateAssignManagerToWarehouse(
     tenantId,
     warehouseId,
     managerId,
-    context
+    context,
   );
 }
 
@@ -131,13 +135,13 @@ export async function removeManagerFromWarehouse(
   tenantId: string,
   warehouseId: number,
   managerId: number,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await mutateRemoveManagerFromWarehouse(
     tenantId,
     warehouseId,
     managerId,
-    context
+    context,
   );
 }
 
@@ -155,14 +159,14 @@ export async function assignWarehouseToBranch(
   warehouseId: number,
   branchId: number,
   isPrimary: boolean = false,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await mutateAssignWarehouseToBranch(
     tenantId,
     warehouseId,
     branchId,
     isPrimary,
-    context
+    context,
   );
 }
 
@@ -178,12 +182,12 @@ export async function removeWarehouseFromBranch(
   tenantId: string,
   warehouseId: number,
   branchId: number,
-  context?: UserContext
+  context?: UserContext,
 ) {
   return await mutateRemoveWarehouseFromBranch(
     tenantId,
     warehouseId,
     branchId,
-    context
+    context,
   );
 }

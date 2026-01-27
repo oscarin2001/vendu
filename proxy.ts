@@ -26,8 +26,12 @@ async function verifyJwtFromRequest(
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // DEBUG - remove after testing
+  console.log("[PROXY] pathname:", pathname);
+  console.log("[PROXY] cookies:", request.cookies.getAll());
 
   // Guest-only: if an authenticated user tries to access auth routes, redirect to their dashboard
   if (pathname.startsWith("/register-company")) {
@@ -74,7 +78,10 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/vendu/dashboard/")) {
     const auth = await verifyJwtFromRequest(request);
 
+    console.log("[PROXY] Dashboard route - auth result:", auth);
+
     if (!auth) {
+      console.log("[PROXY] No auth - REDIRECTING to login");
       return NextResponse.redirect(
         new URL("/register-company?mode=login", request.url),
       );

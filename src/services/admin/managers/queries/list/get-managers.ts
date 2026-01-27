@@ -48,6 +48,13 @@ export async function getManagersByCompany(tenantId: string) {
           lastName: true,
         },
       },
+      updatedBy: {
+        select: {
+          PK_employee: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
     orderBy: {
       hireDate: "desc",

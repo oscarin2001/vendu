@@ -260,40 +260,50 @@ export function ManagerForm({
                 <div>
                   <span className="text-muted-foreground">Creado:</span>{" "}
                   <span className="font-medium">
-                    {new Date(managerInfo.createdAt).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(managerInfo.createdAt).toLocaleDateString(
+                      "es-ES",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
                   </span>
                 </div>
               )}
               {managerInfo.createdBy && (
                 <div>
                   <span className="text-muted-foreground">Creado por:</span>{" "}
-                  <span className="font-medium">{managerInfo.createdBy.name}</span>
+                  <span className="font-medium">
+                    {managerInfo.createdBy.name}
+                  </span>
                 </div>
               )}
               {managerInfo.updatedAt && (
                 <div>
                   <span className="text-muted-foreground">Modificado:</span>{" "}
                   <span className="font-medium">
-                    {new Date(managerInfo.updatedAt).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(managerInfo.updatedAt).toLocaleDateString(
+                      "es-ES",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
                   </span>
                 </div>
               )}
               {managerInfo.updatedBy && (
                 <div>
                   <span className="text-muted-foreground">Modificado por:</span>{" "}
-                  <span className="font-medium">{managerInfo.updatedBy.name}</span>
+                  <span className="font-medium">
+                    {managerInfo.updatedBy.name}
+                  </span>
                 </div>
               )}
             </div>
@@ -302,7 +312,12 @@ export function ManagerForm({
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => onCancel?.()}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onCancel?.()}
+        >
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitDisabled} size="sm">
