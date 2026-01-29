@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Building2 } from "lucide-react";
 import { Branch } from "@/services/admin/branches";
 import {
   BranchHeader,
@@ -58,6 +59,29 @@ export function BranchDetailsModal({
           <Separator />
 
           <BranchAuditSection branch={branch} />
+
+          {/* Branch Overview */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-green-600" />
+                  Resumen Operativo
+                </h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Centro de distribución con encargados asignados
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-green-600">
+                  {branch.managers?.length || 0}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Encargados Activos
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

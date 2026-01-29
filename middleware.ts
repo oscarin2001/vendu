@@ -11,12 +11,16 @@ interface AuthPayload {
   privilege: string;
 }
 
-async function verifyJwtFromRequest(
-  request: NextRequest,
-): Promise<AuthPayload | null> {
+interface ManagerAuthPayload {
+  managerId: number;
+  email: string;
+  tenantId: string;
+  fullName: string;
+}
+
+async function verifyAdminAuth(request: NextRequest): Promise<AuthPayload | null> {
   const token = request.cookies.get("auth-token")?.value;
   if (!token) return null;
-
   try {
     const secret = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jose.jwtVerify(token, secret);
@@ -26,12 +30,48 @@ async function verifyJwtFromRequest(
   }
 }
 
+async function verifyManagerAuth(request: NextRequest): Promise<ManagerAuthPayload | null> {
+  const token = request.cookies.get("manager-auth-token")?.value;
+  if (!token) return null;
+  try {
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const { payload } = await jose.jwtVerify(token, secret);
+    return payload as unknown as ManagerAuthPayload;
+  } catch {
+    return null;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Manager login page - redirect if already authenticated
+  if (pathname === "/auth/manager/login") {
+    const managerAuth = await verifyManagerAuth(request);
+    if (managerAuth) {
+      return NextResponse.redirect(
+        new URL(`/vendu/dashboard/${managerAuth.tenantId}/manager`, request.url)
+      );
+    }
+    return NextResponse.next();
+  }
+
+  // Protect manager dashboard routes
+  if (pathname.includes("/manager") && pathname.startsWith("/vendu/dashboard/")) {
+    const managerAuth = await verifyManagerAuth(request);
+    if (!managerAuth) {
+      return NextResponse.redirect(new URL("/auth/manager/login", request.url));
+    }
+    const slugFromUrl = pathname.split("/")[3];
+    if (slugFromUrl !== managerAuth.tenantId) {
+      return NextResponse.redirect(new URL("/auth/manager/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
   // Guest-only: if an authenticated user tries to access auth routes, redirect to their dashboard
   if (pathname.startsWith("/register-company")) {
-    const auth = await verifyJwtFromRequest(request);
+    const auth = await verifyAdminAuth(request);
     const mode = request.nextUrl.searchParams.get("mode");
 
     // Allow login/register forms to render even if there is a cookie
@@ -71,8 +111,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect admin routes
-  if (pathname.startsWith("/vendu/dashboard/")) {
-    const auth = await verifyJwtFromRequest(request);
+  if (pathname.startsWith("/vendu/dashboard/") && pathname.includes("/admin")) {
+    const auth = await verifyAdminAuth(request);
 
     if (!auth) {
       return NextResponse.redirect(
@@ -106,5 +146,6 @@ export const config = {
     "/vendu/dashboard/:path*",
     "/register-company",
     "/register-company/:path*",
+    "/auth/manager/:path*",
   ],
 };

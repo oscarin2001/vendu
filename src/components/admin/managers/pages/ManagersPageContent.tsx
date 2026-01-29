@@ -7,14 +7,29 @@ import { Plus } from "lucide-react";
 import { ManagersMetricsGrid } from "@/components/admin/managers/metrics";
 import { ManagersFilters } from "@/components/admin/managers/shared/components";
 import { ManagersTable } from "@/components/admin/managers/tables";
-import { ManagersModals } from "@/components/admin/managers/components/modals/ManagersModals";
+import { ManagerForm } from "@/components/admin/managers/forms/ManagerForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ManagerDeleteInitialModal, ManagerDeleteWarningModal, ManagerDeleteFinalModal } from "@/components/admin/managers/components/modals/deleteModal";
+import { ManagerEditFinalModal } from "@/components/admin/managers/components/modals/editModal";
+import { ManagerServiceConfigModal } from "@/components/admin/managers/components/modals/ManagerServiceConfigModal";
+import { ManagerStatusToggleModal } from "@/components/admin/managers/components/modals/ManagerStatusToggleModal";
+import { ManagerDetailsModal } from "@/components/admin/managers/components/modals/ManagerDetailsModal";
 
 import { useManagers } from "@/services/admin/managers";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
+import { useCompany } from "@/services/admin/company";
 
 export function ManagersPageContent() {
   const params = useParams();
   const tenantId = params.tenantId as string;
+
+  // Get company data for country default
+  const { company } = useCompany(tenantId);
 
   // Custom hooks
   const {
@@ -50,6 +65,8 @@ export function ManagersPageContent() {
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
   const [isStatusToggleModalOpen, setIsStatusToggleModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">("initial");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Modal handlers
   const handleCreateManager = () => {
@@ -86,9 +103,12 @@ export function ManagersPageContent() {
     window.location.reload();
   };
 
-  const handleConfirmDelete = async (managerId: number, password: string) => {
+  const handleConfirmDelete = async (password: string) => {
+    if (!selectedManager) return;
+
+    setIsDeleting(true);
     try {
-      await deleteManager(managerId, password);
+      await deleteManager(selectedManager.id, password);
       setSelectedManager(null);
     } catch (error) {
       // Error is handled in the hook
@@ -164,28 +184,103 @@ export function ManagersPageContent() {
         onConfigureService={handleConfigureManager}
       />
 
-      {/* Modals */}
-      <ManagersModals
-        selectedManager={selectedManager}
-        isCreateModalOpen={isCreateModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        isDetailsModalOpen={isDetailsModalOpen}
-        isConfigureModalOpen={isConfigureModalOpen}
-        isStatusToggleModalOpen={isStatusToggleModalOpen}
-        isDeleteModalOpen={isDeleteModalOpen}
+      {/* Create Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Crear Nuevo Encargado</DialogTitle>
+          </DialogHeader>
+          <ManagerForm
+            onSubmit={handleCreateSubmit}
+            isLoading={isLoading}
+            mode="create"
+            branches={branches}
+            companyCountry={company?.country}
+            tenantId={tenantId}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Encargado</DialogTitle>
+          </DialogHeader>
+          {selectedManager && (
+            <ManagerForm
+              initialData={{
+                firstName: selectedManager.firstName,
+                lastName: selectedManager.lastName,
+                ci: selectedManager.ci,
+                phone: selectedManager.phone || "",
+                email: selectedManager.email,
+                birthDate: selectedManager.birthDate ? new Date(selectedManager.birthDate) : undefined,
+                homeAddress: selectedManager.homeAddress || "",
+                hireDate: new Date(selectedManager.hireDate),
+                salary: selectedManager.salary,
+                contractEndAt: selectedManager.contractEndAt ? new Date(selectedManager.contractEndAt) : undefined,
+                isIndefinite: selectedManager.isIndefinite,
+              }}
+              onSubmit={handleEditSubmit}
+              isLoading={isLoading}
+              mode="edit"
+              branches={branches}
+              companyCountry={company?.country}
+              tenantId={tenantId}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Modal */}
+      <ManagerDetailsModal
+        manager={selectedManager}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
+
+      {/* Service Configuration Modal */}
+      <ManagerServiceConfigModal
+        manager={selectedManager}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
         tenantId={tenantId}
-        branches={branches}
-        onCreateModalChange={setIsCreateModalOpen}
-        onEditModalChange={setIsEditModalOpen}
-        onDetailsModalChange={setIsDetailsModalOpen}
-        onConfigureModalChange={setIsConfigureModalOpen}
-        onStatusToggleModalChange={setIsStatusToggleModalOpen}
-        onDeleteModalChange={setIsDeleteModalOpen}
-        onSubmitCreate={handleCreateSubmit}
-        onSubmitEdit={handleEditSubmit}
-        onConfirmStatusToggle={handleConfirmStatusToggle}
-        onConfirmDelete={handleConfirmDelete}
-        onRefresh={refresh}
+        onSuccess={handleReloadManagers}
+      />
+
+      {/* Status Toggle Modal */}
+      <ManagerStatusToggleModal
+        manager={selectedManager}
+        isOpen={isStatusToggleModalOpen}
+        onClose={() => setIsStatusToggleModalOpen(false)}
+        onConfirm={handleConfirmStatusToggle}
+        isLoading={isLoading}
+      />
+
+      {/* Delete Modals */}
+      <ManagerDeleteInitialModal
+        manager={selectedManager}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onNext={() => setDeleteStep("warning")}
+      />
+
+      <ManagerDeleteWarningModal
+        manager={selectedManager}
+        isOpen={deleteStep === "warning"}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onNext={() => setDeleteStep("final")}
+        onPrevious={() => setDeleteStep("initial")}
+      />
+
+      <ManagerDeleteFinalModal
+        manager={selectedManager}
+        isOpen={deleteStep === "final"}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onPrevious={() => setDeleteStep("warning")}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

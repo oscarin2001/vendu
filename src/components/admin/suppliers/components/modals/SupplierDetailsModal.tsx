@@ -267,6 +267,29 @@ export function SupplierDetailsModal({
 
           {/* System Information - Componente compartido */}
           <SupplierAuditSection supplier={supplier} />
+
+          {/* Supplier Overview */}
+          <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-orange-600" />
+                  Resumen Operativo
+                </h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Proveedor con capacidad para atender múltiples encargados
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-orange-600">
+                  {supplier.managers?.length || 0}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Encargados Asignados
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex justify-end pt-4">
           <Button onClick={onClose}>Cerrar</Button>

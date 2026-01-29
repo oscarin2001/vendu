@@ -72,6 +72,7 @@ export function SupplierTableRow({
   };
 
   const contribution = getSupplierContribution(supplier);
+  const ContributionIcon = contribution.icon;
 
   return (
     <TableRow>
@@ -89,15 +90,15 @@ export function SupplierTableRow({
               {supplier.city && supplier.department && supplier.country
                 ? `${supplier.city}, ${supplier.department}, ${supplier.country}`
                 : supplier.city && supplier.department
-                ? `${supplier.city}, ${supplier.department}`
-                : supplier.city && supplier.country
-                ? `${supplier.city}, ${supplier.country}`
-                : supplier.department && supplier.country
-                ? `${supplier.department}, ${supplier.country}`
-                : supplier.city ||
-                  supplier.department ||
-                  supplier.country ||
-                  "Sin ubicación"}
+                  ? `${supplier.city}, ${supplier.department}`
+                  : supplier.city && supplier.country
+                    ? `${supplier.city}, ${supplier.country}`
+                    : supplier.department && supplier.country
+                      ? `${supplier.department}, ${supplier.country}`
+                      : supplier.city ||
+                        supplier.department ||
+                        supplier.country ||
+                        "Sin ubicación"}
             </div>
           </div>
         </div>
@@ -139,7 +140,7 @@ export function SupplierTableRow({
       </TableCell>
       <TableCell>
         <Badge variant={contribution.variant} className="text-xs">
-          <contribution.icon className={`w-3 h-3 mr-1 ${contribution.color}`} />
+          <ContributionIcon className={`w-3 h-3 mr-1 ${contribution.color}`} />
           {contribution.text}
         </Badge>
       </TableCell>

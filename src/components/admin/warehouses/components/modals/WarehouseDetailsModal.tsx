@@ -1,6 +1,8 @@
 "use client";
 
-import {
+
+
+import {  
   Dialog,
   DialogContent,
   DialogHeader,
@@ -16,10 +18,7 @@ import {
   User,
   Calendar,
   Hash,
-  Mail,
-  Plus,
   X,
-  Settings,
   Building2,
   Star,
   Shield,
@@ -29,16 +28,8 @@ import {
 } from "lucide-react";
 import { Warehouse as WarehouseType } from "@/services/admin/warehouses/types/warehouse.types";
 import { useState, useEffect } from "react";
-import { getManagersByCompany } from "@/services/admin/managers";
-import { getBranchesByCompany } from "@/services/admin/branches";
-import {
-  assignManagerToWarehouse,
-  removeManagerFromWarehouse,
-  assignWarehouseToBranch,
-  removeWarehouseFromBranch,
-} from "@/services/admin/warehouses";
-import { toast } from "sonner";
 import { WarehouseAuditSection } from "./sections";
+import { WarehouseAssignManagerModal, WarehouseAssignBranchModal } from "./assignModal";
 
 interface WarehouseDetailsModalProps {
   warehouse: WarehouseType | null;
@@ -63,124 +54,14 @@ export function WarehouseDetailsModal({
   onClose,
   tenantId,
 }: WarehouseDetailsModalProps) {
-  const [availableManagers, setAvailableManagers] = useState<any[]>([]);
-  const [availableBranches, setAvailableBranches] = useState<any[]>([]);
-  const [isLoadingManagers, setIsLoadingManagers] = useState(false);
-  const [isLoadingBranches, setIsLoadingBranches] = useState(false);
-  const [isAssigning, setIsAssigning] = useState(false);
+  const [isAssignManagerModalOpen, setIsAssignManagerModalOpen] = useState(false);
+  const [isAssignBranchModalOpen, setIsAssignBranchModalOpen] = useState(false);
 
   useEffect(() => {
-    if (isOpen && warehouse) {
-      loadAvailableManagers();
-      loadAvailableBranches();
-    }
+    // Modal is now read-only, no need to load data for assignments
   }, [isOpen, warehouse]);
 
-  const loadAvailableManagers = async () => {
-    setIsLoadingManagers(true);
-    try {
-      const managers = await getManagersByCompany(tenantId);
-      // Filter out already assigned managers
-      const assignedIds = warehouse?.managers?.map((m) => m.id) || [];
-      const available = managers.filter(
-        (m: any) => !assignedIds.includes(m.id),
-      );
-      setAvailableManagers(available);
-    } catch (error) {
-      console.error("Error al cargar gerentes:", error);
-      toast.error("Error al cargar gerentes");
-    } finally {
-      setIsLoadingManagers(false);
-    }
-  };
 
-  const loadAvailableBranches = async () => {
-    setIsLoadingBranches(true);
-    try {
-      const branches = await getBranchesByCompany(tenantId);
-      // Filter out already assigned branches
-      const assignedIds = warehouse?.branches?.map((b) => b.id) || [];
-      const available = branches.filter((b) => !assignedIds.includes(b.id));
-      setAvailableBranches(available);
-    } catch (error) {
-      console.error("Error al cargar sucursales:", error);
-      toast.error("Error al cargar sucursales");
-    } finally {
-      setIsLoadingBranches(false);
-    }
-  };
-
-  const handleAssignManager = async (managerId: number) => {
-    if (!warehouse) return;
-    setIsAssigning(true);
-    try {
-      await assignManagerToWarehouse(tenantId, warehouse.id, managerId);
-      toast.success("Gerente asignado exitosamente a la bodega");
-      onClose();
-    } catch (error) {
-      console.error("Error al asignar gerente:", error);
-      toast.error("Error al asignar gerente");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
-
-  const handleRemoveManager = async (managerId: number) => {
-    if (!warehouse) return;
-    setIsAssigning(true);
-    try {
-      await removeManagerFromWarehouse(tenantId, warehouse.id, managerId);
-      toast.success("Gerente removido de la bodega exitosamente");
-      onClose();
-    } catch (error) {
-      console.error("Error al remover gerente:", error);
-      toast.error("Error al remover gerente");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
-
-  const handleAssignBranch = async (
-    branchId: number,
-    isPrimary: boolean = false,
-  ) => {
-    if (!warehouse) return;
-    setIsAssigning(true);
-    try {
-      await assignWarehouseToBranch(
-        tenantId,
-        warehouse.id,
-        branchId,
-        isPrimary,
-      );
-      toast.success(
-        isPrimary
-          ? "Sucursal designada como bodega principal exitosamente"
-          : "Sucursal agregada como bodega secundaria exitosamente",
-      );
-      onClose();
-    } catch (error) {
-      console.error("Error al asignar sucursal:", error);
-      toast.error("Error al asignar sucursal");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
-
-  const handleRemoveBranch = async (branchId: number) => {
-    if (!warehouse) return;
-    setIsAssigning(true);
-    try {
-      await removeWarehouseFromBranch(tenantId, warehouse.id, branchId);
-      toast.success("Servicio de distribución removido exitosamente");
-      onClose();
-    } catch (error) {
-      console.error("Error al remover sucursal:", error);
-      toast.error("Error al remover el servicio de distribución");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
 
   if (!warehouse) return null;
 
@@ -189,10 +70,28 @@ export function WarehouseDetailsModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Warehouse className="h-5 w-5 text-orange-600" />
+            <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+              <Warehouse className="h-5 w-5 text-orange-600 flex-shrink-0" />
             </div>
-            Detalles de la Bodega
+            <div className="min-w-0 flex-1">
+              <h3
+                className="text-lg font-semibold text-gray-900 truncate"
+                title={warehouse.name}
+              >
+                {warehouse.name}
+              </h3>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="secondary" className="text-xs">
+                  ID: {warehouse.id}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Bodega
+                </Badge>
+                <Badge variant="default" className="text-xs bg-orange-100 text-orange-800">
+                  Activa
+                </Badge>
+              </div>
+            </div>
           </DialogTitle>
         </DialogHeader>
 
@@ -344,10 +243,20 @@ export function WarehouseDetailsModal({
 
               {/* Manager Information */}
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Gestión de Personal
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Gestión de Personal
+                  </h4>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAssignManagerModalOpen(true)}
+                  >
+                    <User className="h-4 w-4 mr-1" />
+                    Asignar Gerente
+                  </Button>
+                </div>
 
                 {warehouse.managers && warehouse.managers.length > 0 ? (
                   <div className="space-y-3">
@@ -374,14 +283,6 @@ export function WarehouseDetailsModal({
                             )}
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled
-                          className="text-gray-400 cursor-not-allowed"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                        </Button>
                       </div>
                     ))}
                   </div>
@@ -430,11 +331,19 @@ export function WarehouseDetailsModal({
                 <Building2 className="h-5 w-5 text-blue-600" />
                 Áreas de Servicio Designadas
               </h4>
-              <Badge variant="outline" className="text-xs">
-                {warehouse.branches?.length || 0} de{" "}
-                {availableBranches.length + (warehouse.branches?.length || 0)}{" "}
-                disponibles
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  {warehouse.branches?.length || 0} asignadas
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAssignBranchModalOpen(true)}
+                >
+                  <Building2 className="h-4 w-4 mr-1" />
+                  Asignar Sucursal
+                </Button>
+              </div>
             </div>
 
             {/* Current Service Assignments */}
@@ -497,15 +406,6 @@ export function WarehouseDetailsModal({
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled
-                        className="text-gray-400 cursor-not-allowed"
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Solo lectura
-                      </Button>
                     </div>
                   ))}
                 </div>
@@ -523,6 +423,22 @@ export function WarehouseDetailsModal({
             )}
           </div>
         </div>
+
+        {/* Assign Manager Modal */}
+        <WarehouseAssignManagerModal
+          warehouse={warehouse}
+          isOpen={isAssignManagerModalOpen}
+          onClose={() => setIsAssignManagerModalOpen(false)}
+          tenantId={tenantId}
+        />
+
+        {/* Assign Branch Modal */}
+        <WarehouseAssignBranchModal
+          warehouse={warehouse}
+          isOpen={isAssignBranchModalOpen}
+          onClose={() => setIsAssignBranchModalOpen(false)}
+          tenantId={tenantId}
+        />
       </DialogContent>
     </Dialog>
   );

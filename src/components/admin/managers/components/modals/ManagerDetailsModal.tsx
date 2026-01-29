@@ -128,9 +128,32 @@ export function ManagerDetailsModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5 flex-shrink-0" />
-            Detalles del Encargado
+          <DialogTitle className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+              <User className="h-5 w-5 text-blue-600 flex-shrink-0" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3
+                className="text-lg font-semibold text-gray-900 truncate"
+                title={manager.fullName}
+              >
+                {manager.fullName}
+              </h3>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="secondary" className="text-xs">
+                  ID: {manager.id}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Encargado
+                </Badge>
+                <div className="mt-1">
+                  {getStatusBadge(manager.status)}
+                </div>
+                <div className="mt-1">
+                  {getConnectionStatusBadge(manager.connectionStatus)}
+                </div>
+              </div>
+            </div>
           </DialogTitle>
           <DialogDescription
             className="truncate"
@@ -140,24 +163,6 @@ export function ManagerDetailsModal({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-6 mt-4">
-          <div className="min-w-0">
-            <h3
-              className="text-lg font-semibold text-gray-900 truncate"
-              title={manager.fullName}
-            >
-              {manager.fullName}
-            </h3>
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <Badge variant="secondary" className="text-xs">
-                ID: {manager.id}
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                Encargado
-              </Badge>
-            </div>
-          </div>
-
-          <Separator />
           {/* Información Personal */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -413,7 +418,7 @@ export function ManagerDetailsModal({
                   Resumen Operativo
                 </h4>
                 <p className="text-sm text-gray-600 mt-1">
-                  Información rápida del encargado y su cobertura
+                  Encargado con responsabilidad sobre múltiples sucursales
                 </p>
               </div>
               <div className="text-right">

@@ -1,0 +1,1 @@
+export { ManagerEditFinalModal } from "./ManagerEditFinalModal";

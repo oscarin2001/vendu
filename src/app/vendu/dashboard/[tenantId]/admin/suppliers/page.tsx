@@ -12,11 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SupplierDeleteInitialModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteInitialModal";
-import { SupplierDeleteWarningModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteWarningModal";
-import { SupplierDeleteFinalModal } from "@/components/admin/suppliers/components/modals/SupplierDeleteFinalModal";
+import { SupplierDeleteInitialModal, SupplierDeleteWarningModal, SupplierDeleteFinalModal } from "@/components/admin/suppliers/components/modals/deleteModal";
+import { SupplierEditFinalModal } from "@/components/admin/suppliers/components/modals/editModal";
 import { SupplierServiceConfigModal } from "@/components/admin/suppliers/components/modals/SupplierServiceConfigModal";
 import { SupplierStatusToggleModal } from "@/components/admin/suppliers/components/modals/SupplierStatusToggleModal";
+import { SupplierDetailsModal } from "@/components/admin/suppliers/components/modals/SupplierDetailsModal";
 import { useSuppliers } from "@/services/admin/suppliers";
 import { useCompany } from "@/services/admin/company";
 import { validateAdminPassword } from "@/services/admin/managers";
@@ -280,99 +280,11 @@ export default function SuppliersPage() {
       </Dialog>
 
       {/* Details Modal */}
-      <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalles del Proveedor</DialogTitle>
-          </DialogHeader>
-          {selectedSupplier && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Nombre Completo</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.fullName}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Email</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.email || "No especificado"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Teléfono</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.phone || "No especificado"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Ubicación</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.city &&
-                    selectedSupplier.department &&
-                    selectedSupplier.country
-                      ? `${selectedSupplier.city}, ${selectedSupplier.department}, ${selectedSupplier.country}`
-                      : selectedSupplier.city && selectedSupplier.department
-                        ? `${selectedSupplier.city}, ${selectedSupplier.department}`
-                        : selectedSupplier.city && selectedSupplier.country
-                          ? `${selectedSupplier.city}, ${selectedSupplier.country}`
-                          : selectedSupplier.department &&
-                              selectedSupplier.country
-                            ? `${selectedSupplier.department}, ${selectedSupplier.country}`
-                            : selectedSupplier.city ||
-                              selectedSupplier.department ||
-                              selectedSupplier.country ||
-                              "No especificada"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Encargado</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.managers.length > 0
-                      ? selectedSupplier.managers.map((m) => m.name).join(", ")
-                      : "Sin asignar"}
-                  </p>
-                </div>
-              </div>
-              {selectedSupplier.address && (
-                <div>
-                  <label className="text-sm font-medium">Dirección</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.address}
-                  </p>
-                </div>
-              )}
-              {selectedSupplier.notes && (
-                <div>
-                  <label className="text-sm font-medium">Notas</label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.notes}
-                  </p>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div>
-                  <label className="text-sm font-medium">Creado</label>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(selectedSupplier.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">
-                    Última actualización
-                  </label>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedSupplier.updatedAt
-                      ? new Date(selectedSupplier.updatedAt).toLocaleString()
-                      : "No disponible"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <SupplierDetailsModal
+        supplier={selectedSupplier}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
 
       {/* Delete Modals */}
       <SupplierDeleteInitialModal

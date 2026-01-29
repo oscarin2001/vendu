@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { WarehouseDetailsModal } from "@/components/admin/warehouses/components/modals/WarehouseDetailsModal";
 import { WarehouseServiceConfigModal } from "@/components/admin/warehouses/components/modals/WarehouseServiceConfigModal";
-import { WarehouseDeleteInitialModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteInitialModal";
-import { WarehouseDeleteWarningModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteWarningModal";
-import { WarehouseDeleteFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseDeleteFinalModal";
-import { WarehouseEditFinalModal } from "@/components/admin/warehouses/components/modals/WarehouseEditFinalModal";
+import {
+  WarehouseDeleteInitialModal,
+  WarehouseDeleteWarningModal,
+  WarehouseDeleteFinalModal,
+} from "@/components/admin/warehouses/components/modals/deleteModal";
+import { WarehouseEditFinalModal } from "@/components/admin/warehouses/components/modals/editModal";
 import { WarehouseForm } from "@/components/admin/warehouses/forms/WarehouseForm";
 import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import {

@@ -6,7 +6,7 @@ import { BranchesMetrics } from "@/components/admin/branches/metrics";
 import { BranchesFilters } from "@/components/admin/branches/shared/components";
 import { BranchesTable } from "@/components/admin/branches/tables/BranchesTable";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
-import { BranchesModals } from "@/components/admin/branches/modals/BranchesModals";
+import { BranchDetailsModal } from "@/components/admin/branches/modals/details/BranchDetailsModal";
 import { AuditHistory } from "@/components/admin/shared/audit";
 import {
   Dialog,
@@ -180,38 +180,14 @@ export function BranchesPageContent() {
         onViewHistory={handleViewHistory}
       />
 
-      <BranchesModals
-        selectedBranch={selectedBranch}
-        tenantId={tenantId}
-        companyCountry={company?.country}
-        isCreateModalOpen={isCreateModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        isDetailsModalOpen={isDetailsModalOpen}
-        isConfigureModalOpen={isConfigureModalOpen}
-        isDeleteDialogOpen={isDeleteDialogOpen}
-        isDeleteWarningModalOpen={isDeleteWarningModalOpen}
-        isDeleteFinalModalOpen={isDeleteFinalModalOpen}
-        isDeleting={isDeleting}
-        onCreateModalChange={setIsCreateModalOpen}
-        onEditModalChange={setIsEditModalOpen}
-        onDetailsModalChange={setIsDetailsModalOpen}
-        onConfigureModalChange={setIsConfigureModalOpen}
-        onDeleteNext={handleDeleteNextStep}
-        onDeletePrevious={handleDeletePreviousStep}
-        onDeleteCancel={handleDeleteCancel}
-        onSubmitCreate={async (data: any) => {
-          await createBranch(data);
-          setIsCreateModalOpen(false);
-        }}
-        onSubmitEdit={async (data: any) => {
-          if (!selectedBranch) return;
-          await updateBranch(selectedBranch.id, data);
-          setIsEditModalOpen(false);
-          setSelectedBranch(null);
-        }}
-        onConfirmDelete={handleConfirmDelete}
-        onRefresh={refresh}
+      {/* Details Modal */}
+      <BranchDetailsModal
+        branch={selectedBranch}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
+
+      {/* TODO: Add other individual modals here following the standard pattern */}
 
       {/* Audit History Modal */}
       {selectedBranch && (

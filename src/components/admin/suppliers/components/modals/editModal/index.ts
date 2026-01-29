@@ -1,0 +1,1 @@
+export { SupplierEditFinalModal } from "./SupplierEditFinalModal";
