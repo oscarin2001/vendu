@@ -7,6 +7,7 @@ import { BranchesFilters } from "@/components/admin/branches/shared/components";
 import { BranchesTable } from "@/components/admin/branches/tables/BranchesTable";
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
 import { BranchDetailsModal } from "@/components/admin/branches/modals/details/BranchDetailsModal";
+import { BranchServiceConfigModal } from "@/components/admin/branches/modals/service/BranchServiceConfigModal";
 import { AuditHistory } from "@/components/admin/shared/audit";
 import {
   Dialog,
@@ -144,6 +145,27 @@ export function BranchesPageContent() {
     }
   };
 
+  // Form handlers
+  const handleCreateSubmit = async (data: any) => {
+    try {
+      await createBranch(data);
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
+
+  const handleEditSubmit = async (data: any) => {
+    if (!selectedBranch) return;
+
+    try {
+      await updateBranch(selectedBranch.id, data);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -201,6 +223,61 @@ export function BranchesPageContent() {
           entityId={selectedBranch.id.toString()}
         />
       )}
+
+      {/* Create Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Sucursal</DialogTitle>
+          </DialogHeader>
+          <BranchForm
+            onSubmit={handleCreateSubmit}
+            isLoading={isLoading}
+            mode="create"
+            companyCountry={company?.country}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Sucursal</DialogTitle>
+          </DialogHeader>
+          <BranchForm
+            initialData={selectedBranch ? {
+              name: selectedBranch.name,
+              phone: selectedBranch.phone || "",
+              address: selectedBranch.address,
+              city: selectedBranch.city,
+              department: selectedBranch.department || "",
+              country: selectedBranch.country || "",
+              openedAt: selectedBranch.openedAt,
+            } : undefined}
+            onSubmit={handleEditSubmit}
+            isLoading={isLoading}
+            mode="edit"
+            branchInfo={selectedBranch ? {
+              id: selectedBranch.id,
+              createdAt: selectedBranch.createdAt,
+              updatedAt: selectedBranch.updatedAt,
+              createdBy: selectedBranch.createdBy,
+              updatedBy: selectedBranch.updatedBy,
+            } : undefined}
+            companyCountry={company?.country}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Configure Modal */}
+      <BranchServiceConfigModal
+        branch={selectedBranch}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={refresh}
+      />
     </div>
   );
 }
