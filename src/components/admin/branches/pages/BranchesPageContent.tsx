@@ -8,6 +8,13 @@ import { BranchesTable } from "@/components/admin/branches/tables/BranchesTable"
 import { BranchForm } from "@/components/admin/branches/forms/BranchForm";
 import { BranchDetailsModal } from "@/components/admin/branches/modals/details/BranchDetailsModal";
 import { BranchServiceConfigModal } from "@/components/admin/branches/modals/service/BranchServiceConfigModal";
+import {
+  BranchDeleteInitialModal,
+  BranchDeleteWarningModal,
+  BranchDeleteFinalModal,
+} from "@/components/admin/branches/modals/delete";
+import { BranchEditFinalModal } from "@/components/admin/branches/modals/edit/BranchEditFinalModal";
+import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import { AuditHistory } from "@/components/admin/shared/audit";
 import {
   Dialog,
@@ -19,6 +26,7 @@ import { useBranches } from "@/services/admin/branches/hooks/useBranches";
 import { useCompany } from "@/services/admin/company";
 import { Branch } from "@/services/admin/branches";
 import { Building2 } from "lucide-react";
+import type { FieldChange } from "@/services/admin/shared/hooks/change-tracking";
 
 export function BranchesPageContent() {
   const params = useParams();
@@ -57,14 +65,21 @@ export function BranchesPageContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isAuditHistoryOpen, setIsAuditHistoryOpen] = useState(false);
+
   // Delete flow states
-  const [deleteStep, setDeleteStep] = useState<1 | 2 | 3>(1);
-  const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] =
-    useState(false);
-  const [isDeleteFinalModalOpen, setIsDeleteFinalModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">("initial");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Edit flow states (with change tracking)
+  const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState<any>(null);
+  const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   // Modal handlers
   const handleCreateBranch = () => {
@@ -91,42 +106,33 @@ export function BranchesPageContent() {
     setIsAuditHistoryOpen(true);
   };
 
+  // Delete flow handlers
   const handleDeleteBranchStart = (branch: Branch) => {
     setSelectedBranch(branch);
-    setDeleteStep(1);
-    setIsDeleteDialogOpen(true);
+    setDeleteStep("initial");
+    setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteNextStep = () => {
-    if (deleteStep === 1) {
-      setIsDeleteDialogOpen(false);
-      setIsDeleteWarningModalOpen(true);
-      setDeleteStep(2);
-    } else if (deleteStep === 2) {
-      setIsDeleteWarningModalOpen(false);
-      setIsDeleteFinalModalOpen(true);
-      setDeleteStep(3);
+  const handleDeleteNext = () => {
+    if (deleteStep === "initial") {
+      setDeleteStep("warning");
+    } else if (deleteStep === "warning") {
+      setDeleteStep("final");
     }
   };
 
-  const handleDeletePreviousStep = () => {
-    if (deleteStep === 2) {
-      setIsDeleteWarningModalOpen(false);
-      setIsDeleteDialogOpen(true);
-      setDeleteStep(1);
-    } else if (deleteStep === 3) {
-      setIsDeleteFinalModalOpen(false);
-      setIsDeleteWarningModalOpen(true);
-      setDeleteStep(2);
+  const handleDeletePrevious = () => {
+    if (deleteStep === "warning") {
+      setDeleteStep("initial");
+    } else if (deleteStep === "final") {
+      setDeleteStep("warning");
     }
   };
 
-  const handleDeleteCancel = () => {
-    setIsDeleteDialogOpen(false);
-    setIsDeleteWarningModalOpen(false);
-    setIsDeleteFinalModalOpen(false);
+  const handleCloseModals = () => {
+    setIsDeleteModalOpen(false);
     setSelectedBranch(null);
-    setDeleteStep(1);
+    setDeleteStep("initial");
   };
 
   const handleConfirmDelete = async (password: string) => {
@@ -134,14 +140,59 @@ export function BranchesPageContent() {
 
     setIsDeleting(true);
     try {
-      // Do not send mocked user context. Server will resolve the
-      // authenticated user from the cookie for password validation.
       await deleteBranch(selectedBranch.id, password);
-      handleDeleteCancel(); // Close all modals
+      handleCloseModals();
     } catch (error) {
       // Error is handled by the hook
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Edit flow handlers (with change tracking)
+  const handleEditRequest = (data: any, changes: FieldChange[]) => {
+    setPendingEditData(data);
+    setPendingChanges(changes);
+    setIsChangeReasonOpen(true);
+  };
+
+  const handleConfirmEditWithReason = (reason: string) => {
+    if (!pendingEditData) return;
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleCancelChangeReason = () => {
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
+
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData || !selectedBranch) return;
+    setIsSubmittingEdit(true);
+    try {
+      await updateBranch(selectedBranch.id, {
+        ...pendingEditData,
+        _changeReason: pendingEditReason,
+        _confirmPassword: password,
+      });
+      setIsEditFinalOpen(false);
+      setIsEditModalOpen(false);
+      setPendingEditData(null);
+      setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+      setSelectedBranch(null);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      setEditFinalError(error?.message || "Error al actualizar");
+    } finally {
+      setIsSubmittingEdit(false);
     }
   };
 
@@ -150,17 +201,6 @@ export function BranchesPageContent() {
     try {
       await createBranch(data);
       setIsCreateModalOpen(false);
-    } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleEditSubmit = async (data: any) => {
-    if (!selectedBranch) return;
-
-    try {
-      await updateBranch(selectedBranch.id, data);
-      setIsEditModalOpen(false);
     } catch (error) {
       // Error is handled by the hook
     }
@@ -209,7 +249,123 @@ export function BranchesPageContent() {
         onClose={() => setIsDetailsModalOpen(false)}
       />
 
-      {/* TODO: Add other individual modals here following the standard pattern */}
+      {/* Create Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Sucursal</DialogTitle>
+          </DialogHeader>
+          <BranchForm
+            onSubmit={handleCreateSubmit}
+            isLoading={isLoading}
+            mode="create"
+            companyCountry={company?.country}
+            onCancel={() => setIsCreateModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Sucursal</DialogTitle>
+          </DialogHeader>
+          {selectedBranch && (
+            <BranchForm
+              initialData={{
+                name: selectedBranch.name,
+                phone: selectedBranch.phone || "",
+                address: selectedBranch.address,
+                city: selectedBranch.city,
+                department: selectedBranch.department || "",
+                country: selectedBranch.country || company?.country || "",
+                openedAt: selectedBranch.openedAt,
+              }}
+              onEditRequest={handleEditRequest}
+              isLoading={isLoading}
+              mode="edit"
+              branchInfo={{
+                id: selectedBranch.id,
+                createdAt: selectedBranch.createdAt,
+                updatedAt: selectedBranch.updatedAt,
+                createdBy: selectedBranch.createdBy,
+                updatedBy: selectedBranch.updatedBy,
+              }}
+              companyCountry={company?.country}
+              onCancel={() => setIsEditModalOpen(false)}
+              onSubmit={() => {}} // Not used in edit mode, onEditRequest handles it
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Reason Dialog */}
+      <ChangeReasonDialog
+        isOpen={isChangeReasonOpen}
+        onClose={handleCancelChangeReason}
+        onConfirm={handleConfirmEditWithReason}
+        changes={pendingChanges}
+        entityName="sucursal"
+      />
+
+      {/* Final edit confirmation (name + password) */}
+      <BranchEditFinalModal
+        branch={selectedBranch}
+        isOpen={isEditFinalOpen}
+        onClose={() => {
+          setIsEditFinalOpen(false);
+          setEditFinalError(undefined);
+        }}
+        onPrevious={() => {
+          setIsEditFinalOpen(false);
+          setIsChangeReasonOpen(true);
+          setEditFinalError(undefined);
+        }}
+        onConfirm={handleConfirmEditFinal}
+        isLoading={isSubmittingEdit}
+        error={editFinalError}
+      />
+
+      {/* Delete Modals */}
+      {deleteStep === "initial" && (
+        <BranchDeleteInitialModal
+          branch={selectedBranch}
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseModals}
+          onNext={handleDeleteNext}
+        />
+      )}
+
+      {deleteStep === "warning" && (
+        <BranchDeleteWarningModal
+          branch={selectedBranch}
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseModals}
+          onNext={handleDeleteNext}
+          onPrevious={handleDeletePrevious}
+        />
+      )}
+
+      {deleteStep === "final" && (
+        <BranchDeleteFinalModal
+          branch={selectedBranch}
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseModals}
+          onPrevious={handleDeletePrevious}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        />
+      )}
+
+      {/* Configure Modal */}
+      <BranchServiceConfigModal
+        branch={selectedBranch}
+        isOpen={isConfigureModalOpen}
+        onClose={() => setIsConfigureModalOpen(false)}
+        tenantId={tenantId}
+        onSuccess={refresh}
+      />
 
       {/* Audit History Modal */}
       {selectedBranch && (
@@ -223,61 +379,6 @@ export function BranchesPageContent() {
           entityId={selectedBranch.id.toString()}
         />
       )}
-
-      {/* Create Modal */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Crear Nueva Sucursal</DialogTitle>
-          </DialogHeader>
-          <BranchForm
-            onSubmit={handleCreateSubmit}
-            isLoading={isLoading}
-            mode="create"
-            companyCountry={company?.country}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Sucursal</DialogTitle>
-          </DialogHeader>
-          <BranchForm
-            initialData={selectedBranch ? {
-              name: selectedBranch.name,
-              phone: selectedBranch.phone || "",
-              address: selectedBranch.address,
-              city: selectedBranch.city,
-              department: selectedBranch.department || "",
-              country: selectedBranch.country || "",
-              openedAt: selectedBranch.openedAt,
-            } : undefined}
-            onSubmit={handleEditSubmit}
-            isLoading={isLoading}
-            mode="edit"
-            branchInfo={selectedBranch ? {
-              id: selectedBranch.id,
-              createdAt: selectedBranch.createdAt,
-              updatedAt: selectedBranch.updatedAt,
-              createdBy: selectedBranch.createdBy,
-              updatedBy: selectedBranch.updatedBy,
-            } : undefined}
-            companyCountry={company?.country}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Configure Modal */}
-      <BranchServiceConfigModal
-        branch={selectedBranch}
-        isOpen={isConfigureModalOpen}
-        onClose={() => setIsConfigureModalOpen(false)}
-        tenantId={tenantId}
-        onSuccess={refresh}
-      />
     </div>
   );
 }

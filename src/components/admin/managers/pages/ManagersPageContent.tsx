@@ -19,10 +19,11 @@ import { ManagerEditFinalModal } from "@/components/admin/managers/components/mo
 import { ManagerServiceConfigModal } from "@/components/admin/managers/components/modals/ManagerServiceConfigModal";
 import { ManagerStatusToggleModal } from "@/components/admin/managers/components/modals/ManagerStatusToggleModal";
 import { ManagerDetailsModal } from "@/components/admin/managers/components/modals/ManagerDetailsModal";
-
+import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import { useManagers } from "@/services/admin/managers";
 import { useBranches } from "@/services/admin/branches/hooks/useBranches";
 import { useCompany } from "@/services/admin/company";
+import type { FieldChange } from "@/services/admin/shared/hooks/change-tracking";
 
 export function ManagersPageContent() {
   const params = useParams();
@@ -68,6 +69,15 @@ export function ManagersPageContent() {
   const [deleteStep, setDeleteStep] = useState<"initial" | "warning" | "final">("initial");
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Edit flow states (with change tracking)
+  const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState<any>(null);
+  const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+
   // Modal handlers
   const handleCreateManager = () => {
     setIsCreateModalOpen(true);
@@ -99,8 +109,54 @@ export function ManagersPageContent() {
   };
 
   const handleReloadManagers = () => {
-    // Recargar managers después de cambios en configuración
-    window.location.reload();
+    refresh();
+  };
+
+  // Edit flow handlers (with change tracking)
+  const handleEditRequest = (data: any, changes: FieldChange[]) => {
+    setPendingEditData(data);
+    setPendingChanges(changes);
+    setIsChangeReasonOpen(true);
+  };
+
+  const handleConfirmEditWithReason = (reason: string) => {
+    if (!pendingEditData) return;
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleCancelChangeReason = () => {
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
+
+  const handleConfirmEditFinal = async (password: string) => {
+    if (!pendingEditData || !selectedManager) return;
+    setIsSubmittingEdit(true);
+    try {
+      await updateManager(selectedManager.id, {
+        ...pendingEditData,
+        _changeReason: pendingEditReason,
+        _confirmPassword: password,
+      });
+      setIsEditFinalOpen(false);
+      setIsEditModalOpen(false);
+      setPendingEditData(null);
+      setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+      setSelectedManager(null);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      setEditFinalError(error?.message || "Error al actualizar");
+    } finally {
+      setIsSubmittingEdit(false);
+    }
   };
 
   const handleConfirmDelete = async (password: string) => {
@@ -130,22 +186,6 @@ export function ManagersPageContent() {
       await createManager(data);
       setIsCreateModalOpen(false);
     } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleEditSubmit = async (data: any) => {
-    if (!selectedManager) {
-      console.error("❌ No selectedManager found");
-      return;
-    }
-
-    try {
-      await updateManager(selectedManager.id, data);
-      setIsEditModalOpen(false);
-      setSelectedManager(null);
-    } catch (error) {
-      console.error("❌ Error in handleEditSubmit:", error);
       // Error is handled by the hook
     }
   };
@@ -203,7 +243,7 @@ export function ManagersPageContent() {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Encargado</DialogTitle>
           </DialogHeader>
@@ -222,16 +262,52 @@ export function ManagersPageContent() {
                 contractEndAt: selectedManager.contractEndAt ? new Date(selectedManager.contractEndAt) : undefined,
                 isIndefinite: selectedManager.isIndefinite,
               }}
-              onSubmit={handleEditSubmit}
+              onEditRequest={handleEditRequest}
               isLoading={isLoading}
               mode="edit"
               branches={branches}
               companyCountry={company?.country}
               tenantId={tenantId}
+              managerInfo={{
+                id: selectedManager.id,
+                createdAt: selectedManager.createdAt,
+                updatedAt: selectedManager.updatedAt,
+                createdBy: selectedManager.createdBy,
+                updatedBy: selectedManager.updatedBy,
+              }}
+              onCancel={() => setIsEditModalOpen(false)}
+              onSubmit={() => {}} // Not used in edit mode
             />
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Change Reason Dialog */}
+      <ChangeReasonDialog
+        isOpen={isChangeReasonOpen}
+        onClose={handleCancelChangeReason}
+        onConfirm={handleConfirmEditWithReason}
+        changes={pendingChanges}
+        entityName="encargado"
+      />
+
+      {/* Final edit confirmation (name + password) */}
+      <ManagerEditFinalModal
+        manager={selectedManager}
+        isOpen={isEditFinalOpen}
+        onClose={() => {
+          setIsEditFinalOpen(false);
+          setEditFinalError(undefined);
+        }}
+        onPrevious={() => {
+          setIsEditFinalOpen(false);
+          setIsChangeReasonOpen(true);
+          setEditFinalError(undefined);
+        }}
+        onConfirm={handleConfirmEditFinal}
+        isLoading={isSubmittingEdit}
+        error={editFinalError}
+      />
 
       {/* Details Modal */}
       <ManagerDetailsModal

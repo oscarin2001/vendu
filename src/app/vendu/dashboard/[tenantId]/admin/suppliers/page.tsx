@@ -17,11 +17,13 @@ import { SupplierEditFinalModal } from "@/components/admin/suppliers/components/
 import { SupplierServiceConfigModal } from "@/components/admin/suppliers/components/modals/SupplierServiceConfigModal";
 import { SupplierStatusToggleModal } from "@/components/admin/suppliers/components/modals/SupplierStatusToggleModal";
 import { SupplierDetailsModal } from "@/components/admin/suppliers/components/modals/SupplierDetailsModal";
+import { ChangeReasonDialog } from "@/components/admin/shared/dialogs/change-reason";
 import { useSuppliers } from "@/services/admin/suppliers";
 import { useCompany } from "@/services/admin/company";
 import { validateAdminPassword } from "@/services/admin/managers";
 import { Supplier } from "@/services/admin/suppliers";
 import { toast } from "sonner";
+import type { FieldChange } from "@/services/admin/shared/hooks/change-tracking";
 
 export default function SuppliersPage() {
   const params = useParams();
@@ -72,6 +74,15 @@ export default function SuppliersPage() {
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
   const [isStatusToggleModalOpen, setIsStatusToggleModalOpen] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+
+  // Edit flow states (with change tracking)
+  const [isChangeReasonOpen, setIsChangeReasonOpen] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState<any>(null);
+  const [pendingChanges, setPendingChanges] = useState<FieldChange[]>([]);
+  const [pendingEditReason, setPendingEditReason] = useState<string | null>(null);
+  const [isEditFinalOpen, setIsEditFinalOpen] = useState(false);
+  const [editFinalError, setEditFinalError] = useState<string | undefined>(undefined);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   // Modal handlers
   const handleCreateSupplier = () => {
@@ -125,8 +136,58 @@ export default function SuppliersPage() {
   };
 
   const handleReloadSuppliers = () => {
-    // Recargar suppliers después de cambios en configuración
-    window.location.reload();
+    refresh();
+  };
+
+  // Edit flow handlers (with change tracking)
+  const handleEditRequest = (data: any, changes: FieldChange[]) => {
+    setPendingEditData(data);
+    setPendingChanges(changes);
+    setIsChangeReasonOpen(true);
+  };
+
+  const handleConfirmEditWithReason = (reason: string) => {
+    if (!pendingEditData) return;
+    setPendingEditReason(reason);
+    setIsChangeReasonOpen(false);
+    setIsEditFinalOpen(true);
+  };
+
+  const handleCancelChangeReason = () => {
+    setIsChangeReasonOpen(false);
+    setPendingEditData(null);
+    setPendingChanges([]);
+  };
+
+  const handleConfirmEditFinal = async (
+    password: string,
+    overrides?: { isIndefinite?: boolean; contractEndAt?: Date | null }
+  ) => {
+    if (!pendingEditData || !selectedSupplier) return;
+    setIsSubmittingEdit(true);
+    try {
+      await updateSupplier(selectedSupplier.id, {
+        ...pendingEditData,
+        ...overrides,
+        _changeReason: pendingEditReason,
+        _confirmPassword: password,
+      });
+      setIsEditFinalOpen(false);
+      setIsEditModalOpen(false);
+      setPendingEditData(null);
+      setPendingChanges([]);
+      setPendingEditReason(null);
+      setEditFinalError(undefined);
+      setSelectedSupplier(null);
+    } catch (error: any) {
+      if (error?.name === "ValidationError") {
+        setEditFinalError(error.message || "Error de validación");
+        return;
+      }
+      setEditFinalError(error?.message || "Error al actualizar");
+    } finally {
+      setIsSubmittingEdit(false);
+    }
   };
 
   // Delete flow handlers
@@ -167,18 +228,6 @@ export default function SuppliersPage() {
     try {
       await createSupplier(data);
       setIsCreateModalOpen(false);
-    } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleEditSubmit = async (data: any) => {
-    if (!selectedSupplier) return;
-
-    try {
-      await updateSupplier(selectedSupplier.id, data);
-      setIsEditModalOpen(false);
-      setSelectedSupplier(null);
     } catch (error) {
       // Error is handled by the hook
     }
@@ -253,7 +302,7 @@ export default function SuppliersPage() {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Proveedor</DialogTitle>
           </DialogHeader>
@@ -262,22 +311,63 @@ export default function SuppliersPage() {
               initialData={{
                 firstName: selectedSupplier.firstName,
                 lastName: selectedSupplier.lastName,
+                ci: selectedSupplier.ci || "",
                 phone: selectedSupplier.phone || "",
                 email: selectedSupplier.email || "",
                 address: selectedSupplier.address || "",
                 city: selectedSupplier.city || "",
                 department: selectedSupplier.department || "",
-                country: selectedSupplier.country || "",
+                country: selectedSupplier.country || company?.country || "",
                 notes: selectedSupplier.notes || "",
+                birthDate: selectedSupplier.birthDate,
+                partnerSince: selectedSupplier.partnerSince,
+                contractEndAt: selectedSupplier.contractEndAt,
+                isIndefinite: selectedSupplier.isIndefinite,
               }}
-              onSubmit={handleEditSubmit}
+              onEditRequest={handleEditRequest}
               isLoading={isLoading}
               mode="edit"
               companyCountry={company?.country}
+              supplierInfo={{
+                id: selectedSupplier.id,
+                createdAt: selectedSupplier.createdAt,
+                updatedAt: selectedSupplier.updatedAt,
+                createdBy: selectedSupplier.createdBy,
+                updatedBy: selectedSupplier.updatedBy,
+              }}
+              onCancel={() => setIsEditModalOpen(false)}
+              onSubmit={() => {}} // Not used in edit mode
             />
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Change Reason Dialog */}
+      <ChangeReasonDialog
+        isOpen={isChangeReasonOpen}
+        onClose={handleCancelChangeReason}
+        onConfirm={handleConfirmEditWithReason}
+        changes={pendingChanges}
+        entityName="proveedor"
+      />
+
+      {/* Final edit confirmation (name + password) */}
+      <SupplierEditFinalModal
+        supplier={selectedSupplier}
+        isOpen={isEditFinalOpen}
+        onClose={() => {
+          setIsEditFinalOpen(false);
+          setEditFinalError(undefined);
+        }}
+        onPrevious={() => {
+          setIsEditFinalOpen(false);
+          setIsChangeReasonOpen(true);
+          setEditFinalError(undefined);
+        }}
+        onConfirm={handleConfirmEditFinal}
+        isLoading={isSubmittingEdit}
+        error={editFinalError}
+      />
 
       {/* Details Modal */}
       <SupplierDetailsModal
